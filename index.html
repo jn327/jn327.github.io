@@ -5,18 +5,247 @@
 	<meta name="apple-mobile-web-app-capable" content="yes"> <!-- if the page gets added to homescreen then it will go full screen -->
 	<meta name="mobile-web-app-capable" content="yes"> <!-- see http://www.html5rocks.com/en/mobile/fullscreen/ -->
 
-  <title>Josh Newland's website</title>
+  <title>Josh Newland</title>
   <!-- imports  CSS definitions with media queries-->
   <link rel= "stylesheet" href ="styles/layout.css">
 
 </head>
 <body>
-    <div style="height:100%; width:100%;">
-      <p>Under construction</p>
-      <p>Welcome to my page</p>
-      <a href="cv.html">Check out my cv</a>
+
+  <div id="contentContainer" style="height:100%; width:100%; display:contents;">
+    <canvas id="mainCanvas" style="display:block; width:100vw; height:100vh;"></canvas>
+    <div style="height:100%; width:100%; display:flex; flex-direction:column; position:absolute; align-items:center; justify-content:center;">
+        <p id="headerLabel" >Josh Newland</p>
+        <a id="cvLink" href="https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing" >Check out my CV</a>
     </div>
   </div>
+
+  <script src="scripts/Utils/Vector2D.js"></script>
+  <script src="scripts/Utils/MathEx.js"></script>
+  <script src="scripts/Utils/SimplexNoise.js"></script>
+  <script src="scripts/WindowInit.js"></script>
+
+  <script src="scripts/Particle.js"></script>
+
+  <script>
+
+    //HTML Elements
+    var mainCanvas, mainCtx;
+
+    //noise
+    var noiseScale = 0.004;
+
+    var vectorField;
+    var vectorFieldStrMultip = 0.1;
+
+    var pixelSizeX = 8;
+    var pixelSizeY = 8;
+    var lastPixelX;
+    var lastPixelY;
+
+    var particles;
+    var particleSizeX = 2;
+    var particleSizeY = 2;
+
+    var changeFrequency = 1000;
+    var currItteration = 0;
+
+    //------------------------------------------------
+    //                Initialization
+    //------------------------------------------------
+    function start()
+    {
+      initMainCanvas();
+      initVectorField();
+      initParticles();
+    }
+
+    function initMainCanvas()
+    {
+      mainCanvas  = document.getElementById("mainCanvas");
+      mainCtx     = mainCanvas.getContext('2d');
+
+      validateMainCanvasSize();
+    }
+
+    function validateMainCanvasSize()
+    {
+      //see http://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
+      var clientW = mainCanvas.clientWidth;
+      var clientH = mainCanvas.clientHeight;
+
+      if (mainCanvas.width != clientW || mainCanvas.height != clientH)
+      {
+         mainCanvas.width = clientW;
+         mainCanvas.height = clientH;
+
+         return true;
+      }
+
+      return false;
+    }
+
+    function initVectorField()
+    {
+      var strNoise = new SimplexNoise();
+      var dirNoise = new SimplexNoise();
+
+      vectorField = [];
+
+      for ( var x = 0; x < mainCanvas.width; x += pixelSizeX )
+      {
+        lastPixelX = x;
+        vectorField[x] = [];
+
+        for ( var y = 0; y < mainCanvas.height; y+= pixelSizeY )
+        {
+          lastPixelY = y;
+
+          var vectorStr = (strNoise.noise(x * noiseScale, y * noiseScale) + 1) * 0.5;
+          var vectorDir = (dirNoise.noise(x * noiseScale, y * noiseScale) + 1) * Math.PI;
+
+          var theVector = new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
+          theVector.multiply(vectorStr * vectorFieldStrMultip);
+          vectorField[x][y] = theVector;
+
+          //TODO:Debug STUFF
+          /*mainCtx.fillStyle = 'rgba('+vectorStr*255 +','+vectorStr*255 +','+vectorStr*255 +', 0.1)';
+          mainCtx.fillRect(x,y,pixelSizeX,pixelSizeY);
+
+          var startX = theVector.x <= 0 ? theVector.x : 0;
+          var endX = theVector.x <= 0 ? 0 : theVector.x;
+          var startY = theVector.y <= 0 ? theVector.y : 0;
+          var endY = theVector.y <= 0 ? 0 : theVector.y;
+          for (var dirX = startX; dirX < endX*100; dirX++ )
+          {
+            for (var dirY = startY; dirY < endY*100; dirY++ )
+            {
+              mainCtx.fillStyle = 'rgba(255,255,255, 0.1)';
+              mainCtx.fillRect(x+dirX,y+dirY,1,1);
+            }
+          }*/
+        }
+      }
+    }
+
+    function initParticles()
+    {
+      particles = [];
+
+      var particle;
+      for ( var n = 0; n < 10000; n++ )
+      {
+        particle = new Particle();
+        setupParticle(particle);
+        particles[n] = particle;
+      }
+    }
+
+    function setupParticle(theParticle)
+    {
+      theParticle.position.x = Math.random() * lastPixelX;
+      theParticle.position.y = Math.random() * lastPixelY;
+      theParticle.size.x = particleSizeX;
+      theParticle.size.y = particleSizeY;
+      theParticle.lifetime = 0;
+
+      //theParticle.velocity.x = -0.5 + Math.random();
+      //theParticle.velocity.y = -0.5 + Math.random();
+
+      return theParticle;
+    }
+
+    function resetParticles()
+    {
+      for ( var n = 0; n < particles.length; n++ )
+      {
+        setupParticle(particles[n]);
+      }
+    }
+
+    //------------------------------------------------
+    //                    Update
+    //------------------------------------------------
+    function update()
+    {
+      if (validateMainCanvasSize() == true)
+      {
+        currItteration = 0;
+        mainCtx.clearRect(0, 0, mainCtx.width, mainCtx.height);
+        initVectorField();
+        resetParticles();
+      }
+      else
+      {
+        currItteration++;
+        if (currItteration > changeFrequency)
+        {
+          currItteration = 0;
+          //Hacky reset of the vector field after a while, keeps things interesting...
+          initVectorField();
+        }
+      }
+
+      renderMainCanvas();
+    }
+
+    function renderMainCanvas()
+    {
+      var particle;
+      var xPos;
+      var yPos;
+      for ( var n = 0; n < particles.length; n++ )
+      {
+        particle = particles[n];
+
+        //Guard against null ref!
+        xPos = Math.roundMultip(particle.position.x, pixelSizeX);
+        yPos = Math.roundMultip(particle.position.y, pixelSizeY);
+
+        if (xPos >= 0 && yPos >= 0
+          && xPos <= lastPixelX && yPos <= lastPixelY)
+        {
+          // accelerate the particle
+          var velocityVector = vectorField[xPos][yPos];
+          particle.accelerate( velocityVector.x, velocityVector.y );
+
+          // move the particle
+          particle.position.x += particle.velocity.x;
+          particle.position.y += particle.velocity.y;
+        }
+        else
+        {
+          if (xPos < 0)
+          {
+            particle.position.x = lastPixelX;
+          }
+          if (yPos < 0)
+          {
+            particle.position.y = lastPixelY;
+          }
+          if (xPos > lastPixelX)
+          {
+            particle.position.x = 0;
+          }
+          if (yPos > lastPixelY)
+          {
+            particle.position.y = 0;
+          }
+        }
+
+        particle.draw(mainCtx);
+      }
+    }
+
+    //------------------------------------------------
+    //                    Events
+    //------------------------------------------------
+    function onMouseDown()
+    {
+
+    }
+
+  </script>
 
 </body>
 </html>
