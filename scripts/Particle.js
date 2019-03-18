@@ -31,7 +31,7 @@ function Particle()
     //TODO: sort this out, like use math.sin or something
     this.lifetime += ((_frameRate/1000) * this.colorChangeMultip);
 
-    var theHue = (5 + Math.cos(this.lifetime))/10;
+    var theHue = (18 + Math.cos(this.lifetime))/20;
     var theColor = 'hsla('+(theHue*255)+',100%,50%,0.0025)';
 
     theContext.fillStyle = theColor;
