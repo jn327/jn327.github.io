@@ -5,7 +5,7 @@
 	<meta name="apple-mobile-web-app-capable" content="yes"> <!-- if the page gets added to homescreen then it will go full screen -->
 	<meta name="mobile-web-app-capable" content="yes"> <!-- see http://www.html5rocks.com/en/mobile/fullscreen/ -->
 
-  <title>Josh Newland</title>
+  <title>Josh Newland's page</title>
   <!-- imports  CSS definitions with media queries-->
   <link rel= "stylesheet" href ="styles/layout.css">
 
@@ -13,10 +13,16 @@
 <body>
 
   <div id="contentContainer" style="height:100%; width:100%; display:contents;">
-    <canvas id="mainCanvas" style="display:block; width:100vw; height:100vh;"></canvas>
+    <canvas id="mainCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
+    <canvas id="activeCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
     <div style="height:100%; width:100%; display:flex; flex-direction:column; position:absolute; align-items:center; justify-content:center;">
-        <p id="headerLabel" >Josh Newland</p>
-        <a id="cvLink" href="https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing" >Check out my CV</a>
+      <div id="labelsContainer">
+        <img src="images/me.png" alt="" style="width:150px;height:150px;">
+
+        <p id="headerLabel" >Hi, I'm Josh Newland</p>
+        <p id="descriptionLabel" >I'm a software programmer from the UK, mostly focused on games development</p>
+        <button id="cvButton" onclick="window.location.href='https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing'" >Check out my CV</button>
+      </div>
     </div>
   </div>
 
@@ -31,6 +37,7 @@
 
     //HTML Elements
     var mainCanvas, mainCtx;
+    var activeCanvas, activeCtx;
 
     //noise
     var noiseScale = 0.004;
@@ -44,20 +51,31 @@
     var lastPixelY;
 
     var particles;
-    var particleSizeX = 2;
-    var particleSizeY = 2;
+    var particleSize = 2;
 
-    var changeFrequency = 1000;
+    var nParticles = 5000;
+    var theHue;
+
+    var changeFrequency = 1250;
     var currItteration = 0;
+    var fadeDur = 200;
+    var fadeItteration = 0;
 
     //------------------------------------------------
     //                Initialization
     //------------------------------------------------
     function start()
     {
+      setRandomHue();
+
       initMainCanvas();
       initVectorField();
       initParticles();
+    }
+
+    function setRandomHue()
+    {
+      theHue = Math.random()*360;
     }
 
     function initMainCanvas()
@@ -65,24 +83,38 @@
       mainCanvas  = document.getElementById("mainCanvas");
       mainCtx     = mainCanvas.getContext('2d');
 
+      activeCanvas = document.getElementById("activeCanvas");
+      activeCtx    = activeCanvas.getContext('2d');
+
       validateMainCanvasSize();
     }
 
     function validateMainCanvasSize()
     {
+      var bTrue = false;
+
       //see http://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
       var clientW = mainCanvas.clientWidth;
       var clientH = mainCanvas.clientHeight;
-
       if (mainCanvas.width != clientW || mainCanvas.height != clientH)
       {
          mainCanvas.width = clientW;
          mainCanvas.height = clientH;
 
-         return true;
+         bTrue = true;
       }
 
-      return false;
+      var activeW = activeCanvas.clientWidth;
+      var activeH = activeCanvas.clientHeight;
+      if (activeCanvas.width != activeW || activeCanvas.height != activeH)
+      {
+         activeCanvas.width = activeW;
+         activeCanvas.height = activeH;
+
+         bTrue = true;
+      }
+
+      return bTrue;
     }
 
     function initVectorField()
@@ -133,7 +165,7 @@
       particles = [];
 
       var particle;
-      for ( var n = 0; n < 10000; n++ )
+      for ( var n = 0; n < nParticles; n++ )
       {
         particle = new Particle();
         setupParticle(particle);
@@ -145,12 +177,7 @@
     {
       theParticle.position.x = Math.random() * lastPixelX;
       theParticle.position.y = Math.random() * lastPixelY;
-      theParticle.size.x = particleSizeX;
-      theParticle.size.y = particleSizeY;
-      theParticle.lifetime = 0;
-
-      //theParticle.velocity.x = -0.5 + Math.random();
-      //theParticle.velocity.y = -0.5 + Math.random();
+      theParticle.size = particleSize;
 
       return theParticle;
     }
@@ -171,7 +198,14 @@
       if (validateMainCanvasSize() == true)
       {
         currItteration = 0;
-        mainCtx.clearRect(0, 0, mainCtx.width, mainCtx.height);
+        fadeItteration = 0;
+
+        mainCanvas.style.opacity = 1;
+        //activeCtx.style.opacity = 1;
+
+        activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+        mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+
         initVectorField();
         resetParticles();
       }
@@ -180,9 +214,28 @@
         currItteration++;
         if (currItteration > changeFrequency)
         {
-          currItteration = 0;
-          //Hacky reset of the vector field after a while, keeps things interesting...
-          initVectorField();
+          if (fadeItteration < fadeDur)
+          {
+            fadeItteration++;
+
+            var endOpacity = 1 - (fadeItteration/fadeDur);
+            mainCanvas.style.opacity = endOpacity;
+            //activeCanvas.style.opacity = endOpacity;
+          }
+          else
+          {
+            currItteration = 0;
+            fadeItteration = 0;
+
+            setRandomHue();
+
+            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            mainCanvas.style.opacity = 1;
+            //activeCanvas.style.opacity = 1;
+
+            //Hacky reset of the vector field after a while, keeps things interesting...
+            initVectorField();
+          }
         }
       }
 
@@ -191,6 +244,8 @@
 
     function renderMainCanvas()
     {
+      activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+
       var particle;
       var xPos;
       var yPos;
@@ -233,7 +288,17 @@
           }
         }
 
-        particle.draw(mainCtx);
+        mainCtx.fillStyle = 'hsla('+theHue+',100%,65%,0.002)';
+        mainCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
+        //mainCtx.beginPath();
+        //mainCtx.arc(particle.position.x,particle.position.y, particle.size, 0, Math.PI * 2, true);
+        //mainCtx.fill();
+
+        activeCtx.fillStyle = 'hsla('+theHue+',100%,80%,1)';
+        activeCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
+        //activeCtx.beginPath();
+        //activeCtx.arc(particle.position.x,particle.position.y, particle.size, 0, Math.PI * 2, true);
+        //activeCtx.fill();
       }
     }
 

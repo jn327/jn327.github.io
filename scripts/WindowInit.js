@@ -9,7 +9,7 @@ window.requestAnimFrame =
         window.setTimeout(callback, 1000 / _frameRate); //1000/fps
 };
 
-var _frameRate = 10;
+var _frameRate = 1;
 var _bMouseDown = false;
 var _mousePos = new Vector2D(0,0);
 
