@@ -13,7 +13,6 @@
 <body>
 
   <div id="contentContainer" style="height:100%; width:100%; display:contents;">
-    <canvas id="midCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
     <canvas id="bgCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
     <canvas id="activeCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
     <div style="height:100%; width:100%; display:flex; flex-direction:column; position:absolute; align-items:center; justify-content:center;">
@@ -48,7 +47,6 @@
 
     //HTML Elements
     var bgCanvas, bgCtx;
-    var midCanvas, midCtx;
     var activeCanvas, activeCtx;
 
     //noise
@@ -78,7 +76,7 @@
     var minHue = 80;
     var maxHue = 360;
     var theHue = 0;
-    var hueVariation = 30;
+    var hueVariation = 40;
 
     var changeFrequency = 1300;
     var currItteration = 0;
@@ -107,9 +105,6 @@
       bgCanvas  = document.getElementById("bgCanvas");
       bgCtx     = bgCanvas.getContext('2d');
 
-      midCanvas  = document.getElementById("midCanvas");
-      midCtx     = bgCanvas.getContext('2d');
-
       activeCanvas = document.getElementById("activeCanvas");
       activeCtx    = activeCanvas.getContext('2d');
 
@@ -121,7 +116,6 @@
       var bTrue = false;
 
       bTrue = updateCanvasSize( bgCanvas );
-      bTrue = updateCanvasSize( midCanvas );
       bTrue = updateCanvasSize( activeCanvas );
 
       return bTrue;
@@ -236,7 +230,6 @@
 
             var endOpacity = 1 - (fadeItteration/fadeDur);
             bgCanvas.style.opacity = endOpacity;
-            midCanvas.style.opacity = endOpacity;
           }
           else
           {
@@ -259,14 +252,12 @@
     {
       bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
       bgCanvas.style.opacity = 1;
-
-      midCtx.clearRect(0, 0, midCanvas.width, midCanvas.height);
-      midCanvas.style.opacity = 1;
     }
 
     function renderCanvas()
     {
       activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+      bgCtx.fillStyle = 'hsla('+theHue+',100%,60%,0.002)';
 
       var particle;
       var xPos;
@@ -331,15 +322,9 @@
         }
 
         var hueAtPos = theHue + (hueVariance * hueVariation);
-        //bgCtx.fillStyle = 'hsla('+hueAtPos+',100%,50%,0.04)';
-        //bgCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
-        //bgCtx.fillRect(xPos, yPos, particle.size, particle.size);
 
-        //midCtx.fillStyle = 'hsla('+hueAtPos+',100%,70%,0.025)';
-          midCtx.fillStyle = 'hsla('+hueAtPos+',100%,70%,0.002)';
-        //midCtx.fillStyle = 'rgba(255,255,255,0.002)';
-        //midCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
-        midCtx.fillRect(xPos, yPos, particle.size, particle.size);
+        //bgCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
+        bgCtx.fillRect(xPos, yPos, particle.size, particle.size);
 
         activeCtx.fillStyle = 'hsla('+hueAtPos+',100%,' +(75+(mouseStr*25)) +'%,1)';
         //activeCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
