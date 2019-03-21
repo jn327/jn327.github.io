@@ -13,8 +13,8 @@
 <body>
 
   <div id="contentContainer" style="height:100%; width:100%; display:contents;">
+    <canvas id="midCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
     <canvas id="bgCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
-    <canvas id="mainCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
     <canvas id="activeCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
     <div style="height:100%; width:100%; display:flex; flex-direction:column; position:absolute; align-items:center; justify-content:center;">
       <div id="labelsContainer">
@@ -48,30 +48,39 @@
 
     //HTML Elements
     var bgCanvas, bgCtx;
-    var mainCanvas, mainCtx;
+    var midCanvas, midCtx;
     var activeCanvas, activeCtx;
 
     //noise
-    var noiseScale = 0.004;
+    var strNoiseScale = 0.002;
+    var dirNoiseScale = 0.004;
+    var hueNoiseScale = 0.00015;
 
     var vectorField;
+    var hueField;
     var vectorFieldStrMultip = 0.1;
 
-    var pixelSizeX = 8;
-    var pixelSizeY = 8;
+    var pixelSizeX = 4;
+    var pixelSizeY = 4;
     var lastPixelX;
     var lastPixelY;
 
     var particles;
-    var particleSize = 2;
+    var particleSize = 3;
 
-    var particleMouseAvoidanceDist = 125;
-    var particleMouseAvoidanceStr = 0.05;
+    var particleMouseAvoidanceDist = 100;
+    var particleMouseAvoidanceStr = 0.005;
 
-    var nParticles = 3000;
-    var theHue;
+    var nParticles = 2500;
 
-    var changeFrequency = 1250;
+    //yellows and oranges tend to look a bit brown, cut them out!
+    // see http://colorizer.org/ for the hsla
+    var minHue = 80;
+    var maxHue = 360;
+    var theHue = 0;
+    var hueVariation = 30;
+
+    var changeFrequency = 1300;
     var currItteration = 0;
     var fadeDur = 200;
     var fadeItteration = 0;
@@ -90,7 +99,7 @@
 
     function setRandomHue()
     {
-      theHue = Math.random()*360;
+      theHue = (minHue+(hueVariation*0.5)) + (Math.random() * ((maxHue-(minHue))-hueVariation));
     }
 
     function initCanvas()
@@ -98,8 +107,8 @@
       bgCanvas  = document.getElementById("bgCanvas");
       bgCtx     = bgCanvas.getContext('2d');
 
-      mainCanvas  = document.getElementById("mainCanvas");
-      mainCtx     = mainCanvas.getContext('2d');
+      midCanvas  = document.getElementById("midCanvas");
+      midCtx     = bgCanvas.getContext('2d');
 
       activeCanvas = document.getElementById("activeCanvas");
       activeCtx    = activeCanvas.getContext('2d');
@@ -112,8 +121,8 @@
       var bTrue = false;
 
       bTrue = updateCanvasSize( bgCanvas );
+      bTrue = updateCanvasSize( midCanvas );
       bTrue = updateCanvasSize( activeCanvas );
-      bTrue = updateCanvasSize( mainCanvas );
 
       return bTrue;
     }
@@ -137,44 +146,35 @@
     {
       var strNoise = new SimplexNoise();
       var dirNoise = new SimplexNoise();
+      var hueNoise = new SimplexNoise();
 
       vectorField = [];
+      hueField = [];
 
-      for ( var x = 0; x < mainCanvas.width; x += pixelSizeX )
+      for ( var x = 0; x < bgCanvas.width; x += pixelSizeX )
       {
         lastPixelX = x;
         vectorField[x] = [];
+        hueField[x] = [];
 
-        for ( var y = 0; y < mainCanvas.height; y+= pixelSizeY )
+        for ( var y = 0; y < bgCanvas.height; y+= pixelSizeY )
         {
           lastPixelY = y;
 
-          var vectorStr = (strNoise.noise(x * noiseScale, y * noiseScale) + 1) * 0.5; //0-1
-          var vectorDir = (dirNoise.noise(x * noiseScale, y * noiseScale) + 1) * Math.PI;
+          var vectorStr = (strNoise.noise(x * strNoiseScale, y * strNoiseScale) + 1) * 0.5; //0-1
+          var vectorDir = (dirNoise.noise(x * dirNoiseScale, y * dirNoiseScale) + 1) * Math.PI;
+          var hueValue = strNoise.noise(x * hueNoiseScale, y * hueNoiseScale); //-1 to -1
 
           var theVector = new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
           theVector.multiply(vectorStr * vectorFieldStrMultip);
           vectorField[x][y] = theVector;
+          hueField[x][y] = hueValue;
 
           // Background canvas
-          bgCtx.fillStyle = 'hsla('+theHue+',100%,65%,'+(vectorStr*0.066)+')';
-          //bgCtx.fillStyle = 'rgba('+vectorStr*255 +','+vectorStr*255 +','+vectorStr*255 +', 0.25)';
+          var hueWithVar = theHue + (hueValue * hueVariation);
+          bgCtx.fillStyle = 'hsla('+hueWithVar+',100%,50%,0.15)';
           bgCtx.fillRect(x,y,pixelSizeX,pixelSizeY);
 
-          //TODO:Debug STUFF
-          /*
-          var startX = theVector.x <= 0 ? theVector.x : 0;
-          var endX = theVector.x <= 0 ? 0 : theVector.x;
-          var startY = theVector.y <= 0 ? theVector.y : 0;
-          var endY = theVector.y <= 0 ? 0 : theVector.y;
-          for (var dirX = startX; dirX < endX*100; dirX++ )
-          {
-            for (var dirY = startY; dirY < endY*100; dirY++ )
-            {
-              mainCtx.fillStyle = 'rgba(255,255,255, 0.1)';
-              mainCtx.fillRect(x+dirX,y+dirY,1,1);
-            }
-          }*/
         }
       }
     }
@@ -219,7 +219,7 @@
         currItteration = 0;
         fadeItteration = 0;
 
-        resetBgAndMainCanvas();
+        resetBgCanvas();
         activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
 
         initVectorField();
@@ -235,8 +235,8 @@
             fadeItteration++;
 
             var endOpacity = 1 - (fadeItteration/fadeDur);
-            mainCanvas.style.opacity = endOpacity;
             bgCanvas.style.opacity = endOpacity;
+            midCanvas.style.opacity = endOpacity;
           }
           else
           {
@@ -244,7 +244,7 @@
             fadeItteration = 0;
 
             setRandomHue();
-            resetBgAndMainCanvas();
+            resetBgCanvas();
 
             //Hacky reset of the vector field after a while, keeps things interesting...
             initVectorField();
@@ -252,18 +252,19 @@
         }
       }
 
-      renderMainCanvas();
+      renderCanvas();
     }
 
-    function resetBgAndMainCanvas()
+    function resetBgCanvas()
     {
       bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-      mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-      mainCanvas.style.opacity = 1;
       bgCanvas.style.opacity = 1;
+
+      midCtx.clearRect(0, 0, midCanvas.width, midCanvas.height);
+      midCanvas.style.opacity = 1;
     }
 
-    function renderMainCanvas()
+    function renderCanvas()
     {
       activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
 
@@ -273,6 +274,7 @@
       for ( var n = 0; n < particles.length; n++ )
       {
         var mouseStr = 0;
+        var hueVariance = 0;
 
         particle = particles[n];
 
@@ -283,24 +285,30 @@
         if (xPos >= 0 && yPos >= 0
           && xPos <= lastPixelX && yPos <= lastPixelY)
         {
+          //avoid the mouse!!!
+          if (_mousePos != undefined)
+          {
+            var mouseDist = particle.position.distance( _mousePos );
+            if (mouseDist < particleMouseAvoidanceDist)
+            {
+              mouseStr = (particleMouseAvoidanceDist-mouseDist)/particleMouseAvoidanceDist;
+
+              var mouseDir = particle.position.direction(_mousePos);
+              mouseDir.multiply( particleMouseAvoidanceStr );
+              particle.accelerate( mouseDir.x, mouseDir.y );
+            }
+          }
+
           // accelerate the particle
           var velocityVector = vectorField[xPos][yPos];
           particle.accelerate( velocityVector.x, velocityVector.y );
 
-          //avoid the mouse!!!
-          var mouseDist = particle.position.distance( _mousePos );
-          if (mouseDist < particleMouseAvoidanceDist)
-          {
-            mouseStr = (particleMouseAvoidanceDist-mouseDist)/particleMouseAvoidanceDist;
-
-            var mouseDir = particle.position.direction(_mousePos);
-            mouseDir.multiply( particleMouseAvoidanceStr );
-            particle.accelerate( mouseDir.x, mouseDir.y );
-          }
-
           // move the particle
           particle.position.x += particle.velocity.x;
           particle.position.y += particle.velocity.y;
+
+          //get the hue variance here
+          hueVariance = hueField[xPos][yPos];
         }
         else
         {
@@ -322,18 +330,22 @@
           }
         }
 
-        mainCtx.fillStyle = 'hsla('+theHue+',100%,65%,0.002)';
-        mainCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
-        //mainCtx.beginPath();
-        //mainCtx.arc(particle.position.x,particle.position.y, particle.size, 0, Math.PI * 2, true);
-        //mainCtx.fill();
+        var hueAtPos = theHue + (hueVariance * hueVariation);
+        //bgCtx.fillStyle = 'hsla('+hueAtPos+',100%,50%,0.04)';
+        //bgCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
+        //bgCtx.fillRect(xPos, yPos, particle.size, particle.size);
 
-        activeCtx.fillStyle = 'hsla('+theHue+',100%,' +(75+(mouseStr*25)) +'%,1)';
-        activeCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
-        //activeCtx.beginPath();
-        //activeCtx.arc(particle.position.x,particle.position.y, particle.size, 0, Math.PI * 2, true);
-        //activeCtx.fill();
+        //midCtx.fillStyle = 'hsla('+hueAtPos+',100%,70%,0.025)';
+          midCtx.fillStyle = 'hsla('+hueAtPos+',100%,70%,0.002)';
+        //midCtx.fillStyle = 'rgba(255,255,255,0.002)';
+        //midCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
+        midCtx.fillRect(xPos, yPos, particle.size, particle.size);
+
+        activeCtx.fillStyle = 'hsla('+hueAtPos+',100%,' +(75+(mouseStr*25)) +'%,1)';
+        //activeCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
+        activeCtx.fillRect(xPos, yPos, particle.size, particle.size);
       }
+
     }
 
     //------------------------------------------------

@@ -11,7 +11,7 @@ window.requestAnimFrame =
 
 var _frameRate = 1;
 var _bMouseDown = false;
-var _mousePos = new Vector2D(0,0);
+var _mousePos;
 
 window.onload = function ()
 {
