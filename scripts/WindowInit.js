@@ -48,7 +48,7 @@ window.addEventListener("mousemove", function(e)
 {
 	e.preventDefault();
 
-  //TODO: this will be wrong if the click is in a canvas that is offset...
+  //TODO: this will be wrong if the click is in a canvas that is offset?
 	_mousePos = new Vector2D(e.pageX, e.pageY);
 
 }, false);

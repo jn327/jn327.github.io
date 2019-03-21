@@ -65,7 +65,10 @@
     var particles;
     var particleSize = 2;
 
-    var nParticles = 2500;
+    var particleMouseAvoidanceDist = 125;
+    var particleMouseAvoidanceStr = 0.05;
+
+    var nParticles = 3000;
     var theHue;
 
     var changeFrequency = 1250;
@@ -269,6 +272,8 @@
       var yPos;
       for ( var n = 0; n < particles.length; n++ )
       {
+        var mouseStr = 0;
+
         particle = particles[n];
 
         //Guard against null ref!
@@ -281,6 +286,17 @@
           // accelerate the particle
           var velocityVector = vectorField[xPos][yPos];
           particle.accelerate( velocityVector.x, velocityVector.y );
+
+          //avoid the mouse!!!
+          var mouseDist = particle.position.distance( _mousePos );
+          if (mouseDist < particleMouseAvoidanceDist)
+          {
+            mouseStr = (particleMouseAvoidanceDist-mouseDist)/particleMouseAvoidanceDist;
+
+            var mouseDir = particle.position.direction(_mousePos);
+            mouseDir.multiply( particleMouseAvoidanceStr );
+            particle.accelerate( mouseDir.x, mouseDir.y );
+          }
 
           // move the particle
           particle.position.x += particle.velocity.x;
@@ -312,7 +328,7 @@
         //mainCtx.arc(particle.position.x,particle.position.y, particle.size, 0, Math.PI * 2, true);
         //mainCtx.fill();
 
-        activeCtx.fillStyle = 'hsla('+theHue+',100%,80%,1)';
+        activeCtx.fillStyle = 'hsla('+theHue+',100%,' +(75+(mouseStr*25)) +'%,1)';
         activeCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
         //activeCtx.beginPath();
         //activeCtx.arc(particle.position.x,particle.position.y, particle.size, 0, Math.PI * 2, true);

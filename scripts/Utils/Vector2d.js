@@ -27,6 +27,11 @@ function Vector2D(x, y)
     return this;
   }
 
+  this.direction = function(that)
+  {
+    return new Vector2D(this.x - that.x, this.y - that.y);
+  }
+
   this.distance = function(that)
   {
 	   var dist = Math.sqrt(((that.x-this.x)*(that.x-this.x))+((that.y-this.y)*(that.y-this.y)));
