@@ -21,27 +21,15 @@
 
         <p id="headerLabel" >Hi, I'm Josh Newland</p>
         <p id="descriptionLabel" >I'm a software programmer from the UK, mostly focused on games development</p>
-        <button onclick="window.location.href='https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing'" >Check out my CV</button>
+        <a href="https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing" target="_blank" value=""><input type="button" class="standardButton" value="Check out my CV" /></a>
         <hr class="horizontalLine" id="linksSpacer"/>
         <ul id="linksList">
-          <button class="imageButton" title="Email" onclick="window.location.href='mailto:joshuanewland33@gmail.com'">
-            <img src="images/email.png" class="imageButtonIcon" />
-          </button>
-          <button class="imageButton" title="Linkedin" onclick="window.location.href='https://www.linkedin.com/in/jn327/'">
-            <img src="images/linkedin.png" class="imageButtonIcon" />
-          </button>
-          <button class="imageButton" title="BitBucket" onclick="window.location.href='https://bitbucket.org/Jn327/'">
-            <img src="images/bitbucket.png" class="imageButtonIcon" />
-          </button>
-          <button class="imageButton" title="GitHub" onclick="window.location.href='https://github.com/jn327'">
-            <img src="images/github.png" class="imageButtonIcon" />
-          </button>
-          <button class="imageButton" title="GameJolt" onclick="window.location.href='https://gamejolt.com/@Jn327/games'">
-            <img src="images/gamejolt.png" class="imageButtonIcon" />
-          </button>
-          <button class="imageButton" title="Itch.io" onclick="window.location.href='https://jn327.itch.io/'">
-            <img src="images/itchio.png" class="imageButtonIcon" />
-          </button>
+          <a class="imageLink" title="Email" href="mailto:joshuanewland33@gmail.com" target="_blank" value=""><img src="images/email.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="Linkedin" href="https://www.linkedin.com/in/jn327/" target="_blank" value=""><img src="images/linkedin.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="BitBucket" href="https://bitbucket.org/Jn327/" target="_blank" value=""><img src="images/bitbucket.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="GitHub" href="https://github.com/jn327" target="_blank" value=""><img src="images/github.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="GameJolt" href="https://gamejolt.com/@Jn327/games" target="_blank" value=""><img src="images/gamejolt.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="Itch.io" href="https://jn327.itch.io/" target="_blank" value=""><img src="images/itchio.png" class="imageLinkIcon" /></a>
         </ul>
       </div>
     </div>
@@ -74,7 +62,7 @@
     var particles;
     var particleSize = 2;
 
-    var nParticles = 5000;
+    var nParticles = 2500;
     var theHue;
 
     var changeFrequency = 1250;
