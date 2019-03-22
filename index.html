@@ -8,6 +8,7 @@
   <title>Josh Newland's page</title>
   <!-- imports  CSS definitions with media queries-->
   <link rel= "stylesheet" href ="styles/layout.css">
+  
 
 </head>
 <body>
@@ -17,7 +18,7 @@
     <canvas id="activeCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
     <div style="height:100%; width:100%; display:flex; flex-direction:column; position:absolute; align-items:center; justify-content:center;">
       <div id="labelsContainer">
-        <!-- <img id="meImage" src="images/me.png" alt="" style="width:150px;height:150px;"> -->
+        <img id="meImage" src="images/me.png" alt="">
 
         <p id="headerLabel" >Hi, I'm Josh Newland</p>
         <p id="descriptionLabel" >I'm a software programmer from the UK, mostly focused on games development</p>
@@ -56,7 +57,8 @@
 
     var vectorField;
     var hueField;
-    var vectorFieldStrMultip = 0.1;
+    var vectorFieldMinStr = 0.025;
+    var vectorFieldMaxStr =0.1;
 
     var pixelSizeX = 4;
     var pixelSizeY = 4;
@@ -67,13 +69,13 @@
     var particleSize = 3;
 
     var particleMouseAvoidanceDist = 100;
-    var particleMouseAvoidanceStr = 0.005;
+    var particleMouseAvoidanceStr = 0.02;
 
-    var nParticles = 2500;
+    var nParticles = 2000;
 
     //yellows and oranges tend to look a bit brown, cut them out!
     // see http://colorizer.org/ for the hsla
-    var minHue = 80;
+    var minHue = 90;
     var maxHue = 360;
     var theHue = 0;
     var hueVariation = 40;
@@ -155,18 +157,18 @@
         {
           lastPixelY = y;
 
-          var vectorStr = (strNoise.noise(x * strNoiseScale, y * strNoiseScale) + 1) * 0.5; //0-1
+          var vectorStr = vectorFieldMinStr + (((strNoise.noise(x * strNoiseScale, y * strNoiseScale) + 1) * 0.5) * (vectorFieldMaxStr - vectorFieldMinStr)); //0-1
           var vectorDir = (dirNoise.noise(x * dirNoiseScale, y * dirNoiseScale) + 1) * Math.PI;
           var hueValue = strNoise.noise(x * hueNoiseScale, y * hueNoiseScale); //-1 to -1
 
           var theVector = new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
-          theVector.multiply(vectorStr * vectorFieldStrMultip);
+          theVector.multiply(vectorStr);
           vectorField[x][y] = theVector;
           hueField[x][y] = hueValue;
 
           // Background canvas
           var hueWithVar = theHue + (hueValue * hueVariation);
-          bgCtx.fillStyle = 'hsla('+hueWithVar+',100%,50%,0.15)';
+          bgCtx.fillStyle = 'hsla('+hueWithVar+',100%,50%,0.125)';
           bgCtx.fillRect(x,y,pixelSizeX,pixelSizeY);
 
         }
@@ -200,6 +202,15 @@
       for ( var n = 0; n < particles.length; n++ )
       {
         setupParticle(particles[n]);
+      }
+    }
+
+    function randomizeParticles()
+    {
+      for ( var n = 0; n < particles.length; n++ )
+      {
+        var addedForce = 8;
+        particles[n].addForce( Math.getRnd(-addedForce, addedForce), Math.getRnd(-addedForce, addedForce) );
       }
     }
 
@@ -239,8 +250,11 @@
             setRandomHue();
             resetBgCanvas();
 
-            //Hacky reset of the vector field after a while, keeps things interesting...
+            //reset of the vector field after a while, keeps things interesting...
             initVectorField();
+
+            //randomize the particles velocities a bit to stop them bunching up
+            randomizeParticles();
           }
         }
       }
@@ -257,7 +271,7 @@
     function renderCanvas()
     {
       activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
-      bgCtx.fillStyle = 'hsla('+theHue+',100%,60%,0.002)';
+      bgCtx.fillStyle = 'hsla('+theHue+',100%,65%,0.002)';
 
       var particle;
       var xPos;
@@ -277,7 +291,7 @@
           && xPos <= lastPixelX && yPos <= lastPixelY)
         {
           //avoid the mouse!!!
-          if (_mousePos != undefined)
+          if (_bMouseDown && _mousePos != undefined)
           {
             var mouseDist = particle.position.distance( _mousePos );
             if (mouseDist < particleMouseAvoidanceDist)
@@ -286,41 +300,23 @@
 
               var mouseDir = particle.position.direction(_mousePos);
               mouseDir.multiply( particleMouseAvoidanceStr );
-              particle.accelerate( mouseDir.x, mouseDir.y );
+              particle.addForce( mouseDir.x, mouseDir.y );
             }
           }
 
           // accelerate the particle
           var velocityVector = vectorField[xPos][yPos];
-          particle.accelerate( velocityVector.x, velocityVector.y );
-
-          // move the particle
-          particle.position.x += particle.velocity.x;
-          particle.position.y += particle.velocity.y;
+          particle.addForce( velocityVector.x, velocityVector.y );
 
           //get the hue variance here
           hueVariance = hueField[xPos][yPos];
         }
-        else
-        {
-          if (xPos < 0)
-          {
-            particle.position.x = lastPixelX;
-          }
-          if (yPos < 0)
-          {
-            particle.position.y = lastPixelY;
-          }
-          if (xPos > lastPixelX)
-          {
-            particle.position.x = 0;
-          }
-          if (yPos > lastPixelY)
-          {
-            particle.position.y = 0;
-          }
-        }
 
+        // move the particle
+        particle.update();
+        particle.clampPosition(0,0, activeCanvas.width, activeCanvas.height);
+
+        //draw the particle
         var hueAtPos = theHue + (hueVariance * hueVariation);
 
         //bgCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);

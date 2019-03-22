@@ -3,23 +3,42 @@ function Particle()
   this.position = new Vector2D(0,0);
   this.size = 1;
   this.velocity = new Vector2D(0,0);
-  this.maxVel = 1;
+  this.friction = 0.9775;
 
-  this.accelerate = function(x, y)
+  this.addForce = function(x, y)
   {
     this.velocity.x += x;
     this.velocity.y += y;
 
-    //limit the velocity if it goes over a certain terminal velocity...
-    var velocityMag = this.velocity.magnitude();
-    if (velocityMag > this.maxVel)
-    {
-      //get the normalized velocity
-      this.velocity.divide(velocityMag);
-      //multiply it by the max
-      this.velocity.multiply(this.maxVel);
-    }
-
     return this;
+  }
+
+  this.update = function()
+  {
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+
+    this.velocity.multiply(this.friction);
+  }
+
+  this.clampPosition = function(xMin, yMin, xMax, yMax)
+  {
+      if (this.position.x < xMin)
+      {
+        this.position.x = xMax;
+      }
+      else if (this.position.x > xMax)
+      {
+        this.position.x = xMin;
+      }
+
+      if (this.position.y < yMin)
+      {
+        this.position.y = yMax;
+      }
+      else if (this.position.y > yMax)
+      {
+        this.position.y = yMin;
+      }
   }
 }
