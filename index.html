@@ -8,7 +8,7 @@
   <title>Josh Newland's page</title>
   <!-- imports  CSS definitions with media queries-->
   <link rel= "stylesheet" href ="styles/layout.css">
-  
+
 
 </head>
 <body>
@@ -18,10 +18,10 @@
     <canvas id="activeCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
     <div style="height:100%; width:100%; display:flex; flex-direction:column; position:absolute; align-items:center; justify-content:center;">
       <div id="labelsContainer">
-        <img id="meImage" src="images/me.png" alt="">
+      <!-- <img id="meImage" src="images/me.png" alt=""> -->
 
         <p id="headerLabel" >Hi, I'm Josh Newland</p>
-        <p id="descriptionLabel" >I'm a software programmer from the UK, mostly focused on games development</p>
+        <p id="descriptionLabel" >I'm a software programmer from the UK, with an interest in games development, procedural generation & good stories</p>
         <a href="https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing" target="_blank" value=""><input type="button" class="standardButton" value="Check out my CV" /></a>
         <hr class="horizontalLine" id="linksSpacer"/>
         <ul id="linksList">
@@ -53,10 +53,9 @@
     //noise
     var strNoiseScale = 0.002;
     var dirNoiseScale = 0.004;
-    var hueNoiseScale = 0.0002;
+    var hueNoiseScale = 0.0005;
 
     var vectorField;
-    var hueField;
     var vectorFieldMinStr = 0.025;
     var vectorFieldMaxStr =0.1;
 
@@ -71,11 +70,11 @@
     var particleMouseAvoidanceDist = 100;
     var particleMouseAvoidanceStr = 0.02;
 
-    var nParticles = 2000;
+    var nParticles = 1750;
 
     //yellows and oranges tend to look a bit brown, cut them out!
     // see http://colorizer.org/ for the hsla
-    var minHue = 90;
+    var minHue = 130;
     var maxHue = 360;
     var theHue = 0;
     var hueVariation = 40;
@@ -145,13 +144,11 @@
       var hueNoise = new SimplexNoise();
 
       vectorField = [];
-      hueField = [];
 
       for ( var x = 0; x < bgCanvas.width; x += pixelSizeX )
       {
         lastPixelX = x;
         vectorField[x] = [];
-        hueField[x] = [];
 
         for ( var y = 0; y < bgCanvas.height; y+= pixelSizeY )
         {
@@ -164,7 +161,6 @@
           var theVector = new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
           theVector.multiply(vectorStr);
           vectorField[x][y] = theVector;
-          hueField[x][y] = hueValue;
 
           // Background canvas
           var hueWithVar = theHue + (hueValue * hueVariation);
@@ -271,7 +267,8 @@
     function renderCanvas()
     {
       activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
-      bgCtx.fillStyle = 'hsla('+theHue+',100%,65%,0.002)';
+
+      bgCtx.fillStyle = 'hsla('+theHue+',100%,55%,0.002)';
 
       var particle;
       var xPos;
@@ -279,7 +276,6 @@
       for ( var n = 0; n < particles.length; n++ )
       {
         var mouseStr = 0;
-        var hueVariance = 0;
 
         particle = particles[n];
 
@@ -307,22 +303,17 @@
           // accelerate the particle
           var velocityVector = vectorField[xPos][yPos];
           particle.addForce( velocityVector.x, velocityVector.y );
-
-          //get the hue variance here
-          hueVariance = hueField[xPos][yPos];
         }
 
         // move the particle
         particle.update();
         particle.clampPosition(0,0, activeCanvas.width, activeCanvas.height);
 
-        //draw the particle
-        var hueAtPos = theHue + (hueVariance * hueVariation);
-
+        //draw the particles
         //bgCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
         bgCtx.fillRect(xPos, yPos, particle.size, particle.size);
 
-        activeCtx.fillStyle = 'hsla('+hueAtPos+',100%,' +(75+(mouseStr*25)) +'%,1)';
+        activeCtx.fillStyle = 'hsla('+theHue+',100%,' +(65+(mouseStr*35)) +'%,0.75)';
         //activeCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
         activeCtx.fillRect(xPos, yPos, particle.size, particle.size);
       }
