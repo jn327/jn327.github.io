@@ -2,31 +2,26 @@
 {
   height:auto;
   width:100%;
-  display:flex;
-  position:absolute;
-  align-items:top;
-  justify-content:center;
-  margin:0px;
+  margin: 0px;
+  padding: 12px 0px 12px 0px;
+
+  position:fixed;
+
+  border-style:solid;
+  border-color: rgba(255, 255, 255, 0.5);
+  border-width: 0px 0px 1px 0px;
+  border-radius: 0px;
+  background-color:rgba(0, 0, 0, 0.66);
 }
 
 #headerList
 {
-  border-style:solid;
-  border-color: rgba(255, 255, 255, 0.5);
-  border-width: 0px 1px 1px 1px;
-  border-radius: 0px;
-  background-color:rgba(0, 0, 0, 0.66);
+  float:left;
 
   height:auto;
   width:auto;
-  padding: 12px 12px 10px 12px;
-  margin: 0px 0px 0px 0px;
-
-  display:flex;
-  flex-direction:row;
-  position:absolute;
-  align-items:center;
-  justify-content:center;
+  padding: 3px 0px 3px 0px;
+  margin: 0px 0px 0px 12px;
 }
 
 .headerLink,
@@ -57,4 +52,27 @@
 .headerLink-active
 {
   border-color: rgba(255, 255, 255, 0.5);
+}
+
+#linksList
+{
+  float:right;
+
+  height:auto;
+  width:auto;
+  padding: 0px 0px 0px 0px;
+  margin: 0px 12px 0px 0px;
+}
+
+.imageLink
+{
+  margin: 0px 10px;
+  width:auto;
+  height:auto;
+}
+
+.imageLinkIcon
+{
+  width:20px;
+  height:20px;
 }
