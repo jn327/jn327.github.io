@@ -1,5 +1,7 @@
 #headerContainer
 {
+  z-index: 2;
+
   height:auto;
   width:100%;
   margin: 0px 0px 0px 0px;
@@ -12,15 +14,6 @@
   border-width: 0px 0px 1px 0px;
   border-radius: 0px;
   background-color:rgba(0, 0, 0, 0.66);
-}
-
-@media screen and (max-width: 600px) {
-  #headerContainer
-  {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-  }
 }
 
 #headerList
@@ -84,4 +77,17 @@
 {
   width:20px;
   height:20px;
+}
+
+@media screen and (max-width: 600px) {
+  #headerContainer
+  {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  #headerList
+  {
+    padding-bottom: 12px;
+  }
 }

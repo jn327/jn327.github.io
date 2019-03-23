@@ -2,7 +2,7 @@
 <html lang = "en"> <!-- language flag, used by screen readers -->
 <head>
   <meta charset = "uft-8" /> <!-- character set definition -->
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=1, minimum-scale=0.5">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=0.5">
 
   <title>Josh Newland's page</title>
   <!-- imports  CSS definitions with media queries-->
@@ -13,10 +13,8 @@
 
 </head>
 <body>
-  <div style="height:100%; width:100%;">
-      <canvas id="bgCanvas" style="position:fixed; width:100%; height:100%;"></canvas>
-      <canvas id="activeCanvas" style="position:fixed; width:100%; height:100%;"></canvas>
-  </div>
+    <canvas id="bgCanvas" style="z-index: 0; position:fixed; width:100%; height:100%;"></canvas>
+    <canvas id="activeCanvas" style="z-index: 0; position:fixed; width:100%; height:100%;"></canvas>
 
   <div id="contentContainer">
     <div id="labelsContainer">
