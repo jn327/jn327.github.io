@@ -1,0 +1,83 @@
+#meImage
+{
+  width:134px;
+  height:134px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 70px;
+  /*background-color: rgba(255, 255, 255, 1);*/
+  margin: 0px 0px 20px 0px;
+  padding: 3px;
+}
+
+#descriptionLabel
+{
+  font-family: Verdana, Geneva, sans-serif;
+  font-style: normal;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 1);
+ text-align: center;
+ text-shadow: 2px 2px #000000;
+
+  margin: 20px 0px 20px 0px;
+
+  padding:0px;
+}
+
+.standardButton
+{
+  cursor: pointer;
+  text-decoration: none;
+
+  color: #fff;
+  font-family: Verdana, Geneva, sans-serif;
+  font-style: normal;
+  font-size: 14px;
+  padding: 8px;
+
+  border: 1px solid #fff;
+  border-radius: 0px;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.standardButton:hover
+{
+  color: rgba(0, 0, 0, 1);
+  background-color: #fff;
+}
+
+.horizontalLine
+{
+  height:1px;
+
+  border-style: none;
+  border-width: 0px 0px 0px 0px;
+  margin: 0px 0px 0px 0px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+#linksSpacer
+{
+  width:360px;
+  margin-top:38px;
+}
+
+#linksList
+{
+  height:auto;
+  width:auto;
+  padding: 0px 0px 0px 0px;
+  margin: 16px 0px 0px 0px;
+}
+
+.imageLink
+{
+  margin: 0px 10px;
+  width:auto;
+  height:auto;
+}
+
+.imageLinkIcon
+{
+  width:20px;
+  height:20px;
+}

@@ -1,0 +1,60 @@
+#headerContainer
+{
+  height:auto;
+  width:100%;
+  display:flex;
+  position:absolute;
+  align-items:top;
+  justify-content:center;
+  margin:0px;
+}
+
+#headerList
+{
+  border-style:solid;
+  border-color: rgba(255, 255, 255, 0.5);
+  border-width: 0px 1px 1px 1px;
+  border-radius: 0px;
+  background-color:rgba(0, 0, 0, 0.66);
+
+  height:auto;
+  width:auto;
+  padding: 12px 12px 10px 12px;
+  margin: 0px 0px 0px 0px;
+
+  display:flex;
+  flex-direction:row;
+  position:absolute;
+  align-items:center;
+  justify-content:center;
+}
+
+.headerLink,
+.headerLink-active
+{
+  cursor: pointer;
+  text-decoration: none;
+  font-style: normal;
+  font-size: 14px;
+
+  color: rgba(255, 255, 255, 1);
+  font-family: Verdana, Geneva, sans-serif;
+
+  margin: 0px 10px;
+  width:auto;
+  height:auto;
+  border-style:solid;
+  border-color: rgba(255, 255, 255, 0);
+  border-width: 0px 0px 1px 0px;
+  padding: 0px 0px 1px 0px;
+}
+
+.headerLink:hover
+{
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.headerLink-active
+{
+  border-color: rgba(255, 255, 255, 0.5);
+}
