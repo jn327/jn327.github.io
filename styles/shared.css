@@ -8,8 +8,22 @@ html, body {
   color: #fff;
 }
 
+#contentContainer
+{
+  height:100%;
+  width:100%;
+
+  display:flex;
+  flex-direction:column;
+  position:absolute;
+  align-items:center;
+  justify-content:center;
+}
+
 #labelsContainer
 {
+  display:inline-block;
+
   border-style:solid;
   border-color: rgba(255, 255, 255, 0.5);
   border-width: 1px 0px 1px 0px;
@@ -20,7 +34,7 @@ html, body {
   width:100%;
 
   padding: 38px 0px 38px 0px;
-  margin: 0px 38px 0px 38px;
+  margin: 0px 0px 0px 0px;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -34,7 +48,6 @@ html, body {
   font-size: 32px;
   color: #fff;
   text-align: center;
-  text-shadow: 2px 2px #000000;
 
   margin: 0px 0px 0px 0px;
 
