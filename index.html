@@ -131,36 +131,37 @@
 
     function updateCanvasSize( theCanvas )
     {
-      //see http://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-      var defaultW = 1920;
-      var defaultH = 1080;
-      var widthScale = theCanvas.clientWidth / defaultW;
-      var heightScale = theCanvas.clientHeight / defaultH;
+      var wDivider;
+      var hMultip;
+      var smallestAxis;
+      var minScale;
+      var maxScale = 600;
+      if (theCanvas.clientWidth < theCanvas.clientHeight)
+      {
+        wDivider = theCanvas.clientHeight/theCanvas.clientWidth;
+        smallestAxis = theCanvas.clientWidth;
 
-      var minWScale = 0.5;
-      var maxWScale = 1;
-      if(widthScale < minWScale)
-      {
-        widthScale = minWScale;
+        minScale = 600;
       }
-      else if(widthScale > maxWScale)
+      else
       {
-        widthScale = maxWScale;
-      }
+        wDivider = theCanvas.clientHeight/theCanvas.clientWidth;
+        smallestAxis = theCanvas.clientHeight;
 
-      var minHScale = 0.5;
-      var maxHScale = 1;
-      if(heightScale < minHScale)
-      {
-        heightScale = minHScale;
-      }
-      else if(heightScale > maxHScale)
-      {
-        heightScale = maxHScale;
+        minScale = 1;
       }
 
-      var theW = Math.floor(widthScale * defaultW);
-      var theH = Math.floor(heightScale * defaultH);
+      if(smallestAxis < minScale)
+      {
+        smallestAxis = minScale;
+      }
+      else if(smallestAxis > maxScale)
+      {
+        smallestAxis = maxScale;
+      }
+
+      var theW = Math.floor(smallestAxis / wDivider);
+      var theH = Math.floor(smallestAxis);
       if (theCanvas.width != theW || theCanvas.height != theH)
       {
           theCanvas.width = theW;
