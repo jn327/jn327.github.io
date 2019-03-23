@@ -16,25 +16,35 @@
   <div id="contentContainer" style="height:100%; width:100%; display:contents;">
     <canvas id="bgCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
     <canvas id="activeCanvas" style="display:block; position:absolute; width:100vw; height:100vh;"></canvas>
+
     <div style="height:100%; width:100%; display:flex; flex-direction:column; position:absolute; align-items:center; justify-content:center;">
       <div id="labelsContainer">
       <!-- <img id="meImage" src="images/me.png" alt=""> -->
 
         <p id="headerLabel" >Hi, I'm Josh Newland</p>
         <p id="descriptionLabel" >I'm a software programmer from the UK, with an interest in games development, procedural generation & good stories</p>
-        <a href="https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing" target="_blank" value=""><input type="button" class="standardButton" value="Check out my CV" /></a>
+        <a class="standardButton" href="https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing" target="_blank" >Check out my CV</a>
         <hr class="horizontalLine" id="linksSpacer"/>
         <ul id="linksList">
-          <a class="imageLink" title="Email me" href="mailto:joshuanewland33@gmail.com" target="_blank" value=""><img src="images/email.png" class="imageLinkIcon" /></a>
-          <a class="imageLink" title="Have a look at my Linkedin" href="https://www.linkedin.com/in/jn327/" target="_blank" value=""><img src="images/linkedin.png" class="imageLinkIcon" /></a>
-          <a class="imageLink" title="I'm on Twitter, sometimes" href="https://twitter.com/JoshuaNewland" target="_blank" value=""><img src="images/twitter.png" class="imageLinkIcon" /></a>
-          <a class="imageLink" title="My BitBucket page" href="https://bitbucket.org/Jn327/" target="_blank" value=""><img src="images/bitbucket.png" class="imageLinkIcon" /></a>
-          <a class="imageLink" title="You can also find me on GitHub" href="https://github.com/jn327" target="_blank" value=""><img src="images/github.png" class="imageLinkIcon" /></a>
-          <a class="imageLink" title="I've some games on GameJolt" href="https://gamejolt.com/@Jn327/games" target="_blank" value=""><img src="images/gamejolt.png" class="imageLinkIcon" /></a>
-          <a class="imageLink" title="I've got games on Itch.io" href="https://jn327.itch.io/" target="_blank" value=""><img src="images/itchio.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="Email me" href="mailto:joshuanewland33@gmail.com" target="_blank" ><img src="images/email.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="Have a look at my Linkedin" href="https://www.linkedin.com/in/jn327/" target="_blank" ><img src="images/linkedin.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="I'm on Twitter, sometimes" href="https://twitter.com/JoshuaNewland" target="_blank" ><img src="images/twitter.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="My BitBucket page" href="https://bitbucket.org/Jn327/" target="_blank" ><img src="images/bitbucket.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="You can also find me on GitHub" href="https://github.com/jn327" target="_blank" ><img src="images/github.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="I've some games on GameJolt" href="https://gamejolt.com/@Jn327/games" target="_blank" ><img src="images/gamejolt.png" class="imageLinkIcon" /></a>
+          <a class="imageLink" title="I've got games on Itch.io" href="https://jn327.itch.io/" target="_blank" ><img src="images/itchio.png" class="imageLinkIcon" /></a>
         </ul>
       </div>
     </div>
+
+    <div id="headerContainer">
+      <ul id="headerList">
+        <a class="headerLink-active" href="index.html" >About me</a>
+        <a class="headerLink" href="projects.html" >Projects</a>
+        <a class="headerLink" href="blog.html" >Blog</a>
+      </ul>
+    </div>
+
   </div>
 
   <script src="scripts/Utils/Vector2d.js"></script>
@@ -165,6 +175,7 @@
           // Background canvas
           var hueWithVar = theHue + (hueValue * hueVariation);
           bgCtx.fillStyle = 'hsla('+hueWithVar+',100%,50%,0.125)';
+          //bgCtx.fillStyle = 'rgba('+(vectorStr*255)+','+(vectorStr*255)+','+(vectorStr*255)+',0.95)';
           bgCtx.fillRect(x,y,pixelSizeX,pixelSizeY);
 
         }
