@@ -29,7 +29,7 @@ function animFrame()
 
 window.addEventListener("mousedown", function(e)
 {
-	e.preventDefault();
+	//e.preventDefault();
 
 	_bMouseDown = true;
   onMouseDown();
@@ -46,9 +46,8 @@ window.addEventListener("mouseup", function(e)
 
 window.addEventListener("mousemove", function(e)
 {
-	e.preventDefault();
+	//e.preventDefault();
 
-  //TODO: this will be wrong if the click is in a canvas that is offset?
 	_mousePos = new Vector2D(e.pageX, e.pageY);
 
 }, false);
@@ -57,7 +56,7 @@ window.addEventListener("mousemove", function(e)
 window.addEventListener("touchstart", function(e)
 {
 	//prevent default behaviour so the screen doesn't scroll or zoom...
-	e.preventDefault();
+	//e.preventDefault();
 
 	_bMouseDown = true;
   _mousePos = new Vector2D(e.touches[0].pageX, e.touches[0].pageY);
@@ -68,7 +67,7 @@ window.addEventListener("touchstart", function(e)
 
 window.addEventListener("touchend", function(e)
 {
-	e.preventDefault();
+	//e.preventDefault();
 
 	_bMouseDown = false;
 
@@ -76,7 +75,7 @@ window.addEventListener("touchend", function(e)
 
 window.addEventListener("touchmove", function(e)
 {
-	e.preventDefault();
+	//e.preventDefault();
 
 	_mousePos = new Vector2D(e.touches[0].pageX, e.touches[0].pageY);
 
