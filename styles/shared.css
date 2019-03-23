@@ -10,13 +10,14 @@ html, body {
 
 #labelsContainer
 {
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-style:solid;
+  border-color: rgba(255, 255, 255, 0.5);
+  border-width: 1px 0px 1px 0px;
   border-radius: 0px;
   background-color:rgba(0, 0, 0, 0.66);
 
   height:auto;
   width:100%;
-  max-width:400px;
 
   padding: 38px 38px 38px 38px;
   margin: 0px 0px 0px 0px;
