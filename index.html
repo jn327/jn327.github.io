@@ -132,14 +132,41 @@
     function updateCanvasSize( theCanvas )
     {
       //see http://webglfundamentals.org/webgl/lessons/webgl-anti-patterns.html
-      var theW = theCanvas.clientWidth;
-      var theH = theCanvas.clientHeight;
+      var defaultW = 1920;
+      var defaultH = 1080;
+      var widthScale = theCanvas.clientWidth / defaultW;
+      var heightScale = theCanvas.clientHeight / defaultH;
+
+      var minWScale = 0.5;
+      var maxWScale = 1;
+      if(widthScale < minWScale)
+      {
+        widthScale = minWScale;
+      }
+      else if(widthScale > maxWScale)
+      {
+        widthScale = maxWScale;
+      }
+
+      var minHScale = 0.5;
+      var maxHScale = 1;
+      if(heightScale < minHScale)
+      {
+        heightScale = minHScale;
+      }
+      else if(heightScale > maxHScale)
+      {
+        heightScale = maxHScale;
+      }
+
+      var theW = Math.floor(widthScale * defaultW);
+      var theH = Math.floor(heightScale * defaultH);
       if (theCanvas.width != theW || theCanvas.height != theH)
       {
-         theCanvas.width = theW;
-         theCanvas.height = theH;
+          theCanvas.width = theW;
+          theCanvas.height = theH;
 
-         return true;
+          return true;
       }
       return false;
     }
