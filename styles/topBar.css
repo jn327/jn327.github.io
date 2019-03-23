@@ -2,8 +2,8 @@
 {
   height:auto;
   width:100%;
-  margin: 0px;
-  padding: 12px 0px 12px 0px;
+  margin: 0px 0px 0px 0px;
+  padding: 0px 0px 12px 0px;
 
   position:fixed;
 
@@ -14,13 +14,22 @@
   background-color:rgba(0, 0, 0, 0.66);
 }
 
+@media screen and (max-width: 600px) {
+  #headerContainer
+  {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+}
+
 #headerList
 {
-  float:left;
+  float: left;
 
   height:auto;
   width:auto;
-  padding: 3px 0px 3px 0px;
+  padding: 12px 0px 0px 0px;
   margin: 0px 0px 0px 12px;
 }
 
@@ -35,13 +44,13 @@
   color: rgba(255, 255, 255, 1);
   font-family: Verdana, Geneva, sans-serif;
 
-  margin: 0px 10px;
+  margin: 0px 10px 0px 10px;
   width:auto;
   height:auto;
   border-style:solid;
   border-color: rgba(255, 255, 255, 0);
   border-width: 0px 0px 1px 0px;
-  padding: 0px 0px 1px 0px;
+  padding: 5px 0px 1px 0px;
 }
 
 .headerLink:hover
@@ -60,7 +69,7 @@
 
   height:auto;
   width:auto;
-  padding: 0px 0px 0px 0px;
+  padding: 12px 0px 0px 0px;
   margin: 0px 12px 0px 0px;
 }
 
