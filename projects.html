@@ -58,7 +58,7 @@
     var nParticles = 1750;
 
     // see http://colorizer.org/ for the hsla
-    var minHue = 140;
+    var minHue = 160;
     var maxHue = 360;
     var theHue = 0;
     var hueVariation = 40;
@@ -329,7 +329,7 @@
         bgCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
         //bgCtx.fillRect(xPos, yPos, particle.size, particle.size);
 
-        activeCtx.fillStyle = 'hsla('+theHue+','+theSaturation+'%,' +(95+(mouseStr*5)) +'%,1)';
+        activeCtx.fillStyle = 'hsla('+theHue+','+theSaturation+'%,' +(90+(mouseStr*10)) +'%,1)';
         //activeCtx.fillStyle = 'rgba(255,255,255,'+(0.9+(mouseStr/10))+')';
         activeCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
         //activeCtx.fillRect(xPos, yPos, particle.size, particle.size);
