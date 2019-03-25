@@ -13,8 +13,8 @@
 
 </head>
 <body>
-    <canvas id="bgCanvas" style="z-index: 0; position:fixed; width:100%; height:100%;"></canvas>
-    <canvas id="activeCanvas" style="z-index: 0; position:fixed; width:100%; height:100%;"></canvas>
+  <canvas id="bgCanvas" style="z-index: 0; position:fixed; width:100%; height:100%;"></canvas>
+  <canvas id="activeCanvas" style="z-index: 0; position:fixed; width:100%; height:100%;"></canvas>
 
   <div id="contentContainer">
     <div id="labelsContainer">
@@ -50,22 +50,21 @@
     var vectorFieldMinStr = 0.025;
     var vectorFieldMaxStr =0.1;
 
-    var pixelSizeX = 4;
-    var pixelSizeY = 4;
+    var pixelSizeX = 8;
+    var pixelSizeY = 8;
     var lastPixelX;
     var lastPixelY;
 
     var particles;
-    var particleSize = 3;
+    var particleSize = 2;
 
     var particleMouseAvoidanceDist = 100;
     var particleMouseAvoidanceStr = 0.02;
 
     var nParticles = 1750;
 
-    //yellows and oranges tend to look a bit brown, cut them out!
     // see http://colorizer.org/ for the hsla
-    var minHue = 130;
+    var minHue = 140;
     var maxHue = 360;
     var theHue = 0;
     var hueVariation = 40;
@@ -75,6 +74,7 @@
     var fadeDur = 200;
     var fadeItteration = 0;
 
+    var theSaturation = 90; //0-100
     //------------------------------------------------
     //                Initialization
     //------------------------------------------------
@@ -183,8 +183,7 @@
 
           // Background canvas
           var hueWithVar = theHue + (hueValue * hueVariation);
-          bgCtx.fillStyle = 'hsla('+hueWithVar+',100%,50%,0.125)';
-          //bgCtx.fillStyle = 'rgba('+(vectorStr*255)+','+(vectorStr*255)+','+(vectorStr*255)+',0.95)';
+          bgCtx.fillStyle = 'hsla('+hueWithVar+','+theSaturation+'%,85%,1)';
           bgCtx.fillRect(x,y,pixelSizeX,pixelSizeY);
 
         }
@@ -209,6 +208,9 @@
       theParticle.position.x = Math.random() * lastPixelX;
       theParticle.position.y = Math.random() * lastPixelY;
       theParticle.size = particleSize;
+
+      var addedForce = 2;
+      theParticle.addForce( Math.getRnd(-addedForce, addedForce), Math.getRnd(-addedForce, addedForce) );
 
       return theParticle;
     }
@@ -288,7 +290,7 @@
     {
       activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
 
-      bgCtx.fillStyle = 'hsla('+theHue+',100%,55%,0.002)';
+      bgCtx.fillStyle = 'hsla('+theHue+','+theSaturation+'%,75%,0.033)';
 
       var particle;
       var xPos;
@@ -330,24 +332,16 @@
         particle.clampPosition(0,0, activeCanvas.width, activeCanvas.height);
 
         //draw the particles
-        //bgCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
-        bgCtx.fillRect(xPos, yPos, particle.size, particle.size);
+        bgCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
+        //bgCtx.fillRect(xPos, yPos, particle.size, particle.size);
 
-        activeCtx.fillStyle = 'hsla('+theHue+',100%,' +(65+(mouseStr*35)) +'%,0.75)';
-        //activeCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
-        activeCtx.fillRect(xPos, yPos, particle.size, particle.size);
+        activeCtx.fillStyle = 'hsla('+theHue+','+theSaturation+'%,' +(95+(mouseStr*5)) +'%,1)';
+        //activeCtx.fillStyle = 'rgba(255,255,255,'+(0.9+(mouseStr/10))+')';
+        activeCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
+        //activeCtx.fillRect(xPos, yPos, particle.size, particle.size);
       }
 
     }
-
-    //------------------------------------------------
-    //                    Events
-    //------------------------------------------------
-    function onMouseDown()
-    {
-
-    }
-
   </script>
 
 </body>
