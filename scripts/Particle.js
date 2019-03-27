@@ -3,7 +3,7 @@ function Particle()
   this.position = new Vector2D(0,0);
   this.size = 1;
   this.velocity = new Vector2D(0,0);
-  this.friction = 0.9775;
+  this.friction = 1; //loose this percentage * 100 every second.
 
   this.addForce = function(x, y)
   {
@@ -15,10 +15,11 @@ function Particle()
 
   this.update = function()
   {
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
+    this.position.x += this.velocity.x * GameLoop.deltaTime;
+    this.position.y += this.velocity.y * GameLoop.deltaTime;
 
-    this.velocity.multiply(this.friction);
+    var deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
+    this.velocity.multiply(1 - deltaFriction);
   }
 
   this.clampPosition = function(xMin, yMin, xMax, yMax)

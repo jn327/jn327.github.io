@@ -11,12 +11,13 @@
 
 </head>
 <body>
-  <canvas id="bgCanvas" style="z-index: 0; position:fixed; width:100%; height:100%;"></canvas>
-  <canvas id="activeCanvas" style="z-index: 0; position:fixed; width:100%; height:100%;"></canvas>
+  <canvas id="bgCanvas" class="fullFixed"></canvas>
+  <canvas id="activeCanvas" class="fullFixed"></canvas>
 
   <div id="contentContainer">
     <div id="labelsContainer">
       <p id="headerLabel" >Under construction</p>
+      <p id="fpsCounter" />
     </div>
   </div>
 
@@ -24,8 +25,11 @@
   <script src="scripts/Utils/MathEx.js"></script>
   <script src="scripts/Utils/SimplexNoise.js"></script>
 
+  <script src="scripts/GameLoop.js"></script>
+  <script src="scripts/MouseTracker.js"></script>
+  <script src="scripts/CanvasScaler.js"></script>
+
   <script src="scripts/Particle.js"></script>
-  <script src="scripts/WindowInit.js"></script>
 
   <script src="scripts/CommonElementsCreator.js"></script>
   <script> createHeaderElement(document.body, 1); </script>
@@ -34,6 +38,7 @@
     //HTML Elements
     var bgCanvas, bgCtx;
     var activeCanvas, activeCtx;
+    var fpsCounter;
 
     //noise
     var strNoiseScale = 0.002;
@@ -41,8 +46,9 @@
     var hueNoiseScale = 0.0005;
 
     var vectorField;
-    var vectorFieldMinStr = 0.025;
-    var vectorFieldMaxStr =0.1;
+    var vectorFieldMinStr = 0.25;
+    var vectorFieldMaxStr = 1;
+    var vectorFieldStrMultip = 330;
 
     var pixelSizeX = 8;
     var pixelSizeY = 8;
@@ -52,8 +58,8 @@
     var particles;
     var particleSize = 2;
 
-    var particleMouseAvoidanceDist = 100;
-    var particleMouseAvoidanceStr = 0.02;
+    var particleMouseAvoidanceDist = 50;
+    var particleMouseAvoidanceStr = 200;
 
     var nParticles = 1750;
 
@@ -63,10 +69,10 @@
     var theHue = 0;
     var hueVariation = 40;
 
-    var changeFrequency = 1300;
-    var currItteration = 0;
-    var fadeDur = 200;
-    var fadeItteration = 0;
+    var changeFrequency = 15;
+    var changeTimer = 0;
+    var fadeDur = 1;
+    var fadeTimer = 0;
 
     var theSaturation = 90; //0-100
     //------------------------------------------------
@@ -94,6 +100,8 @@
       activeCanvas = document.getElementById("activeCanvas");
       activeCtx    = activeCanvas.getContext('2d');
 
+      fpsCounter = document.getElementById("fpsCounter");
+
       validateCanvasSize();
     }
 
@@ -101,53 +109,10 @@
     {
       var bTrue = false;
 
-      bTrue = updateCanvasSize( bgCanvas );
-      bTrue = updateCanvasSize( activeCanvas );
+      bTrue = CanvasScaler.updateCanvasSize( bgCanvas );
+      bTrue = CanvasScaler.updateCanvasSize( activeCanvas );
 
       return bTrue;
-    }
-
-    function updateCanvasSize( theCanvas )
-    {
-      var wDivider;
-      var hMultip;
-      var smallestAxis;
-      var minScale;
-      var maxScale = 600;
-      if (theCanvas.clientWidth < theCanvas.clientHeight)
-      {
-        wDivider = theCanvas.clientHeight/theCanvas.clientWidth;
-        smallestAxis = theCanvas.clientWidth;
-
-        minScale = 600;
-      }
-      else
-      {
-        wDivider = theCanvas.clientHeight/theCanvas.clientWidth;
-        smallestAxis = theCanvas.clientHeight;
-
-        minScale = 1;
-      }
-
-      if(smallestAxis < minScale)
-      {
-        smallestAxis = minScale;
-      }
-      else if(smallestAxis > maxScale)
-      {
-        smallestAxis = maxScale;
-      }
-
-      var theW = Math.floor(smallestAxis / wDivider);
-      var theH = Math.floor(smallestAxis);
-      if (theCanvas.width != theW || theCanvas.height != theH)
-      {
-          theCanvas.width = theW;
-          theCanvas.height = theH;
-
-          return true;
-      }
-      return false;
     }
 
     function initVectorField()
@@ -172,7 +137,7 @@
           var hueValue = strNoise.noise(x * hueNoiseScale, y * hueNoiseScale); //-1 to -1
 
           var theVector = new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
-          theVector.multiply(vectorStr);
+          theVector.multiply(vectorStr * vectorFieldStrMultip);
           vectorField[x][y] = theVector;
 
           // Background canvas
@@ -203,9 +168,6 @@
       theParticle.position.y = Math.random() * lastPixelY;
       theParticle.size = particleSize;
 
-      var addedForce = 2;
-      theParticle.addForce( Math.getRnd(-addedForce, addedForce), Math.getRnd(-addedForce, addedForce) );
-
       return theParticle;
     }
 
@@ -221,7 +183,7 @@
     {
       for ( var n = 0; n < particles.length; n++ )
       {
-        var addedForce = 8;
+        var addedForce = 130;
         particles[n].addForce( Math.getRnd(-addedForce, addedForce), Math.getRnd(-addedForce, addedForce) );
       }
     }
@@ -231,10 +193,12 @@
     //------------------------------------------------
     function update()
     {
+      fpsCounter.textContent = (Math.floor(GameLoop.fps)+"fps");
+
       if (validateCanvasSize() == true)
       {
-        currItteration = 0;
-        fadeItteration = 0;
+        changeTimer = 0;
+        fadeTimer = 0;
 
         resetBgCanvas();
         activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
@@ -244,20 +208,20 @@
       }
       else
       {
-        currItteration++;
-        if (currItteration > changeFrequency)
+        changeTimer += GameLoop.deltaTime;
+        if (changeTimer > changeFrequency)
         {
-          if (fadeItteration < fadeDur)
+          if (fadeTimer < fadeDur)
           {
-            fadeItteration++;
+            fadeTimer += GameLoop.deltaTime;
 
-            var endOpacity = 1 - (fadeItteration/fadeDur);
+            var endOpacity = 1 - (fadeTimer/fadeDur);
             bgCanvas.style.opacity = endOpacity;
           }
           else
           {
-            currItteration = 0;
-            fadeItteration = 0;
+            changeTimer = 0;
+            fadeTimer = 0;
 
             setRandomHue();
             resetBgCanvas();
@@ -303,22 +267,22 @@
           && xPos <= lastPixelX && yPos <= lastPixelY)
         {
           //avoid the mouse!!!
-          if (_bMouseDown && _mousePos != undefined)
+          if (MouseTracker.bMouseDown && MouseTracker.mousePos != undefined)
           {
-            var mouseDist = particle.position.distance( _mousePos );
+            var mouseDist = particle.position.distance( MouseTracker.mousePos );
             if (mouseDist < particleMouseAvoidanceDist)
             {
               mouseStr = (particleMouseAvoidanceDist-mouseDist)/particleMouseAvoidanceDist;
 
-              var mouseDir = particle.position.direction(_mousePos);
-              mouseDir.multiply( particleMouseAvoidanceStr );
+              var mouseDir = particle.position.direction(MouseTracker.mousePos);
+              mouseDir.multiply( particleMouseAvoidanceStr * GameLoop.deltaTime );
               particle.addForce( mouseDir.x, mouseDir.y );
             }
           }
 
           // accelerate the particle
           var velocityVector = vectorField[xPos][yPos];
-          particle.addForce( velocityVector.x, velocityVector.y );
+          particle.addForce( velocityVector.x * GameLoop.deltaTime, velocityVector.y * GameLoop.deltaTime );
         }
 
         // move the particle
@@ -336,6 +300,15 @@
       }
 
     }
+
+    //------------------------------------------------
+    //                    Mouse events
+    //------------------------------------------------
+    function onMouseDown()
+    {
+
+    }
+
   </script>
 
 </body>
