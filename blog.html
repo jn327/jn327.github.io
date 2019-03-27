@@ -24,29 +24,81 @@
 
   <script src="scripts/Utils/Vector2d.js"></script>
   <script src="scripts/Utils/MathEx.js"></script>
-  <script src="scripts/Utils/SimplexNoise.js"></script>
+  <script src="scripts/Utils/ColorUtil.js"></script>
 
   <script src="scripts/GameLoop.js"></script>
   <script src="scripts/MouseTracker.js"></script>
+  <script src="scripts/CanvasScaler.js"></script>
 
   <script src="scripts/CommonElementsCreator.js"></script>
   <script> createHeaderElement(document.body, 2); </script>
 
   <script>
+    // maybe for https://www.reddit.com/r/proceduralgeneration/comments/apyz31/challenge_2019_1_procedural_garden/
+    // some examples:
+    //https://brandio.github.io/ProceduralCactus/
+    //https://dattasid.github.io/flowers/flowers.html
 
-    var tod = 0; //0-1?
+    //HTML Elements
+    var bgCanvas, bgCtx;
+    var mgCanvas, mgCtx;
+    var fgCanvas, fgCtx;
 
-  //https://www.reddit.com/r/proceduralgeneration/comments/apyz31/challenge_2019_1_procedural_garden/
+    //variables
+    var dayDur     = 30;
+    var dayTimer   = 0;
+    var tod        = 0; //0-1
 
-  //https://brandio.github.io/ProceduralCactus/
-  //https://dattasid.github.io/flowers/flowers.html
+    var skyUpdateFreq   = 0.2;
+    var skyUpdateTimer  = 0;
+    var skyPixelSize    = 6;
+    var sunRiseTime     = 0.1;
+    var sunSetTime      = 0.7;
+    var skyColorDay     = [0, 187, 255];
+    var skyColorNight   = [0, 0, 0];
 
     //------------------------------------------------
     //                    Start
     //------------------------------------------------
     function start()
     {
+      initCanvas();
 
+      updateSkyVisuals();
+    }
+
+    function initCanvas()
+    {
+      bgCanvas  = document.getElementById("bgCanvas");
+      bgCtx     = bgCanvas.getContext('2d');
+
+      mgCanvas  = document.getElementById("mgCanvas");
+      bgCtx     = bgCanvas.getContext('2d');
+
+      fgCanvas  = document.getElementById("fgCanvas");
+      fgCtx     = bgCanvas.getContext('2d');
+
+      validateCanvasSize();
+    }
+
+    function validateCanvasSize()
+    {
+      var bTrue = false;
+
+      if(CanvasScaler.updateCanvasSize( bgCanvas ))
+      {
+        bTrue = true;
+      }
+      if(CanvasScaler.updateCanvasSize( mgCanvas ))
+      {
+        bTrue = true;
+      }
+      if(CanvasScaler.updateCanvasSize( fgCanvas ))
+      {
+        bTrue = true;
+      }
+
+      return bTrue;
     }
 
     //------------------------------------------------
@@ -54,7 +106,44 @@
     //------------------------------------------------
     function update()
     {
+      //update the current time of day.
+      dayTimer += GameLoop.deltaTime;
+      if (dayTimer > dayDur)
+      {
+        dayTimer = 0;
+      }
+      tod = dayTimer / dayDur;
 
+      //update the sky. If it needs it.
+      skyUpdateTimer += GameLoop.deltaTime;
+      if (skyUpdateTimer > skyUpdateFreq)
+      {
+        skyUpdateTimer = 0;
+        updateSkyVisuals();
+      }
+    }
+
+    function updateSkyVisuals()
+    {
+      var bSunVisible = tod > sunRiseTime && tod < sunSetTime;
+      //if the sun is visible, how far into the daytime is it...
+      if (bSunVisible)
+      {
+        var sunPosNormal = Math.minMaxNormal(tod, sunRiseTime, sunSetTime);
+      }
+
+      var todLerp = 0.5 + (Math.cos(tod * 2 * Math.PI) * 0.5);
+      var todColor = ColorUtil.lerp(skyColorDay, skyColorNight, todLerp);
+      todColor = ColorUtil.rgbToHex(todColor);
+
+      for ( var x = 0; x < bgCanvas.width; x += skyPixelSize )
+      {
+        for ( var y = 0; y < bgCanvas.height; y+= skyPixelSize )
+        {
+          bgCtx.fillStyle = todColor;
+          bgCtx.fillRect(x,y,skyPixelSize,skyPixelSize);
+        }
+      }
     }
 
     //------------------------------------------------

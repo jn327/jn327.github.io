@@ -17,7 +17,7 @@
   <div id="contentContainer">
     <div id="labelsContainer">
       <p id="headerLabel" >Under construction</p>
-      <p id="fpsCounter" />
+      <p id="fpsCounter" style="font-family: Verdana, Geneva, sans-serif;font-size: 14px;"/>
     </div>
   </div>
 
@@ -46,35 +46,33 @@
     var hueNoiseScale = 0.0005;
 
     var vectorField;
-    var vectorFieldMinStr = 0.25;
-    var vectorFieldMaxStr = 1;
-    var vectorFieldStrMultip = 330;
+    var vectorFieldMinStr     = 0.25;
+    var vectorFieldMaxStr     = 1;
+    var vectorFieldStrMultip  = 330;
 
     var pixelSizeX = 8;
     var pixelSizeY = 8;
     var lastPixelX;
     var lastPixelY;
 
+    var nParticles    = 1750;
+    var particleSize  = 2;
     var particles;
-    var particleSize = 2;
 
-    var particleMouseAvoidanceDist = 50;
-    var particleMouseAvoidanceStr = 200;
+    var particleMouseAvoidanceDist  = 50;
+    var particleMouseAvoidanceStr   = 200;
 
-    var nParticles = 1750;
-
-    // see http://colorizer.org/ for the hsla
-    var minHue = 160;
-    var maxHue = 360;
-    var theHue = 0;
-    var hueVariation = 40;
+    var minHue        = 160;
+    var maxHue        = 360;
+    var theHue        = 0;
+    var hueVariation  = 40;
+    var theSaturation = 90; //0-100 (percent)
 
     var changeFrequency = 15;
-    var changeTimer = 0;
-    var fadeDur = 1;
-    var fadeTimer = 0;
+    var changeTimer     = 0;
+    var fadeDur         = 1;
+    var fadeTimer       = 0;
 
-    var theSaturation = 90; //0-100
     //------------------------------------------------
     //                Initialization
     //------------------------------------------------
@@ -109,8 +107,14 @@
     {
       var bTrue = false;
 
-      bTrue = CanvasScaler.updateCanvasSize( bgCanvas );
-      bTrue = CanvasScaler.updateCanvasSize( activeCanvas );
+      if(CanvasScaler.updateCanvasSize( bgCanvas ))
+      {
+        bTrue = true;
+      }
+      if(CanvasScaler.updateCanvasSize( activeCanvas ))
+      {
+        bTrue = true;
+      }
 
       return bTrue;
     }
@@ -132,9 +136,10 @@
         {
           lastPixelY = y;
 
-          var vectorStr = vectorFieldMinStr + (((strNoise.noise(x * strNoiseScale, y * strNoiseScale) + 1) * 0.5) * (vectorFieldMaxStr - vectorFieldMinStr)); //0-1
+          var vectorStr = (strNoise.noise(x * strNoiseScale, y * strNoiseScale) + 1) * 0.5; //0-1
+          vectorStr = Math.scaleNormal(vectorStr, vectorFieldMinStr, vectorFieldMaxStr);
           var vectorDir = (dirNoise.noise(x * dirNoiseScale, y * dirNoiseScale) + 1) * Math.PI;
-          var hueValue = strNoise.noise(x * hueNoiseScale, y * hueNoiseScale); //-1 to -1
+          var hueValue = strNoise.noise(x * hueNoiseScale, y * hueNoiseScale); //-1 to 1
 
           var theVector = new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
           theVector.multiply(vectorStr * vectorFieldStrMultip);
@@ -221,7 +226,7 @@
           else
           {
             changeTimer = 0;
-            fadeTimer = 0;
+            fadeTimer   = 0;
 
             setRandomHue();
             resetBgCanvas();
