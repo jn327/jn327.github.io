@@ -10,18 +10,6 @@
   padding           : 3px;
 }
 
-#descriptionLabel
-{
-  font-family   : Verdana, Geneva, sans-serif;
-  font-style    : normal;
-  font-size     : 14px;
-  color         : rgba(255, 255, 255, 1);
-  text-align    : center;
-
-  margin        : 20px 38px 20px 38px;
-  padding       : 0px;
-}
-
 .standardButton
 {
   cursor            : pointer;

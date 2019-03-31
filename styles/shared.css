@@ -6,7 +6,17 @@ html, body
   flex-direction  : column;
   margin          : 0;
   background      : #fff;
-  color           : #fff;
+
+  font-family     : Verdana, Geneva, sans-serif;
+  font-style      : normal;
+  font-size       : 14px;
+  color           : rgba(255, 255, 255, 1);
+  text-align      : center;
+}
+
+a, a:visited
+{
+  color           : rgba(255, 255, 255, 1);
 }
 
 .fullFixed
@@ -51,10 +61,8 @@ html, body
 
 #headerLabel
 {
-  font-family     : Verdana, Geneva, sans-serif;
   font-style      : bold;
   font-size       : 32px;
-  color           : #fff;
   text-align      : center;
 
   margin          : 0px 0px 0px 0px;

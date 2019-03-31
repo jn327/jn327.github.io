@@ -22,8 +22,8 @@ function createHeaderElement( parentElement, selectedIndex, rootLocation )
   list.id = 'headerList';
   container.appendChild(list);
 
-  var headerLabels = [ "About me", "Projects", "Blog"];
-  var headerLinks = [ "index", "projects", "blog"];
+  var headerLabels = [ "About me", "Projects" ];
+  var headerLinks = [ "index", "projects" ];
   for (var i = 0; i < headerLabels.length; i++)
   {
     var headerItem = document.createElement('a');
