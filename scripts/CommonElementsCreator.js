@@ -48,7 +48,7 @@ function createHeaderElement( parentElement, selectedIndex, rootLocation )
     "https://bitbucket.org/Jn327/", "https://github.com/jn327",
     "https://gamejolt.com/@Jn327/games", "https://jn327.itch.io/" ];
   var imgSources = ["email", "linkedin", "twitter",
-    "bitbucket", "gitHub", "gamejolt", "itchio" ];
+    "bitbucket", "github", "gamejolt", "itchio" ];
   for (var j = 0; j < imgLinks.length; j++)
   {
     var linkItem = document.createElement('a');
