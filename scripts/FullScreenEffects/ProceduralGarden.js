@@ -29,13 +29,13 @@ var sunSizeMax              = 320;
 var sunColorMid             = [255, 236, 94];
 var sunColorEdges           = [255, 110, 94];
 
-var starsHideTime           = 0.15;
-var starsShowTime           = 0.85;
+var starsHideTime           = 0.2;
+var starsShowTime           = 0.8;
 var stars                   = [];
 var minStars                = 1000;
-var maxStars                = 2000;
-var minStarSize             = 0.2;
-var maxStarSize             = 1.5;
+var maxStars                = 1500;
+var minStarSize             = 0.1;
+var maxStarSize             = 1.2;
 var starNoise;
 var starNoiseScale          = 0.003;
 var starTwinkleMultip       = 0.25;
@@ -43,20 +43,25 @@ var starAlphaOffsetMultip   = 25;
 
 var skyGradientMin          = 0.3;
 var skyGradientMax          = 0.7;
-var skyGradientHMultip      = 0.85;
+var skyGradientHMultip      = 1;
 
-var sandColorFar            = [252, 211, 161];
-var sandColorNear           = [255, 224, 124];
-var sandHeightMin           = 0.2;
-var sandHeightMax           = 0.4;
-var sandScaleMultipNear     = 0.3;
+var sandColorFar            = [255, 215, 178];
+var sandColorNear           = [255, 247, 137];
+var sandHeightMin           = 0.3;
+var sandHeightMax           = 0.5;
+var sandScaleMultipNear     = 0.2;
 var sandScaleMultipFar      = 1;
-var sandNoise;
-var sandNoiseScaleNear      = 0.00005;
-var sandNoiseScaleFar       = 0.002;
-var nSandLayersMax          = 5;
-var nSandLayersMin          = 3;
+var sandNoiseScaleNear      = 0.0003;
+var sandNoiseScaleFar       = 0.003;
+var nSandLayersMax          = 8;
+var nSandLayersMin          = 5;
 var sandSampleStepSize      = 8;
+
+var interLayerSandNoiseScale= 0.0002;
+var interLayerNoiseAmount   = 0.66; //yeah not the best name....
+
+var ridgeNoiseStr           = 0.66;
+var sandCurlOffset          = 20;
 
 //------------------------------------------------
 //                    Start
@@ -109,8 +114,7 @@ function initStars()
   for (var i = 0; i < nStars; i++)
   {
     var newStar = new Star();
-    newStar.position.x = Math.random() * bgCanvas.width;
-    newStar.position.y = Math.random() * bgCanvas.height;
+    setRandomStarPos(newStar);
     var starSize = (starNoise.noise(newStar.position.x * starNoiseScale, newStar.position.y * starNoiseScale) + 1) * 0.5;
     newStar.size = Math.scaleNormal(starSize, minStarSize, maxStarSize);
     newStar.alphaOffset = Math.random() * starAlphaOffsetMultip;
@@ -120,9 +124,18 @@ function initStars()
   }
 }
 
+function setRandomStarPos(theStar)
+{
+  theStar.position.x = Math.random() * bgCanvas.width;
+  var starsEnd = 0.75;
+  theStar.position.y = EasingUtil.easeInQuad(Math.random(), 0, starsEnd, 1) * bgCanvas.height;
+}
+
 function drawSand()
 {
-  sandNoise = new SimplexNoise();
+  var sandNoise = new SimplexNoise();
+  var interLayerNoise = new SimplexNoise();
+
   mgCtx.clearRect(0, 0, mgCanvas.width, mgCanvas.height);
 
   var nSandLayers = Math.getRnd(nSandLayersMin, nSandLayersMax);
@@ -134,38 +147,63 @@ function drawSand()
     mgCtx.fillStyle = theColor;
 
     var noiseScale = Math.scaleNormal(layerN, sandNoiseScaleFar, sandNoiseScaleNear);
-    var scaleMultip = Math.scaleNormal(layerN, sandScaleMultipFar, sandScaleMultipNear);
 
-    var y = mgCanvas.height;
-    var x = 0;
+    var noiseScaleN = (layerN * (1-interLayerNoiseAmount))
+      + (interLayerNoiseAmount * (interLayerNoise.noise(i * interLayerSandNoiseScale, interLayerSandNoiseScale) + 1) * 0.5);
+    var scaleMultip = Math.scaleNormal(noiseScaleN, sandScaleMultipFar, sandScaleMultipNear);
 
     mgCtx.beginPath();
-    mgCtx.lineTo(x, y);
-    for (var j = 0; j < mgCanvas.width; j += sandSampleStepSize)
-    {
-      x = j;
-      y = getSandHeightForPos(x, noiseScale, sandHeightMin, sandHeightMax, scaleMultip);
+    mgCtx.lineTo(0, mgCanvas.height);
 
-      mgCtx.lineTo(x, y);
+    for (var x = 0; x < mgCanvas.width; x += sandSampleStepSize)
+    {
+      goToSandPos(x, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip, true);
     }
 
-    x = mgCanvas.width;
-    y = getSandHeightForPos(x, noiseScale, sandHeightMin, sandHeightMax, scaleMultip);
-    mgCtx.lineTo(x, y);
+    goToSandPos(mgCanvas.width, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip, false);
 
-    y = mgCanvas.height;
-    mgCtx.lineTo(x, y);
+    mgCtx.lineTo(mgCanvas.width, mgCanvas.height);
     mgCtx.fill();
 
   }
 }
 
-function getSandHeightForPos(x, noiseFreq, heightScaleMin, heightScaleMax, scaleMultip)
+function goToSandPos(x, noise, noiseFreq, heightScaleMin, heightScaleMax, scaleMultip, bCurled)
 {
-  var sandN = (sandNoise.noise(x * noiseFreq, noiseFreq) + 1) * 0.5;
-  sandN = Math.scaleNormal(sandN, heightScaleMin, heightScaleMax);
-  sandN *= scaleMultip;
-  return mgCanvas.height - (sandN * mgCanvas.height);
+  var thePoint = new Vector2D(0, 0);
+  thePoint.x = x;
+
+  //make it more ridged
+  // as per https://www.redblobgames.com/maps/terrain-from-noise/
+  var yNoise = (noise.noise(x * noiseFreq, noiseFreq) + 1) * 0.5;
+  var ridgedYNoise = 2 * (0.5 - Math.abs(0.5 - yNoise));
+  thePoint.y = (yNoise*(1-ridgeNoiseStr)) + (ridgedYNoise*ridgeNoiseStr);
+
+  if (bCurled)
+  {
+    thePoint = computeCurl(thePoint);
+  }
+
+  thePoint.y = Math.scaleNormal(thePoint.y, heightScaleMin, heightScaleMax);
+  thePoint.y = mgCanvas.height - (thePoint.y * scaleMultip * mgCanvas.height);
+
+  mgCtx.lineTo(thePoint.x, thePoint.y);
+}
+
+function computeCurl(point)
+{
+  //it seems like what we need to be doing is moving the x position based on how high this value is...
+  //im not too keen on this, its a bit hacky!
+  //point.x -= EasingUtil.easeInOutCubic(point.y, 0, 1, 1) * sandCurlOffset;
+
+  //see https://www.florisgroen.com/creating-sandy-desert-first-try/
+  var xm = 0.5;
+  var s = point.y > 0 && point.y < xm ? 0 : 1;
+  var part2 = 1 - Math.cos((Math.PI) * ((point.y - s) / (xm - s)));
+  var theVal = (0.5 * part2) - 1;
+  point.x += theVal * sandCurlOffset;
+
+  return point;
 }
 
 function validateCanvasSize()

@@ -133,6 +133,7 @@ function initVectorField()
   }
 }
 
+
 function initParticles()
 {
   particles = [];
@@ -212,7 +213,6 @@ function update()
 
       var endOpacity = EasingUtil.easeInQuad(fadeInTimer, 0, 1, fadeInDur);
       endOpacity = Math.clamp(endOpacity, 0, 1);
-      console.log(endOpacity);
       bgCanvas.style.opacity = endOpacity;
       activeCanvas.style.opacity = endOpacity;
     }
