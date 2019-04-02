@@ -14,7 +14,7 @@ ColorUtil.rgbToHex = function(rgb)
 };
 
 // Interpolates two [r,g,b] colors and returns a [r,g,b] of the result
-ColorUtil.lerp = function(color1, color2, t)
+ColorUtil.lerp = function(t, color1, color2)
 {
   if (t == undefined)
   {
@@ -93,7 +93,7 @@ ColorUtil.hueToRgb = function(p, q, t)
   return p;
 }
 
-ColorUtil.lerpHSL = function(color1, color2, t)
+ColorUtil.lerpHSL = function(t, color1, color2)
 {
   if (t == undefined)
   {

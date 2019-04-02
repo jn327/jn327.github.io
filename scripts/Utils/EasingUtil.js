@@ -10,6 +10,10 @@ var EasingUtil = {};
  * ======================================================== */
 
 // t: current time, b: beginning value, c: change in value, d: duration
+EasingUtil.easeNone = function (t, b, c, d)
+{
+	return c*(t/=d) + b;
+};
 
 EasingUtil.easeInQuad = function (t, b, c, d)
 {
