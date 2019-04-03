@@ -42,6 +42,11 @@ var starNoiseScale          = 0.003;
 var starTwinkleMultip       = 0.25;
 var starAlphaOffsetMultip   = 25;
 
+var shootingStarFreqMin     = 0.005;
+var shootingStarFreqMax     = 0.02;
+var shootingStarWaitDur     = shootingStarFreqMin;
+var currShootingStar;
+
 var skyGradientMin          = 0.2;
 var skyGradientMax          = 0.8;
 var skyGradientHMultip      = 1;
@@ -110,6 +115,8 @@ function initCanvas()
 function initStars()
 {
   starNoise = new SimplexNoise();
+
+  currShootingStar = new ShootingStar();
 
   var nStars = Math.getRnd(minStars, maxStars);
   for (var i = 0; i < nStars; i++)
@@ -282,6 +289,31 @@ function updateSkyVisuals()
     {
       stars[i].draw(bgCtx, nightTimeLerp);
     }
+
+    //Shooting stars
+    var currProgress = 0;
+    if (tod < currShootingStar.startTime)
+    {
+      currProgress = (tod + (1 - currShootingStar.startTime)) / shootingStarWaitDur;
+    }
+    else
+    {
+      currProgress = (tod - currShootingStar.startTime) / shootingStarWaitDur;
+    }
+
+    // if we're not having to wait anymore, then update the star!
+    if (currProgress >= shootingStarWaitDur)
+    {
+      var bStarAlive = currShootingStar.checkLifetime( bgCanvas.width, bgCanvas.height, tod );
+      if (bStarAlive)
+      {
+        currShootingStar.draw(bgCtx);
+      }
+      else
+      {
+        shootingStarWaitDur = currShootingStar.duration + shootingStarFreqMin + (Math.random() * shootingStarFreqMax);
+      }
+    }
   }
 
   //-----------------------
@@ -311,7 +343,6 @@ function updateSkyVisuals()
     sunColor = ColorUtil.lerp(dayTimeLerp, sunColorMid, sunColorEdges);
 
     sunSize = Math.scaleNormal(dayTimeLerp, sunSizeMin, sunSizeMax);
-    console.log(dayTimeLerp);
     sunX = dayTimeNormal * bgCanvas.width;
     var heightOffsetTop = 0.05;
     var heightOffsetBottom = 0.1;
@@ -477,6 +508,91 @@ function Star()
     theCanvas.beginPath();
     theCanvas.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
     theCanvas.fill();
+
+  }
+}
+
+function ShootingStar()
+{
+  this.startPosition = new Vector2D(0,0);
+  this.position = new Vector2D(0,0);
+  this.endPosition = new Vector2D(0,0);
+  this.size = 1;
+  this.startTime = 0;
+  this.minDur = 0.075;
+  this.maxDur = 0.1;
+  this.duration = 0;
+  this.direction = new Vector2D(0,0);
+
+  this.bSetup = false;
+  this.maxSpawnPosY = 0.3;
+  this.minTravelDist = 0.4;
+  this.maxTravelDist = 0.8;
+
+  this.checkLifetime = function( canvasWidth, canvasHeight, timeOfDay )
+  {
+    if (!this.bSetup)
+    {
+      this.startTime = timeOfDay;
+
+      this.startPosition.x = canvasWidth;
+      this.startPosition.y = Math.random() * canvasHeight * this.maxSpawnPosY;
+
+      this.duration = this.minDur + (Math.random() * this.maxDur);
+
+      //TODO: What if its the same or really close??
+      var centerDirX = this.startPosition.x - (canvasWidth * 0.5);
+      var centerDirY = this.startPosition.y - (canvasHeight * 0.5);
+      var centerDir = new Vector2D(centerDirX, centerDirY);
+      centerDir = centerDir.normalize();
+
+      var moveDistX = (this.minTravelDist + (Math.random() * this.maxTravelDist)) * canvasWidth;
+      var moveDistY = (this.minTravelDist + (Math.random() * this.maxTravelDist)) * canvasHeight;
+
+      this.endPosition.x = this.startPosition.x + (centerDir.x * moveDistX);
+      this.endPosition.y = this.startPosition.y + (centerDir.y * moveDistY);
+
+      this.bSetup = true;
+    }
+
+    //what if the startTime was 1 and we're now at 0, well check if current time < startTime
+    var currProgress = 0;
+    if (timeOfDay < this.startTime)
+    {
+      currProgress = (timeOfDay + (1 - this.startTime)) / this.duration;
+    }
+    else
+    {
+      currProgress = (timeOfDay - this.startTime) / this.duration;
+    }
+
+    // if we're at the end of our progress, then return.
+    if (currProgress >= this.duration)
+    {
+      this.bSetup = false;
+      return false;
+    }
+
+    this.position.x = EasingUtil.easeNone(currProgress, this.startPosition.x, this.startPosition.x-this.endPosition.x, this.duration);
+    this.position.y = EasingUtil.easeNone(currProgress, this.startPosition.y, this.startPosition.y-this.endPosition.y, this.duration);
+
+    return true;
+  }
+
+  this.draw = function(theCanvas)
+  {
+    theCanvas.fillStyle = 'rgba(255,255,255,1)';
+    theCanvas.beginPath();
+    theCanvas.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
+    theCanvas.fill();
+
+    //TODO: maybe make this limited in length....
+    theCanvas.strokeStyle = 'rgba(255,255,255,0.1)';
+    theCanvas.lineWidth   = 0.5;
+    theCanvas.beginPath();
+    theCanvas.lineTo(this.startPosition.x, this.startPosition.y);
+    theCanvas.lineTo(this.position.x, this.position.y);
+    theCanvas.stroke();
 
   }
 }
