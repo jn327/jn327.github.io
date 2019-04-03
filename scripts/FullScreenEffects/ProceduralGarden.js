@@ -24,13 +24,13 @@ var sunColorMid             = [255, 252, 214]; // [255, 236, 94];
 var sunColorEdges           = [239, 11, 31]; // [255, 110, 94];
 
 var moonSizeMax             = 60;
-var moonSizeMin             = 40;
-var moonRiseTime            = 0.85;
-var moonSetTime             = 0.15;
+var moonSizeMin             = 30;
+var moonRiseTime            = 0.9;
+var moonSetTime             = 0.1;
 var moonColorMid            = [255, 254, 244];
 var moonColorEdges          = [255, 246, 244];
 
-var starsHideTime           = 0.15;
+var starsHideTime           = 0.2;
 var starsShowTime           = 0.8;
 var stars                   = [];
 var minStars                = 1000;
@@ -311,9 +311,11 @@ function updateSkyVisuals()
     sunColor = ColorUtil.lerp(dayTimeLerp, sunColorMid, sunColorEdges);
 
     sunSize = Math.scaleNormal(dayTimeLerp, sunSizeMin, sunSizeMax);
+    console.log(dayTimeLerp);
     sunX = dayTimeNormal * bgCanvas.width;
-    var heightOffset = 0.95;
-    sunY = (bgCanvas.height*(1-heightOffset)) + sunSize + (dayTimeLerp * (heightOffset*bgCanvas.height));
+    var heightOffsetTop = 0.05;
+    var heightOffsetBottom = 0.1;
+    sunY = (bgCanvas.height*heightOffsetTop) + sunSize + (dayTimeLerp * ((1-heightOffsetBottom)*bgCanvas.height));
   }
 
   //This wants to be a M shape, peaking around skyGradientMin and skyGradientMax...
@@ -335,11 +337,11 @@ function updateSkyVisuals()
     gradientTimeNormal = 1 - (gradientTime / totalRemaining);
   }
 
-  var gradientHeightLerp = gradientTimeNormal <= gradientTimeMid ? EasingUtil.easeInOutSine(gradientTimeNormal, 1, -1, 0.5)
-    : EasingUtil.easeInOutSine(gradientTimeNormal-0.5, 0, 1, 0.5);
+  var gradientHeightLerp = gradientTimeNormal <= gradientTimeMid ? EasingUtil.easeNone(gradientTimeNormal, 1, -1, 0.5)
+    : EasingUtil.easeNone(gradientTimeNormal-0.5, 0, 1, 0.5);
 
-  var gradientAlphaLerp = gradientTimeNormal <= gradientTimeMid ? EasingUtil.easeInOutSine(gradientTimeNormal, 1, -1, 0.5)
-    : EasingUtil.easeInOutSine(gradientTimeNormal-0.5, 0, 1, 0.5);
+  var gradientAlphaLerp = gradientTimeNormal <= gradientTimeMid ? EasingUtil.easeNone(gradientTimeNormal, 1, -1, 0.5)
+    : EasingUtil.easeNone(gradientTimeNormal-0.5, 0, 1, 0.5);
 
   var gradientHeight = gradientHeightLerp * bgCanvas.height * skyGradientHMultip;
 
@@ -376,8 +378,9 @@ function updateSkyVisuals()
     var moonSize = Math.scaleNormal(moonTimeLerp, moonSizeMin, moonSizeMax);
     //var sunX = (dayTimeNormal * (bgCanvas.width + (2 * sunSize))) - sunSize;
     var moonX = moonTimeNormal * bgCanvas.width;
-    var heightOffset = 0.9;
-    var moonY = moonSize + (moonTimeLerp * (heightOffset*bgCanvas.height));
+    var heightOffsetTop = 0.1;
+    var heightOffsetBottom = 0.2;
+    var moonY = (heightOffsetTop*bgCanvas.height) + moonSize + (moonTimeLerp * ((1-heightOffsetBottom)*bgCanvas.height));
 
     //draw the moon.
     bgCtx.fillStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 0.025)';
@@ -387,7 +390,7 @@ function updateSkyVisuals()
 
     bgCtx.fillStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 0.05)';
     bgCtx.beginPath();
-    bgCtx.arc(moonX-2, moonY-1, moonSize*1.25, 0, 2 * Math.PI);
+    bgCtx.arc(moonX-2, moonY-1, moonSize*1.4, 0, 2 * Math.PI);
     bgCtx.fill();
 
     bgCtx.strokeStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 0.05)';
