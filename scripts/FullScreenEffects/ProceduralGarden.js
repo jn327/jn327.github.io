@@ -1,35 +1,36 @@
-
-// maybe for https://www.reddit.com/r/proceduralgeneration/comments/apyz31/challenge_2019_1_procedural_garden/
-// some examples:
-//https://brandio.github.io/ProceduralCactus/
-//https://dattasid.github.io/flowers/flowers.html
-
 //HTML Elements
 var bgCanvas, bgCtx;
 var mgCanvas, mgCtx;
 var fgCanvas, fgCtx;
 
 //variables
-var dayDur                  = 40;
+var dayDur                  = 45;
 var dayTimer                = dayDur*0.5;
 var tod                     = 0; //0-1
-var skyBlueMin              = 0.1;
-var skyBlueMax              = 0.9;
-var sunRiseTime             = 0.15;
-var sunSetTime              = 0.85;
+var skyBlueMin              = 0.075;
+var skyBlueMax              = 0.925;
+var sunRiseTime             = 0.1;
+var sunSetTime              = 0.9;
 
 var skyUpdateFreq           = 0.05;
 var skyUpdateTimer          = 0;
 
-var skyColorDay             = [163, 225, 255];
-var skyColorNight           = [0, 0, 0];
+var skyColorDay             = [183, 231, 255]; // [163, 225, 255];
+var skyColorNight           = [28, 19, 25];
 
 var sunSizeMin              = 80;
 var sunSizeMax              = 320;
-var sunColorMid             = [255, 236, 94];
-var sunColorEdges           = [255, 110, 94];
+var sunColorMid             = [255, 252, 214]; // [255, 236, 94];
+var sunColorEdges           = [239, 11, 31]; // [255, 110, 94];
 
-var starsHideTime           = 0.2;
+var moonSizeMax             = 60;
+var moonSizeMin             = 40;
+var moonRiseTime            = 0.85;
+var moonSetTime             = 0.15;
+var moonColorMid            = [255, 254, 244];
+var moonColorEdges          = [255, 246, 244];
+
+var starsHideTime           = 0.15;
 var starsShowTime           = 0.8;
 var stars                   = [];
 var minStars                = 1000;
@@ -41,27 +42,27 @@ var starNoiseScale          = 0.003;
 var starTwinkleMultip       = 0.25;
 var starAlphaOffsetMultip   = 25;
 
-var skyGradientMin          = 0.3;
-var skyGradientMax          = 0.7;
+var skyGradientMin          = 0.2;
+var skyGradientMax          = 0.8;
 var skyGradientHMultip      = 1;
 
-var sandColorFar            = [255, 215, 178];
-var sandColorNear           = [255, 247, 137];
+var sandColorFar            = [252, 194, 121]; // [255, 215, 178];
+var sandColorNear           = [255, 236, 212]; // [255, 247, 137];
 var sandHeightMin           = 0.3;
 var sandHeightMax           = 0.5;
-var sandScaleMultipNear     = 0.2;
+var sandScaleMultipNear     = 0.1;
 var sandScaleMultipFar      = 1;
-var sandNoiseScaleNear      = 0.0003;
-var sandNoiseScaleFar       = 0.003;
+var sandNoiseFreqNear       = 0.0003;
+var sandNoiseFreqFar        = 0.003;
 var nSandLayersMax          = 8;
 var nSandLayersMin          = 5;
 var sandSampleStepSize      = 8;
 
-var interLayerSandNoiseScale= 0.0002;
-var interLayerNoiseAmount   = 0.66; //yeah not the best name....
+var interLayerSandNoiseFreq = 0.0002; //theres some noise in between the layers used to modify the sand noise scale change.
+var interLayerNoiseStr      = 0.66; //yeah not the best name....
 
-var ridgeNoiseStr           = 0.66;
-var sandCurlOffset          = 20;
+var ridgeNoiseStr           = 0.66; //how rideged should our sand be
+var sandCurlOffset          = 25;
 
 //------------------------------------------------
 //                    Start
@@ -146,10 +147,10 @@ function drawSand()
     theColor = ColorUtil.rgbToHex(theColor);
     mgCtx.fillStyle = theColor;
 
-    var noiseScale = Math.scaleNormal(layerN, sandNoiseScaleFar, sandNoiseScaleNear);
+    var noiseScale = Math.scaleNormal(layerN, sandNoiseFreqFar, sandNoiseFreqNear);
 
-    var noiseScaleN = (layerN * (1-interLayerNoiseAmount))
-      + (interLayerNoiseAmount * (interLayerNoise.noise(i * interLayerSandNoiseScale, interLayerSandNoiseScale) + 1) * 0.5);
+    var noiseScaleN = (interLayerNoise.noise(i * interLayerSandNoiseFreq, interLayerSandNoiseFreq) + 1) * 0.5;
+    noiseScaleN = (layerN * (1-interLayerNoiseStr)) + (interLayerNoiseStr * noiseScaleN);
     var scaleMultip = Math.scaleNormal(noiseScaleN, sandScaleMultipFar, sandScaleMultipNear);
 
     mgCtx.beginPath();
@@ -157,10 +158,10 @@ function drawSand()
 
     for (var x = 0; x < mgCanvas.width; x += sandSampleStepSize)
     {
-      goToSandPos(x, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip, true);
+      goToSandPos(x, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip, x != 0);
     }
 
-    goToSandPos(mgCanvas.width, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip, false);
+    goToSandPos(mgCanvas.width, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip, true);
 
     mgCtx.lineTo(mgCanvas.width, mgCanvas.height);
     mgCtx.fill();
@@ -168,7 +169,7 @@ function drawSand()
   }
 }
 
-function goToSandPos(x, noise, noiseFreq, heightScaleMin, heightScaleMax, scaleMultip, bCurled)
+function goToSandPos(x, noise, noiseFreq, heightMin, heightMax, scaleMultip, bCurled)
 {
   var thePoint = new Vector2D(0, 0);
   thePoint.x = x;
@@ -179,31 +180,18 @@ function goToSandPos(x, noise, noiseFreq, heightScaleMin, heightScaleMax, scaleM
   var ridgedYNoise = 2 * (0.5 - Math.abs(0.5 - yNoise));
   thePoint.y = (yNoise*(1-ridgeNoiseStr)) + (ridgedYNoise*ridgeNoiseStr);
 
+  //curl the noise a bit.
   if (bCurled)
   {
-    thePoint = computeCurl(thePoint);
+    //we're offsetting x based on the value of y, its a bit hacky, but it looks nicer than anything else I've tried.
+    var curlVal = (1 - Math.cos(2 * Math.PI * thePoint.y)) * 0.5;
+    thePoint.x += curlVal * sandCurlOffset;
   }
 
-  thePoint.y = Math.scaleNormal(thePoint.y, heightScaleMin, heightScaleMax);
+  thePoint.y = Math.scaleNormal(thePoint.y, heightMin, heightMax);
   thePoint.y = mgCanvas.height - (thePoint.y * scaleMultip * mgCanvas.height);
 
   mgCtx.lineTo(thePoint.x, thePoint.y);
-}
-
-function computeCurl(point)
-{
-  //it seems like what we need to be doing is moving the x position based on how high this value is...
-  //im not too keen on this, its a bit hacky!
-  //point.x -= EasingUtil.easeInOutCubic(point.y, 0, 1, 1) * sandCurlOffset;
-
-  //see https://www.florisgroen.com/creating-sandy-desert-first-try/
-  var xm = 0.5;
-  var s = point.y > 0 && point.y < xm ? 0 : 1;
-  var part2 = 1 - Math.cos((Math.PI) * ((point.y - s) / (xm - s)));
-  var theVal = (0.5 * part2) - 1;
-  point.x += theVal * sandCurlOffset;
-
-  return point;
 }
 
 function validateCanvasSize()
@@ -258,6 +246,9 @@ function update()
 
 function updateSkyVisuals()
 {
+  //---------------
+  //   SKY COLOR
+  //---------------
   var todColor = skyColorNight;
   var skyLerp = 1;
   if (tod > skyBlueMin && tod < skyBlueMax)
@@ -273,10 +264,36 @@ function updateSkyVisuals()
   bgCtx.fillStyle = skyColor;
   bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
 
+  //-----------
+  //   STARS
+  //-----------
+  if (tod < starsHideTime || tod > starsShowTime)
+  {
+    var starsTimeMid = 0.5;
+    var totalStarsTime = starsHideTime + (1-starsShowTime);
+    var starsTime = (tod < starsHideTime) ? starsHideTime - tod : tod - starsShowTime;
+    var nightTimeNormal = 1 - (starsTime / totalStarsTime);
+
+    var nightTimeLerp = nightTimeNormal <= starsTimeMid ? EasingUtil.easeOutCubic(nightTimeNormal, 0, 1, 0.5)
+      : EasingUtil.easeInCubic(nightTimeNormal-0.5, 1, -1, 0.5);
+
+    //draw some stars!!!
+    for (var i = 0; i < stars.length; i++)
+    {
+      stars[i].draw(bgCtx, nightTimeLerp);
+    }
+  }
+
+  //-----------------------
+  //   DARKEN MIDGROUND
+  //-----------------------
   //TODO: wanna be able to tint it a bit with the sky gradient tooo!!!
-  var darkenAmount = 85;
+  var darkenAmount = 96;
   mgCanvas.style.filter = 'brightness('+((100-darkenAmount) + ((1-skyLerp)*darkenAmount))+'%)';
 
+  //----------
+  //   SUN
+  //----------
   //if the sun is visible, how far into the daytime is it...
   var sunColor = sunColorEdges;
   var sunY = 0;
@@ -294,7 +311,6 @@ function updateSkyVisuals()
     sunColor = ColorUtil.lerp(dayTimeLerp, sunColorMid, sunColorEdges);
 
     sunSize = Math.scaleNormal(dayTimeLerp, sunSizeMin, sunSizeMax);
-    //var sunX = (dayTimeNormal * (bgCanvas.width + (2 * sunSize))) - sunSize;
     sunX = dayTimeNormal * bgCanvas.width;
     var heightOffset = 0.95;
     sunY = (bgCanvas.height*(1-heightOffset)) + sunSize + (dayTimeLerp * (heightOffset*bgCanvas.height));
@@ -342,19 +358,84 @@ function updateSkyVisuals()
     bgCtx.fill();
   }
 
-  if (tod < starsHideTime || tod > starsShowTime)
+  //----------
+  //   MOON
+  //----------
+  if (tod < moonSetTime || tod > moonRiseTime)
   {
-    var nightTimeNormal = Math.minMaxNormal(tod, starsHideTime, starsShowTime);
-    var nightTimeMid = Math.scaleNormal(0.5, starsHideTime, starsShowTime);
-    var nightTimeLerp = nightTimeNormal <= nightTimeMid ? EasingUtil.easeOutCubic(nightTimeNormal, 1, -1, 0.5)
-      : EasingUtil.easeInCubic(nightTimeNormal-0.5, 0, 1, 0.5);
-    nightTimeLerp -= 1;
+    var moonTimeMid = 0.5;
+    var totalMoonTime = moonSetTime + (1-moonRiseTime);
+    var moonTime = (tod < moonSetTime) ? (1-moonRiseTime) + tod : tod - moonRiseTime;
+    var moonTimeNormal = moonTime / totalMoonTime;
 
-    //draw some stars!!!
-    for (var i = 0; i < stars.length; i++)
-    {
-      stars[i].draw(bgCtx, nightTimeLerp);
-    }
+    var moonTimeLerp = moonTimeNormal <= moonTimeMid ? EasingUtil.easeOutCubic(moonTimeNormal, 1, -1, 0.5)
+      : EasingUtil.easeInCubic(moonTimeNormal-0.5, 0, 1, 0.5);
+
+    var moonColor = ColorUtil.lerp(moonTimeLerp, moonColorMid, moonColorEdges);
+
+    var moonSize = Math.scaleNormal(moonTimeLerp, moonSizeMin, moonSizeMax);
+    //var sunX = (dayTimeNormal * (bgCanvas.width + (2 * sunSize))) - sunSize;
+    var moonX = moonTimeNormal * bgCanvas.width;
+    var heightOffset = 0.9;
+    var moonY = moonSize + (moonTimeLerp * (heightOffset*bgCanvas.height));
+
+    //draw the moon.
+    bgCtx.fillStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 0.025)';
+    bgCtx.beginPath();
+    bgCtx.arc(moonX-1, moonY+2, moonSize*2, 0, 2 * Math.PI);
+    bgCtx.fill();
+
+    bgCtx.fillStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 0.05)';
+    bgCtx.beginPath();
+    bgCtx.arc(moonX-2, moonY-1, moonSize*1.25, 0, 2 * Math.PI);
+    bgCtx.fill();
+
+    bgCtx.strokeStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 0.05)';
+    bgCtx.lineWidth   = 2;
+    bgCtx.beginPath();
+    bgCtx.arc(moonX, moonY, moonSize*1.8, 0, 2 * Math.PI);
+    bgCtx.stroke();
+
+    bgCtx.fillStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 1)';
+    bgCtx.beginPath();
+    bgCtx.arc(moonX, moonY, moonSize, 0, 2 * Math.PI);
+    bgCtx.fill();
+
+    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    bgCtx.beginPath();
+    bgCtx.arc(moonX+2, moonY+5, moonSize-5, 0, 2 * Math.PI);
+    bgCtx.fill();
+
+    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    bgCtx.beginPath();
+    bgCtx.arc(moonX+(moonSize*0.1), moonY+(moonSize*0.3), moonSize*0.2, 0, 2 * Math.PI);
+    bgCtx.fill();
+
+    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    bgCtx.beginPath();
+    bgCtx.arc(moonX+(moonSize*0.6), moonY+(moonSize*0.1), moonSize*0.15, 0, 2 * Math.PI);
+    bgCtx.fill();
+
+    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    bgCtx.beginPath();
+    bgCtx.arc(moonX-(moonSize*0.4), moonY+(moonSize*0.025), moonSize*0.1, 0, 2 * Math.PI);
+    bgCtx.fill();
+
+    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    bgCtx.beginPath();
+    bgCtx.arc(moonX-(moonSize*0.6), moonY-(moonSize*0.1), moonSize*0.2, 0, 2 * Math.PI);
+    bgCtx.fill();
+
+    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    bgCtx.beginPath();
+    bgCtx.arc(moonX-(moonSize*0.3), moonY-(moonSize*0.6), moonSize*0.1, 0, 2 * Math.PI);
+    bgCtx.fill();
+
+    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    bgCtx.beginPath();
+    bgCtx.arc(moonX+(moonSize*0.6), moonY-(moonSize*0.4), moonSize*0.15, 0, 2 * Math.PI);
+    bgCtx.fill();
+
   }
 }
 
