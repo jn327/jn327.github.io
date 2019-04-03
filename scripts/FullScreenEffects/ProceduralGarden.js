@@ -43,7 +43,7 @@ var starTwinkleMultip       = 0.25;
 var starAlphaOffsetMultip   = 25;
 
 var shootingStarFreqMin     = 0.005;
-var shootingStarFreqMax     = 0.02;
+var shootingStarFreqMax     = 0.05;
 var shootingStarWaitDur     = shootingStarFreqMin;
 var currShootingStar;
 
@@ -291,6 +291,8 @@ function updateSkyVisuals()
     }
 
     //Shooting stars
+    //TODO: I need to verify and check the timing stuff here (currProgress) works as expected.
+    // written hurredly late in the evening.
     var currProgress = 0;
     if (tod < currShootingStar.startTime)
     {
@@ -300,19 +302,18 @@ function updateSkyVisuals()
     {
       currProgress = (tod - currShootingStar.startTime) / shootingStarWaitDur;
     }
+    console.log(currProgress +", tod: "+tod);
 
-    // if we're not having to wait anymore, then update the star!
-    if (currProgress >= shootingStarWaitDur)
+    var bStarAlive = currShootingStar.checkLifetime( bgCanvas.width, bgCanvas.height, tod, currProgress > 1 );
+    if (bStarAlive && currShootingStar.bSetup)
     {
-      var bStarAlive = currShootingStar.checkLifetime( bgCanvas.width, bgCanvas.height, tod );
-      if (bStarAlive)
-      {
-        currShootingStar.draw(bgCtx);
-      }
-      else
-      {
-        shootingStarWaitDur = currShootingStar.duration + shootingStarFreqMin + (Math.random() * shootingStarFreqMax);
-      }
+      currShootingStar.draw(bgCtx);
+    }
+    else if (currShootingStar.bSetup)
+    {
+      currShootingStar.bSetup = false;
+      shootingStarWaitDur = currShootingStar.duration + (shootingStarFreqMin + (Math.random() * shootingStarFreqMax));
+      console.log("duration is "+currShootingStar.duration +", wait for next star is "+shootingStarWaitDur);
     }
   }
 
@@ -517,10 +518,10 @@ function ShootingStar()
   this.startPosition = new Vector2D(0,0);
   this.position = new Vector2D(0,0);
   this.endPosition = new Vector2D(0,0);
-  this.size = 1;
+  this.size = 0.5;
   this.startTime = 0;
-  this.minDur = 0.075;
-  this.maxDur = 0.1;
+  this.minDur = 0.002;
+  this.maxDur = 0.01;
   this.duration = 0;
   this.direction = new Vector2D(0,0);
 
@@ -529,9 +530,9 @@ function ShootingStar()
   this.minTravelDist = 0.4;
   this.maxTravelDist = 0.8;
 
-  this.checkLifetime = function( canvasWidth, canvasHeight, timeOfDay )
+  this.checkLifetime = function( canvasWidth, canvasHeight, timeOfDay, performSetup )
   {
-    if (!this.bSetup)
+    if (!this.bSetup && performSetup)
     {
       this.startTime = timeOfDay;
 
@@ -540,7 +541,6 @@ function ShootingStar()
 
       this.duration = this.minDur + (Math.random() * this.maxDur);
 
-      //TODO: What if its the same or really close??
       var centerDirX = this.startPosition.x - (canvasWidth * 0.5);
       var centerDirY = this.startPosition.y - (canvasHeight * 0.5);
       var centerDir = new Vector2D(centerDirX, centerDirY);
@@ -549,10 +549,16 @@ function ShootingStar()
       var moveDistX = (this.minTravelDist + (Math.random() * this.maxTravelDist)) * canvasWidth;
       var moveDistY = (this.minTravelDist + (Math.random() * this.maxTravelDist)) * canvasHeight;
 
-      this.endPosition.x = this.startPosition.x + (centerDir.x * moveDistX);
-      this.endPosition.y = this.startPosition.y + (centerDir.y * moveDistY);
+      this.endPosition.x = this.startPosition.x - (centerDir.x * moveDistX);
+      this.endPosition.y = this.startPosition.y - (centerDir.y * moveDistY);
+      console.log("star created, dur of "+this.duration +", tod: "+timeOfDay);
 
       this.bSetup = true;
+    }
+
+    if (!this.bSetup)
+    {
+      return false;
     }
 
     //what if the startTime was 1 and we're now at 0, well check if current time < startTime
@@ -567,14 +573,13 @@ function ShootingStar()
     }
 
     // if we're at the end of our progress, then return.
-    if (currProgress >= this.duration)
+    if (currProgress > 1)
     {
-      this.bSetup = false;
       return false;
     }
 
-    this.position.x = EasingUtil.easeNone(currProgress, this.startPosition.x, this.startPosition.x-this.endPosition.x, this.duration);
-    this.position.y = EasingUtil.easeNone(currProgress, this.startPosition.y, this.startPosition.y-this.endPosition.y, this.duration);
+    this.position.x = EasingUtil.easeOutCubic(currProgress, this.startPosition.x, this.endPosition.x - this.startPosition.x, 1);
+    this.position.y = EasingUtil.easeOutCubic(currProgress, this.startPosition.y, this.endPosition.y - this.startPosition.y, 1);
 
     return true;
   }
@@ -586,9 +591,8 @@ function ShootingStar()
     theCanvas.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
     theCanvas.fill();
 
-    //TODO: maybe make this limited in length....
-    theCanvas.strokeStyle = 'rgba(255,255,255,0.1)';
-    theCanvas.lineWidth   = 0.5;
+    theCanvas.strokeStyle = 'rgba(255,255,255,0.5)';
+    theCanvas.lineWidth   = 0.25;
     theCanvas.beginPath();
     theCanvas.lineTo(this.startPosition.x, this.startPosition.y);
     theCanvas.lineTo(this.position.x, this.position.y);
