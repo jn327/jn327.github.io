@@ -163,12 +163,12 @@ function drawSand()
     mgCtx.beginPath();
     mgCtx.lineTo(0, mgCanvas.height);
 
-    for (var x = 0; x < mgCanvas.width; x += sandSampleStepSize)
+    for (var x = -sandCurlOffset; x < mgCanvas.width; x += sandSampleStepSize)
     {
-      goToSandPos(x, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip, x != 0);
+      goToSandPos(x, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip);
     }
 
-    goToSandPos(mgCanvas.width, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip, true);
+    goToSandPos(mgCanvas.width, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip);
 
     mgCtx.lineTo(mgCanvas.width, mgCanvas.height);
     mgCtx.fill();
@@ -176,7 +176,7 @@ function drawSand()
   }
 }
 
-function goToSandPos(x, noise, noiseFreq, heightMin, heightMax, scaleMultip, bCurled)
+function goToSandPos(x, noise, noiseFreq, heightMin, heightMax, scaleMultip)
 {
   var thePoint = new Vector2D(0, 0);
   thePoint.x = x;
@@ -188,12 +188,9 @@ function goToSandPos(x, noise, noiseFreq, heightMin, heightMax, scaleMultip, bCu
   thePoint.y = (yNoise*(1-ridgeNoiseStr)) + (ridgedYNoise*ridgeNoiseStr);
 
   //curl the noise a bit.
-  if (bCurled)
-  {
-    //we're offsetting x based on the value of y, its a bit hacky, but it looks nicer than anything else I've tried.
-    var curlVal = (1 - Math.cos(2 * Math.PI * thePoint.y)) * 0.5;
-    thePoint.x += curlVal * sandCurlOffset;
-  }
+  //we're offsetting x based on the value of y, its a bit hacky, but it looks nicer than anything else I've tried.
+  var curlVal = (1 - Math.cos(2 * Math.PI * thePoint.y)) * 0.5;
+  thePoint.x += curlVal * sandCurlOffset;
 
   thePoint.y = Math.scaleNormal(thePoint.y, heightMin, heightMax);
   thePoint.y = mgCanvas.height - (thePoint.y * scaleMultip * mgCanvas.height);
@@ -291,29 +288,27 @@ function updateSkyVisuals()
     }
 
     //Shooting stars
-    //TODO: I need to verify and check the timing stuff here (currProgress) works as expected.
-    // written hurredly late in the evening.
     var currProgress = 0;
     if (tod < currShootingStar.startTime)
     {
-      currProgress = (tod + (1 - currShootingStar.startTime)) / shootingStarWaitDur;
+      currProgress = (tod + ((1 - currShootingStar.startTime)+currShootingStar.duration)) / shootingStarWaitDur;
     }
     else
     {
-      currProgress = (tod - currShootingStar.startTime) / shootingStarWaitDur;
+      currProgress = (tod - (currShootingStar.startTime+currShootingStar.duration)) / shootingStarWaitDur;
     }
-    console.log(currProgress +", tod: "+tod);
 
-    var bStarAlive = currShootingStar.checkLifetime( bgCanvas.width, bgCanvas.height, tod, currProgress > 1 );
-    if (bStarAlive && currShootingStar.bSetup)
-    {
-      currShootingStar.draw(bgCtx);
-    }
-    else if (currShootingStar.bSetup)
+    var bStarAlive = currShootingStar.updateLifeTime( bgCtx, bgCanvas.width, bgCanvas.height, tod, currProgress >= 1 );
+    if (!bStarAlive && currShootingStar.bSetup)
     {
       currShootingStar.bSetup = false;
-      shootingStarWaitDur = currShootingStar.duration + (shootingStarFreqMin + (Math.random() * shootingStarFreqMax));
-      console.log("duration is "+currShootingStar.duration +", wait for next star is "+shootingStarWaitDur);
+      shootingStarWaitDur = (shootingStarFreqMin + (Math.random() * shootingStarFreqMax));
+
+      var stopTime = tod + shootingStarWaitDur;
+      if (stopTime > 1)
+      {
+        stopTime = stopTime - 1;
+      }
     }
   }
 
@@ -526,17 +521,18 @@ function ShootingStar()
   this.direction = new Vector2D(0,0);
 
   this.bSetup = false;
-  this.maxSpawnPosY = 0.3;
+  this.maxSpawnPosY = 0.33;
+  this.minSpawnPosX = 0.9;
   this.minTravelDist = 0.4;
   this.maxTravelDist = 0.8;
 
-  this.checkLifetime = function( canvasWidth, canvasHeight, timeOfDay, performSetup )
+  this.updateLifeTime = function( theCanvas, canvasWidth, canvasHeight, timeOfDay, performSetup )
   {
     if (!this.bSetup && performSetup)
     {
       this.startTime = timeOfDay;
 
-      this.startPosition.x = canvasWidth;
+      this.startPosition.x = (this.minSpawnPosX + (Math.random() * (1-this.minSpawnPosX))) * canvasWidth;
       this.startPosition.y = Math.random() * canvasHeight * this.maxSpawnPosY;
 
       this.duration = this.minDur + (Math.random() * this.maxDur);
@@ -551,7 +547,6 @@ function ShootingStar()
 
       this.endPosition.x = this.startPosition.x - (centerDir.x * moveDistX);
       this.endPosition.y = this.startPosition.y - (centerDir.y * moveDistY);
-      console.log("star created, dur of "+this.duration +", tod: "+timeOfDay);
 
       this.bSetup = true;
     }
@@ -581,22 +576,39 @@ function ShootingStar()
     this.position.x = EasingUtil.easeOutCubic(currProgress, this.startPosition.x, this.endPosition.x - this.startPosition.x, 1);
     this.position.y = EasingUtil.easeOutCubic(currProgress, this.startPosition.y, this.endPosition.y - this.startPosition.y, 1);
 
-    return true;
-  }
+    var alphaMultip = 1 - currProgress;
 
-  this.draw = function(theCanvas)
-  {
-    theCanvas.fillStyle = 'rgba(255,255,255,1)';
+    theCanvas.fillStyle = 'rgba(255,255,255,'+alphaMultip+')';
     theCanvas.beginPath();
     theCanvas.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
     theCanvas.fill();
 
-    theCanvas.strokeStyle = 'rgba(255,255,255,0.5)';
-    theCanvas.lineWidth   = 0.25;
+    //line behind it!
+    var startDirX = this.position.x - this.startPosition.x;
+    var startDirY = this.position.y - this.startPosition.y;
+    var startDir = new Vector2D(startDirX, startDirY);
+
+    theCanvas.strokeStyle = 'rgba(255,255,255,'+(0.5*alphaMultip)+')';
+    theCanvas.lineWidth   = 0.4;
     theCanvas.beginPath();
-    theCanvas.lineTo(this.startPosition.x, this.startPosition.y);
+
+    var startDirLength = startDir.magnitude();
+    var maxLength = canvasWidth * 0.5;
+    if (startDirLength <= maxLength)
+    {
+      theCanvas.lineTo(this.startPosition.x, this.startPosition.y);
+    }
+    else
+    {
+      startDir = startDir.normalize();
+      startDir = startDir.multiply(maxLength);
+
+      theCanvas.lineTo(this.position.x - startDir.x, this.position.y - startDir.y);
+    }
+
     theCanvas.lineTo(this.position.x, this.position.y);
     theCanvas.stroke();
 
+    return true;
   }
 }
