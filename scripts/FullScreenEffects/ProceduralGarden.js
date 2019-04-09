@@ -69,17 +69,18 @@ var interLayerNoiseStr      = 0.66; //multiplier for the above noise
 var ridgeNoiseStr           = 0.5; //how rideged should our sand be
 var sandCurlOffset          = 25;
 
-var riverPointsUp = [];
-var riverPointsDown = [];
-var riverWMin = 300;
-var riverWMax = 400;
-var valleyWMin = 300;
-var valleyWMax = 400;
-var riverMaxHeight = 0.33;
-var interLayerRiverNoiseFreq = 0.05;
-var riverLayerNoiseStr = 1;
-var riverOffsetXMin = -300;
-var riverOffsetXMax = 300;
+var riverPointsUp             = [];
+var riverPointsDown           = [];
+var riverWMin                 = 300;
+var riverWMax                 = 400;
+var valleyWMin                = 300;
+var valleyWMax                = 400;
+var riverMaxHeight            = 0.33;
+var interLayerRiverNoiseFreq  = 0.05;
+var riverLayerNoiseStr        = 1;
+var riverOffsetXMin           = -300;
+var riverOffsetXMax           = 300;
+var riverColor                = 'rgba(184, 231, 255, 0.8)';
 
 //------------------------------------------------
 //                    Start
@@ -88,7 +89,7 @@ init();
 function init()
 {
   var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise',
-    'Utils/EasingUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler' ];
+    'Utils/EasingUtil', 'Utils/BezierPathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler' ];
   for (var i = 0; i < includes.length; i++ )
   {
     var theScript = document.createElement('script');
@@ -200,28 +201,28 @@ function drawSand()
   }
 
   //draw the river
-  mgCtx.fillStyle = 'rgba(184, 231, 255, 0.8)';
-  mgCtx.beginPath();
+  mgCtx.fillStyle = riverColor;
+  mgCtx.lineJoin = 'round';
+  mgCtx.strokeStyle = "rgba(255,255,255, 0.2)";
+  mgCtx.lineWidth = 3;
+
+  var thePath = new Path2D();
   var halfRiverW = (riverWidth + valleyW) * 0.5;
-  mgCtx.lineTo(riverMidX - halfRiverW, mgCanvas.height);
+  thePath.lineTo(riverMidX - halfRiverW, mgCanvas.height);
 
-  var thePoint;
-  for (var u = 0; u < riverPointsUp.length; u++)
-  {
-    var inverseIndex = (riverPointsUp.length - 1) - u;
-    thePoint = riverPointsUp[inverseIndex];
-    mgCtx.lineTo(thePoint.x, thePoint.y);
-  }
+  thePath = BezierPathUtil.createCurve(riverPointsUp, thePath);
+  thePath = BezierPathUtil.createCurve(riverPointsDown, thePath);
 
-  for (var d = 0; d < riverPointsDown.length; d++)
-  {
-    thePoint = riverPointsDown[d];
-    mgCtx.lineTo(thePoint.x, thePoint.y);
-  }
+  thePath.lineTo(riverMidX + halfRiverW, mgCanvas.height);
 
-  mgCtx.lineTo(riverMidX + halfRiverW, mgCanvas.height);
-  mgCtx.fill();
+  mgCtx.fill(thePath);
+  mgCtx.stroke(thePath);
 
+  //TODO: would be quite nice to have a shrunk river shape to draw a dark blob for the deeper areas.
+  //think to do this we'll have to refactor, so that there's one riverPoints array and a riverWidths array.
+  //then we can have a few loops, looping thru the river points and drawing a few shapes multiplying by a width factor.
+
+  //we'll have to make sure to stop once width gets close to 0.
 }
 
 function goToSandPos(x, noise, noiseFreq, heightMin, heightMax, scaleMultip, riverMidX, riverW, valleyW, layerN)
@@ -283,7 +284,7 @@ function goToSandPos(x, noise, noiseFreq, heightMin, heightMax, scaleMultip, riv
   // add the river points to our lists.
   if (bRiverPointUp)
   {
-    riverPointsUp.push(new Vector2D(thePoint.x, thePoint.y));
+    riverPointsUp.unshift(new Vector2D(thePoint.x, thePoint.y));
   }
   else if (bRiverPointDown)
   {

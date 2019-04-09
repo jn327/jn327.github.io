@@ -27,9 +27,19 @@ function Vector2D(x, y)
     return this;
   }
 
+  this.getMultiplied = function(n)
+  {
+    return new Vector2D(this.x * n, this.y * n);
+  }
+
   this.direction = function(that)
   {
     return new Vector2D(this.x - that.x, this.y - that.y);
+  }
+
+  this.sum = function(that)
+  {
+    return new Vector2D(this.x + that.x, this.y + that.y);
   }
 
   this.distance = function(that)
