@@ -69,8 +69,8 @@ var interLayerNoiseStr      = 0.66; //multiplier for the above noise
 var ridgeNoiseStr           = 0.5; //how rideged should our sand be
 var sandCurlOffset          = 25;
 
-var riverPointsUp             = [];
-var riverPointsDown           = [];
+var riverPoints               = [];
+var riverWidths               = [];
 var riverWMin                 = 300;
 var riverWMax                 = 400;
 var valleyWMin                = 300;
@@ -80,7 +80,8 @@ var interLayerRiverNoiseFreq  = 0.05;
 var riverLayerNoiseStr        = 1;
 var riverOffsetXMin           = -300;
 var riverOffsetXMax           = 300;
-var riverColor                = 'rgba(184, 231, 255, 0.8)';
+var riverColorStart           = [184, 231, 255];
+var riverColorEnd             = [53, 154, 255];
 
 //------------------------------------------------
 //                    Start
@@ -162,7 +163,6 @@ function drawSand()
 
   riverPointsUp = [];
   riverPointsDown = [];
-  //TODO: we should vary these 3 with noise functions as we move thru layers.
   var riverMidX = Math.getRnd(0.25, 0.75) * mgCanvas.width;
   var riverWidth = Math.getRnd(riverWMin, riverWMax);
   var valleyW = Math.getRnd(valleyWMin, valleyWMax);
@@ -201,28 +201,47 @@ function drawSand()
   }
 
   //draw the river
-  mgCtx.fillStyle = riverColor;
+  var nRiverLayers = 4;
+
   mgCtx.lineJoin = 'round';
-  mgCtx.strokeStyle = "rgba(255,255,255, 0.2)";
   mgCtx.lineWidth = 3;
 
-  var thePath = new Path2D();
-  var halfRiverW = (riverWidth + valleyW) * 0.5;
-  thePath.lineTo(riverMidX - halfRiverW, mgCanvas.height);
+  for ( var i = 0; i < nRiverLayers; i++ )
+  {
+    //we'll have to make sure to stop once width gets close to 0.
+    var widthMultip = 1 - (i/nRiverLayers);
+    var widthMultipEased = EasingUtil.easeInQuad(widthMultip, 0.2, 1, 1);
 
-  thePath = BezierPathUtil.createCurve(riverPointsUp, thePath);
-  thePath = BezierPathUtil.createCurve(riverPointsDown, thePath);
+    mgCtx.beginPath();
+    mgCtx.strokeStyle = "rgba(255,255,255, "+((i == 0) ? 0.66 : 0) +")";
 
-  thePath.lineTo(riverMidX + halfRiverW, mgCanvas.height);
+    var riverColor = ColorUtil.lerp(widthMultip, riverColorEnd, riverColorStart);
+    mgCtx.fillStyle = ColorUtil.rgbToHex(riverColor);
 
-  mgCtx.fill(thePath);
-  mgCtx.stroke(thePath);
+    var thePath = new Path2D();
+    var halfRiverW = (riverWidth + valleyW) * 0.5 * widthMultipEased;
 
-  //TODO: would be quite nice to have a shrunk river shape to draw a dark blob for the deeper areas.
-  //think to do this we'll have to refactor, so that there's one riverPoints array and a riverWidths array.
-  //then we can have a few loops, looping thru the river points and drawing a few shapes multiplying by a width factor.
+    thePath.moveTo(riverMidX - halfRiverW, mgCanvas.height);
 
-  //we'll have to make sure to stop once width gets close to 0.
+    var riverPointsUp = [];
+    var riverPointsDown = [];
+    for (var p = 0; p < riverPoints.length; p++)
+    {
+      var thePoint = riverPoints[p];
+      var theWidth = riverWidths[p] * widthMultipEased;
+
+      riverPointsUp.unshift(new Vector2D(thePoint.x - theWidth, thePoint.y));
+      riverPointsDown.push(new Vector2D(thePoint.x + theWidth, thePoint.y));
+    }
+
+    thePath = BezierPathUtil.createCurve(riverPointsUp, thePath, 0.66);
+    thePath = BezierPathUtil.createCurve(riverPointsDown, thePath, 0.66);
+
+    thePath.lineTo(riverMidX + halfRiverW, mgCanvas.height);
+
+    mgCtx.fill(thePath);
+    mgCtx.stroke(thePath);
+  }
 }
 
 function goToSandPos(x, noise, noiseFreq, heightMin, heightMax, scaleMultip, riverMidX, riverW, valleyW, layerN)
@@ -282,13 +301,10 @@ function goToSandPos(x, noise, noiseFreq, heightMin, heightMax, scaleMultip, riv
   thePoint.y = mgCanvas.height - (thePoint.y * scaleMultip * mgCanvas.height);
 
   // add the river points to our lists.
-  if (bRiverPointUp)
+  if ( x <= riverMidX && x + sandSampleStepSize > riverMidX )
   {
-    riverPointsUp.unshift(new Vector2D(thePoint.x, thePoint.y));
-  }
-  else if (bRiverPointDown)
-  {
-    riverPointsDown.push(new Vector2D(thePoint.x, thePoint.y));
+    riverPoints.push(new Vector2D(thePoint.x, thePoint.y));
+    riverWidths.push(halfRiverW);
   }
 
   mgCtx.lineTo(thePoint.x, thePoint.y);
