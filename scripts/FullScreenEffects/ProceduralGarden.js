@@ -3,7 +3,7 @@ var bgCanvas, bgCtx;
 var mgCanvas, mgCtx;
 var fgCanvas, fgCtx;
 
-//variables
+//variables... TODO: maybe encapsulate/namespace these??
 var dayDur                    = 45;
 var dayTimer                  = dayDur*0.5;
 var tod                       = 0; //0-1
@@ -70,8 +70,10 @@ var lowestSandPoint;          //used to figure out were to start the river
 
 var riverPoints               = [];
 var riverWidths               = [];
+var valleyWidths              = [];
 var riverWMin                 = 350;
 var riverWMax                 = 500;
+var riverEndW                 = 2;
 var riverNoiseFreq            = 0.05;
 var riverOffsetMultip         = 400;
 var riverColorStart           = [184, 231, 255];
@@ -79,7 +81,7 @@ var riverColorEnd             = [53, 154, 255];
 
 var windStr;                  //-1 to 1 scale
 var windNoise;                //perlin noise
-var windNoiseFreq             = 0.003;
+var windNoiseFreq             = 0.0005;
 var minClouds                 = 3;
 var maxClouds                 = 8;
 var minCloudSize              = 0.33;
@@ -278,14 +280,16 @@ function drawRivers( theNoise )
     var currX = (riverXDelta * riverPointN);
     var currY = (riverYDelta * riverPointN);
 
-    var easedRiverWidth = riverWidth * EasingUtil.easeInSine(riverPointN, 0, 1, 1);
+    var easedRiverWidth = riverEndW + ((riverWidth - riverEndW) * EasingUtil.easeInSine(riverPointN, 0, 1, 1));
 
     riverPoints.push(new Vector2D(riverStartX + currX + riverOffsetX, riverStartY + currY));
     riverWidths.push(easedRiverWidth);
+
+    valleyWidths.push(easedRiverWidth + 22);
   }
 
   //the actual drawing bit
-  var nRiverLayers = 6;
+  var nRiverLayers = 4;
 
   mgCtx.lineJoin = 'round';
   mgCtx.lineWidth = 2;
@@ -369,6 +373,8 @@ function update()
   {
     dayTimer = 0;
   }
+
+  var prevTod = tod;
   tod = dayTimer / dayDur;
 
   //update the windStr
@@ -668,6 +674,7 @@ function drawClouds( brightness )
 {
   for (var c = 0; c < clouds.length; c++)
   {
+    clouds[c].update();
     clouds[c].draw(bgCtx, brightness);
   }
 }
@@ -676,8 +683,7 @@ function resetStars()
 {
   for (var i = 0; i < stars.length; i++)
   {
-    var newStar = stars[i];
-    setRandomStarPos(newStar);
+    setRandomStarPos(stars[i]);
   }
 }
 
@@ -685,8 +691,7 @@ function resetClouds()
 {
   for (var i = 0; i < clouds.length; i++)
   {
-    var newCloud = clouds[i];
-    setRandomCloudPos(newCloud);
+    setRandomCloudPos(clouds[i]);
   }
 }
 
@@ -838,18 +843,22 @@ function Cloud()
 {
   this.position = new Vector2D(0,0);
   this.scale = 1;
+  this.moveSpeed = 2000;
+
+  this.minW = 100;
+  this.maxW = 200;
+  this.minH = 20;
+  this.maxH = 50;
 
   this.points = [];
+
+  this.prevUpdateTod = 0;
 
   this.init = function ()
   {
     this.points = [];
 
     var nPoints = 150;
-    var minW = 100;
-    var maxW = 200;
-    var minH = 20;
-    var maxH = 50;
 
     var noise = new SimplexNoise();
     var nScale = 0.66;
@@ -863,14 +872,34 @@ function Cloud()
       var sizeScale = (noise.noise(t * noiseN * nScale, nScale) + 1) * 0.5;
       sizeScale = EasingUtil.easeOutQuad(sizeScale, 0, 1, 1);
 
-      var theW = Math.scaleNormal(sizeScale, minW, maxW);
-      var theH = Math.scaleNormal(sizeScale, minH, maxH);
+      var theW = Math.scaleNormal(sizeScale, this.minW, this.maxW);
+      var theH = Math.scaleNormal(sizeScale, this.minH, this.maxH);
 
       var x	=	theW * Math.cos(t) * this.scale;
       var y	=	theH * Math.sin(t) * this.scale;
 
       this.points.push(new Vector2D(x, y));
     }
+  }
+
+  this.update = function()
+  {
+    var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : this.prevUpdateTod - tod;
+    this.prevUpdateTod = tod;
+
+    this.position.x += windStr * todDelta * this.moveSpeed / this.scale;
+
+    if (this.position.x < -this.maxW)
+    {
+      this.init();
+      this.position.x = bgCanvas.width + this.maxW;
+    }
+    else if (this.position.x > bgCanvas.width + this.maxW)
+    {
+      this.init();
+      this.position.x = -this.maxW;
+    }
+
   }
 
   this.draw = function( theCanvas, brightness )
