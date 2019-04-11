@@ -401,13 +401,16 @@ function animateRiver()
 
     var widthMultip = (thePos % widthFreq) / widthFreq;
     var widthMultipEased = EasingUtil.easeOutQuad(widthMultip, 0, 1, 1);
-    widthMultipEased = Math.scaleNormal(widthMultipEased, 0.75, 1);
+    widthMultipEased = Math.scaleNormal(widthMultipEased, 0.66, 1);
 
     var theAlpha = -(Math.cos((2 * Math.PI * thePos) / widthFreq) * 0.5) + 0.5;
     theAlpha = Math.scaleNormal(theAlpha, 0, 0.33);
 
+    var lineWidth = (thePos % widthFreq) / widthFreq;
+    lineWidth = Math.scaleNormal(lineWidth, 3, 9);
+
     fgCtx.lineJoin = 'round';
-    fgCtx.lineWidth = 4;
+    fgCtx.lineWidth = lineWidth;
     fgCtx.strokeStyle = "rgba(255,255,255, "+theAlpha+")";
 
     //get on to the drawing
