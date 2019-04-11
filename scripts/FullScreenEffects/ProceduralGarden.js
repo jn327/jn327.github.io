@@ -70,7 +70,7 @@ var lowestSandPoint;          //used to figure out were to start the river
 
 var riverPoints               = [];
 var riverWidths               = [];
-var valleyWidths              = [];
+var riverOpacity              = 0.5;
 var riverWMin                 = 350;
 var riverWMax                 = 500;
 var riverEndW                 = 2;
@@ -78,6 +78,14 @@ var riverNoiseFreq            = 0.05;
 var riverOffsetMultip         = 400;
 var riverColorStart           = [184, 231, 255];
 var riverColorEnd             = [53, 154, 255];
+
+var valleyWidths              = [];
+var valleyOpacity             = 0.33;
+var valleyWMin                = 500;
+var valleyWMax                = 750;
+var valleyEndW                = 2;
+var valleyColorStart          = [73, 153, 103];
+var valleyColorEnd            = [153, 117, 73];
 
 var windStr;                  //-1 to 1 scale
 var windNoise;                //perlin noise
@@ -268,6 +276,7 @@ function drawRivers( theNoise )
   var riverYDelta = riverEndY - riverStartY;
 
   var riverWidth = Math.getRnd(riverWMin, riverWMax);
+  var valleyWidth = Math.getRnd(valleyWMin, valleyWMax);
 
   var nRiverPoints = 20;
   for (j = 0; j < nRiverPoints; j++)
@@ -280,31 +289,62 @@ function drawRivers( theNoise )
     var currX = (riverXDelta * riverPointN);
     var currY = (riverYDelta * riverPointN);
 
-    var easedRiverWidth = riverEndW + ((riverWidth - riverEndW) * EasingUtil.easeInSine(riverPointN, 0, 1, 1));
+    var easedRiverW = riverEndW + ((riverWidth - riverEndW) * EasingUtil.easeInSine(riverPointN, 0, 1, 1));
 
     riverPoints.push(new Vector2D(riverStartX + currX + riverOffsetX, riverStartY + currY));
-    riverWidths.push(easedRiverWidth);
+    riverWidths.push(easedRiverW);
 
-    valleyWidths.push(easedRiverWidth + 22);
+    var easedValleyW = valleyEndW + ((valleyWidth - valleyEndW) * EasingUtil.easeInSine(riverPointN, 0, 1, 1));
+    valleyWidths.push(easedRiverW + easedValleyW);
+  }
+
+  //draw the valley!!!
+  var nValleyLayers = 4;
+  for ( var v = 0; v < nValleyLayers; v++ )
+  {
+    var widthMultip = 1 - (v/(nValleyLayers-1));
+    var widthMultipMin = 0.1;
+    var widthMultipEased = EasingUtil.easeOutQuad(widthMultip, widthMultipMin, 1-widthMultipMin, 1);
+
+    mgCtx.beginPath();
+
+    var valleyColor = ColorUtil.lerp(widthMultip, valleyColorStart, valleyColorEnd);
+    //TODO: maybe change the opacity??
+    mgCtx.fillStyle = 'rgba('+valleyColor[0]+','+valleyColor[1]+','+valleyColor[2]+', '+valleyOpacity+')';
+
+    var thePath = new Path2D();
+
+    var valleyPointsUp = [];
+    var valleyPointsDown = [];
+    for (var p = 0; p < riverPoints.length; p++)
+    {
+      var thePoint = riverPoints[p];
+      var theWidth = valleyWidths[p] * widthMultipEased;
+
+      valleyPointsUp.push(new Vector2D(thePoint.x - theWidth, thePoint.y));
+      valleyPointsDown.unshift(new Vector2D(thePoint.x + theWidth, thePoint.y));
+    }
+
+    var valleyEdgeRoundness = 0.5;
+    thePath = BezierPathUtil.createCurve(valleyPointsUp, thePath, valleyEdgeRoundness);
+    thePath = BezierPathUtil.createCurve(valleyPointsDown, thePath, valleyEdgeRoundness);
+
+    mgCtx.fill(thePath);
   }
 
   //the actual drawing bit
   var nRiverLayers = 4;
 
-  mgCtx.lineJoin = 'round';
-  mgCtx.lineWidth = 2;
-  mgCtx.strokeStyle = "rgba(255,255,255, 0.33)";
-
   for ( var k = 0; k < nRiverLayers; k++ )
   {
     var widthMultip = 1 - (k/(nRiverLayers-1));
     var widthMultipMin = 0.1;
-    var widthMultipEased = EasingUtil.easeInQuad(widthMultip, widthMultipMin, 1-widthMultipMin, 1);
+    var widthMultipEased = EasingUtil.easeOutSine(widthMultip, widthMultipMin, 1-widthMultipMin, 1);
 
     mgCtx.beginPath();
 
     var riverColor = ColorUtil.lerp(widthMultip, riverColorEnd, riverColorStart);
-    mgCtx.fillStyle = ColorUtil.rgbToHex(riverColor);
+    mgCtx.fillStyle = 'rgba('+riverColor[0]+','+riverColor[1]+','+riverColor[2]+', '+riverOpacity+')';
 
     var thePath = new Path2D();
 
@@ -324,11 +364,6 @@ function drawRivers( theNoise )
     thePath = BezierPathUtil.createCurve(riverPointsDown, thePath, riverEdgeRoundness);
 
     mgCtx.fill(thePath);
-
-    if (k == 0)
-    {
-      mgCtx.stroke(thePath);
-    }
   }
 }
 
