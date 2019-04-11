@@ -4,84 +4,85 @@ var mgCanvas, mgCtx;
 var fgCanvas, fgCtx;
 
 //variables
-var dayDur                  = 45;
-var dayTimer                = dayDur*0.5;
-var tod                     = 0; //0-1
-var skyBlueMin              = 0.075;
-var skyBlueMax              = 0.925;
-var sunRiseTime             = 0.1;
-var sunSetTime              = 0.9;
+var dayDur                    = 45;
+var dayTimer                  = dayDur*0.5;
+var tod                       = 0; //0-1
+var skyBlueMin                = 0.075;
+var skyBlueMax                = 0.925;
+var sunRiseTime               = 0.1;
+var sunSetTime                = 0.9;
 
-var skyUpdateFreq           = 0.05;
-var skyUpdateTimer          = 0;
+var skyUpdateFreq             = 0.05;
+var skyUpdateTimer            = 0;
 
-var skyColorDay             = [183, 231, 255]; // [163, 225, 255];
-var skyColorNight           = [28, 19, 25];
+var skyColorDay               = [183, 231, 255]; // [163, 225, 255];
+var skyColorNight             = [28, 19, 25];
 
-var sunSizeMin              = 80;
-var sunSizeMax              = 320;
-var sunColorMid             = [255, 252, 214]; // [255, 236, 94];
-var sunColorEdges           = [239, 11, 31]; // [255, 110, 94];
+var sunSizeMin                = 80;
+var sunSizeMax                = 320;
+var sunColorMid               = [255, 252, 214]; // [255, 236, 94];
+var sunColorEdges             = [239, 11, 31]; // [255, 110, 94];
 
-var moonSizeMax             = 60;
-var moonSizeMin             = 30;
-var moonRiseTime            = 0.9;
-var moonSetTime             = 0.1;
-var moonColorMid            = [255, 254, 244];
-var moonColorEdges          = [255, 246, 244];
+var moonSizeMax               = 60;
+var moonSizeMin               = 30;
+var moonRiseTime              = 0.9;
+var moonSetTime               = 0.1;
+var moonColorMid              = [255, 254, 244];
+var moonColorEdges            = [255, 246, 244];
 
-var starsHideTime           = 0.2;
-var starsShowTime           = 0.8;
-var stars                   = [];
-var minStars                = 1000;
-var maxStars                = 1500;
-var minStarSize             = 0.1;
-var maxStarSize             = 1.2;
+var starsHideTime             = 0.2;
+var starsShowTime             = 0.8;
+var stars                     = [];
+var minStars                  = 1000;
+var maxStars                  = 1500;
+var minStarSize               = 0.1;
+var maxStarSize               = 1.2;
 var starNoise;
-var starNoiseScale          = 0.003;
-var starTwinkleMultip       = 0.25;
-var starAlphaOffsetMultip   = 25;
+var starNoiseScale            = 0.003;
+var starTwinkleMultip         = 0.25;
+var starAlphaOffsetMultip     = 25;
 
-var shootingStarFreqMin     = 0.005;
-var shootingStarFreqMax     = 0.05;
-var shootingStarWaitDur     = shootingStarFreqMin;
+var shootingStarFreqMin       = 0.005;
+var shootingStarFreqMax       = 0.05;
+var shootingStarWaitDur       = shootingStarFreqMin;
 var currShootingStar;
 
-var skyGradientMin          = 0.2;
-var skyGradientMax          = 0.8;
-var skyGradientHMultip      = 1;
+var skyGradientMin            = 0.2;
+var skyGradientMax            = 0.8;
+var skyGradientHMultip        = 1;
 
-var sandColorFar            = [252, 194, 121]; // [255, 215, 178];
-var sandColorNear           = [255, 236, 212]; // [255, 247, 137];
-var sandHeightMin           = 0.3;
-var sandHeightMax           = 0.5;
-var sandScaleMultipNear     = 0.1;
-var sandScaleMultipFar      = 1;
-var sandNoiseFreqNear       = 0.0003;
-var sandNoiseFreqFar        = 0.003;
-var nSandLayersMax          = 8;
-var nSandLayersMin          = 6;
-var sandSampleStepSize      = 8;
+var sandColorFar              = [252, 194, 121]; // [255, 215, 178];
+var sandColorNear             = [255, 236, 212]; // [255, 247, 137];
+var sandHeightMin             = 0.25;
+var sandHeightMax             = 0.5;
+var sandScaleMultipNear       = 0.5;
+var sandScaleMultipFar        = 1;
+var sandNoiseFreqNear         = 0.0015;
+var sandNoiseFreqFar          = 0.003;
+var nSandLayersMax            = 5;
+var nSandLayersMin            = 5;
+var sandSampleStepSize        = 6;
 
-var interLayerSandNoiseFreq = 0.0002; //theres some noise in between the layers used to modify the sand noise scale change.
-var interLayerNoiseStr      = 0.66; //multiplier for the above noise
+var ridgeNoiseStr             = 0.45; //how rideged should our sand be
+var sandCurlOffset            = 30;
 
-var ridgeNoiseStr           = 0.5; //how rideged should our sand be
-var sandCurlOffset          = 25;
+var lowestSandPoint;          //used to figure out were to start the river
 
-var riverPoints               = [];
-var riverWidths               = [];
-var riverWMin                 = 300;
-var riverWMax                 = 400;
-var valleyWMin                = 300;
-var valleyWMax                = 400;
-var riverMaxHeight            = 0.33;
-var interLayerRiverNoiseFreq  = 0.05;
-var riverLayerNoiseStr        = 1;
-var riverOffsetXMin           = -300;
-var riverOffsetXMax           = 300;
+var riverWMin                 = 350;
+var riverWMax                 = 500;
+var riverNoiseFreq            = 0.05;
+var riverOffsetMultip         = 400;
 var riverColorStart           = [184, 231, 255];
 var riverColorEnd             = [53, 154, 255];
+
+var windStr;                  //-1 to 1 scale
+var windNoise;                //perlin noise
+var windNoiseFreq             = 0.003;
+var minClouds                 = 3;
+var maxClouds                 = 8;
+var minCloudSize              = 0.33;
+var maxCloudSize              = 1.66;
+var clouds                    = [];
 
 //------------------------------------------------
 //                    Start
@@ -102,8 +103,9 @@ function init()
 function start()
 {
   initCanvas();
+  initWindAndClouds();
   initStars();
-  drawSand();
+  drawTerrain();
 }
 
 function initCanvas()
@@ -124,6 +126,22 @@ function initCanvas()
   bgCtx = bgCanvas.getContext('2d');
 
   validateCanvasSize();
+}
+
+function initWindAndClouds()
+{
+  windNoise = new SimplexNoise();
+
+  var nClouds = Math.getRnd(minClouds, maxClouds);
+  for (var i = 0; i < nClouds; i++)
+  {
+    var newCloud = new Cloud();
+    setRandomCloudPos(newCloud);
+    newCloud.init();
+    newCloud.scale = Math.getRnd( minCloudSize, maxCloudSize );
+
+    clouds[i] = newCloud;
+  }
 }
 
 function initStars()
@@ -153,75 +171,138 @@ function setRandomStarPos(theStar)
   theStar.position.y = EasingUtil.easeInQuad(Math.random(), 0, starsEnd, 1) * bgCanvas.height;
 }
 
-function drawSand()
+function setRandomCloudPos(theCloud)
 {
-  var sandNoise = new SimplexNoise();
-  var interLayerNoise = new SimplexNoise();
-  var riverXOffsetNoise = new SimplexNoise();
+  theCloud.position.x = Math.random() * bgCanvas.width;
+  var cloudsEnd = 0.25;
+  theCloud.position.y = EasingUtil.easeInQuad(Math.random(), 0, cloudsEnd, 1) * bgCanvas.height;
+}
 
+function drawTerrain()
+{
   mgCtx.clearRect(0, 0, mgCanvas.width, mgCanvas.height);
 
-  riverPointsUp = [];
-  riverPointsDown = [];
-  var riverMidX = Math.getRnd(0.25, 0.75) * mgCanvas.width;
-  var riverWidth = Math.getRnd(riverWMin, riverWMax);
-  var valleyW = Math.getRnd(valleyWMin, valleyWMax);
+  var terrainNoise = new SimplexNoise();
+
+  drawSand( terrainNoise );
+  //TODO:save off the lowest sand point and use it to start the river!!!
+  drawRivers( terrainNoise );
+}
+
+function drawSand( theNoise )
+{
+  lowestSandPoint = new Vector2D(0,0);
+
+  var interLayerNoise = new SimplexNoise();
 
   var nSandLayers = Math.getRnd(nSandLayersMin, nSandLayersMax);
   for (var i = 0; i < nSandLayers; i++)
   {
-    var layerN = i/nSandLayers;
+    var layerN = i/(nSandLayers-1);
     var theColor = ColorUtil.lerp(layerN, sandColorFar, sandColorNear);
     theColor = ColorUtil.rgbToHex(theColor);
     mgCtx.fillStyle = theColor;
 
-    var noiseScale = Math.scaleNormal(layerN, sandNoiseFreqFar, sandNoiseFreqNear);
+    var noiseScaleEased = EasingUtil.easeOutQuad(layerN, 0, 1, 1);
+    var noiseScale = Math.scaleNormal(noiseScaleEased, sandNoiseFreqFar, sandNoiseFreqNear);
 
-    var noiseScaleN = (interLayerNoise.noise(i * interLayerSandNoiseFreq, interLayerSandNoiseFreq) + 1) * 0.5;
-    noiseScaleN = (layerN * (1-interLayerNoiseStr)) + (interLayerNoiseStr * noiseScaleN);
+    var noiseScaleN = EasingUtil.easeOutQuart(layerN, 0, 1, 1);
     var scaleMultip = Math.scaleNormal(noiseScaleN, sandScaleMultipFar, sandScaleMultipNear);
 
-    var riverNoiseScaleN = (riverXOffsetNoise.noise(i * interLayerRiverNoiseFreq, interLayerRiverNoiseFreq) + 1) * 0.5;
-    riverNoiseScaleN = (layerN * (1-riverLayerNoiseStr)) + (riverLayerNoiseStr * riverNoiseScaleN);
-    var riverOffsetX = riverMidX + Math.scaleNormal(riverNoiseScaleN, riverOffsetXMin, riverOffsetXMax);
-
-    //draw the sand
+    //draw the land
     mgCtx.beginPath();
     mgCtx.lineTo(0, mgCanvas.height);
 
-    for (var x = -sandCurlOffset; x < mgCanvas.width; x += sandSampleStepSize)
-    {
-      goToSandPos(x, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip, riverOffsetX, riverWidth, valleyW, layerN);
-    }
+    var thePoint = new Vector2D(0,0);
+    var sandBottomY = (1-sandHeightMax) * mgCanvas.height;
+    var sandTopY = (1-sandHeightMin) * mgCanvas.height;
+    var sandHeightDelta = sandBottomY - sandTopY;
 
-    goToSandPos(mgCanvas.width, sandNoise, noiseScale, sandHeightMin, sandHeightMax, scaleMultip, riverOffsetX, riverWidth, valleyW, layerN);
+    for (var x = -sandCurlOffset; x < mgCanvas.width + sandSampleStepSize; x += sandSampleStepSize)
+    {
+      thePoint.x = x;
+
+      //make it more ridged
+      // as per https://www.redblobgames.com/maps/terrain-from-noise/
+      var yNoise = (theNoise.noise(x * noiseScale, noiseScale) + 1) * 0.5;
+      var ridgedYNoise = 2 * (0.5 - Math.abs(0.5 - yNoise));
+      thePoint.y = (yNoise*(1-ridgeNoiseStr)) + (ridgedYNoise*ridgeNoiseStr);
+
+      //curl the noise a bit.
+      //we're offsetting x based on the value of y, it's a bit hacky, but it looks nicer than anything else I've tried.
+      var curlVal = (1 - Math.cos(2 * Math.PI * thePoint.y)) * 0.5;
+      thePoint.x += curlVal * sandCurlOffset;
+
+      thePoint.y = sandTopY + (sandHeightDelta * scaleMultip * thePoint.y);
+
+      if ( i >= (nSandLayers-1) && thePoint.y > lowestSandPoint.y
+        && thePoint.x > 0 && thePoint.x < mgCanvas.width)
+      {
+        lowestSandPoint.x = thePoint.x;
+        lowestSandPoint.y = thePoint.y;
+      }
+
+      mgCtx.lineTo(thePoint.x, thePoint.y);
+    }
 
     mgCtx.lineTo(mgCanvas.width, mgCanvas.height);
     mgCtx.fill();
   }
+}
 
-  //draw the river
-  var nRiverLayers = 4;
+function drawRivers( theNoise )
+{
+  var riverPoints = [];
+  var riverWidths = [];
+
+  var riverStartX = lowestSandPoint.x;
+  var edgeOffset = 0.33;
+  var riverEndX = (mgCanvas.width * edgeOffset) + (mgCanvas.width * (1-(edgeOffset * 2)));
+  var riverXDelta = riverEndX - riverStartX;
+
+  var riverStartY = lowestSandPoint.y + 6;
+  var riverEndY = mgCanvas.height;
+  var riverYDelta = riverEndY - riverStartY;
+
+  var riverWidth = Math.getRnd(riverWMin, riverWMax);
+
+  var nRiverPoints = 20;
+  for (j = 0; j < nRiverPoints; j++)
+  {
+    var riverPointN = j / (nRiverPoints-1);
+    var riverNoiseScaleN = theNoise.noise(j * riverNoiseFreq, riverNoiseFreq);
+    var riverOffsetX = riverNoiseScaleN * riverOffsetMultip;
+    riverOffsetX *= -(Math.cos(2 * Math.PI * riverPointN) * 0.5) + 0.5;
+
+    var currX = (riverXDelta * riverPointN);
+    var currY = (riverYDelta * riverPointN);
+
+    var easedRiverWidth = riverWidth * EasingUtil.easeInSine(riverPointN, 0, 1, 1);
+
+    riverPoints.push(new Vector2D(riverStartX + currX + riverOffsetX, riverStartY + currY));
+    riverWidths.push(easedRiverWidth);
+  }
+
+  //the actual drawing bit
+  var nRiverLayers = 6;
 
   mgCtx.lineJoin = 'round';
   mgCtx.lineWidth = 3;
+  mgCtx.strokeStyle = "rgba(255,255,255, 0.5)";
 
-  for ( var i = 0; i < nRiverLayers; i++ )
+  for ( var k = 0; k < nRiverLayers; k++ )
   {
-    //we'll have to make sure to stop once width gets close to 0.
-    var widthMultip = 1 - (i/nRiverLayers);
-    var widthMultipEased = EasingUtil.easeInQuad(widthMultip, 0.2, 1, 1);
+    var widthMultip = 1 - (k/(nRiverLayers-1));
+    var widthMultipMin = 0.1;
+    var widthMultipEased = EasingUtil.easeInQuad(widthMultip, widthMultipMin, 1-widthMultipMin, 1);
 
     mgCtx.beginPath();
-    mgCtx.strokeStyle = "rgba(255,255,255, "+((i == 0) ? 0.66 : 0) +")";
 
     var riverColor = ColorUtil.lerp(widthMultip, riverColorEnd, riverColorStart);
     mgCtx.fillStyle = ColorUtil.rgbToHex(riverColor);
 
     var thePath = new Path2D();
-    var halfRiverW = (riverWidth + valleyW) * 0.5 * widthMultipEased;
-
-    thePath.moveTo(riverMidX - halfRiverW, mgCanvas.height);
+    var easedWidth = riverWidth * widthMultipEased;
 
     var riverPointsUp = [];
     var riverPointsDown = [];
@@ -230,84 +311,21 @@ function drawSand()
       var thePoint = riverPoints[p];
       var theWidth = riverWidths[p] * widthMultipEased;
 
-      riverPointsUp.unshift(new Vector2D(thePoint.x - theWidth, thePoint.y));
-      riverPointsDown.push(new Vector2D(thePoint.x + theWidth, thePoint.y));
+      riverPointsUp.push(new Vector2D(thePoint.x - theWidth, thePoint.y));
+      riverPointsDown.unshift(new Vector2D(thePoint.x + theWidth, thePoint.y));
     }
 
-    thePath = BezierPathUtil.createCurve(riverPointsUp, thePath, 0.66);
-    thePath = BezierPathUtil.createCurve(riverPointsDown, thePath, 0.66);
-
-    thePath.lineTo(riverMidX + halfRiverW, mgCanvas.height);
+    var riverEdgeRoundness = 0.5;
+    thePath = BezierPathUtil.createCurve(riverPointsUp, thePath, riverEdgeRoundness);
+    thePath = BezierPathUtil.createCurve(riverPointsDown, thePath, riverEdgeRoundness);
 
     mgCtx.fill(thePath);
-    mgCtx.stroke(thePath);
-  }
-}
 
-function goToSandPos(x, noise, noiseFreq, heightMin, heightMax, scaleMultip, riverMidX, riverW, valleyW, layerN)
-{
-  var thePoint = new Vector2D(0, 0);
-  thePoint.x = x;
-
-  //make it more ridged
-  // as per https://www.redblobgames.com/maps/terrain-from-noise/
-  var yNoise = (noise.noise(x * noiseFreq, noiseFreq) + 1) * 0.5;
-  var ridgedYNoise = 2 * (0.5 - Math.abs(0.5 - yNoise));
-  thePoint.y = (yNoise*(1-ridgeNoiseStr)) + (ridgedYNoise*ridgeNoiseStr);
-
-  //curl the noise a bit.
-  //we're offsetting x based on the value of y, it's a bit hacky, but it looks nicer than anything else I've tried.
-  var curlVal = (1 - Math.cos(2 * Math.PI * thePoint.y)) * 0.5;
-  thePoint.x += curlVal * sandCurlOffset;
-
-  //river offests, we wanna have a bit of a valley as we approach the river
-  var valleyWidth = valleyW * EasingUtil.easeInSine(layerN, 0, 1, 1);
-  var riverWidth = riverW * EasingUtil.easeInQuart(layerN, 0, 1, 1);
-  var bRiverPointUp = false;
-  var bRiverPointDown = false;
-  if (layerN >= riverMaxHeight)
-  {
-    var halfRiverW = riverWidth * 0.5;
-    var riverLeft = riverMidX - halfRiverW;
-    var riverRight = riverMidX + halfRiverW;
-    var valleyLeft = riverLeft - valleyWidth;
-    var valleyRight = riverRight + valleyWidth;
-
-    bRiverPointUp = x <= riverLeft && x + sandSampleStepSize > riverLeft;
-    bRiverPointDown = x <= riverRight && x + sandSampleStepSize > riverRight;
-
-    var valleyDistN = 1;
-    if (x > valleyLeft && x < riverLeft)
+    if (k == 0)
     {
-      valleyDistN = (riverLeft - x) / valleyWidth;
-      valleyDistN = EasingUtil.easeOutQuad(valleyDistN, 0, 1, 1);
+      mgCtx.stroke(thePath);
     }
-    else if (x > riverRight && x < valleyRight)
-    {
-      valleyDistN = 1 - ((valleyRight - x) / valleyWidth);
-      valleyDistN = EasingUtil.easeOutQuad(valleyDistN, 0, 1, 1);
-    }
-
-    if ((x > riverLeft && x < riverRight) || bRiverPointUp || bRiverPointDown)
-    {
-      valleyDistN = 0;
-    }
-
-    // scale our y noise
-    thePoint.y *= valleyDistN;
   }
-
-  thePoint.y = Math.scaleNormal(thePoint.y, heightMin, heightMax);
-  thePoint.y = mgCanvas.height - (thePoint.y * scaleMultip * mgCanvas.height);
-
-  // add the river points to our lists.
-  if ( x <= riverMidX && x + sandSampleStepSize > riverMidX )
-  {
-    riverPoints.push(new Vector2D(thePoint.x, thePoint.y));
-    riverWidths.push(halfRiverW);
-  }
-
-  mgCtx.lineTo(thePoint.x, thePoint.y);
 }
 
 function validateCanvasSize()
@@ -338,9 +356,11 @@ function update()
   if (validateCanvasSize())
   {
     skyUpdateTimer = skyUpdateFreq;
+
+    resetClouds();
     resetStars();
 
-    drawSand();
+    drawTerrain();
   }
 
   //update the current time of day.
@@ -350,6 +370,9 @@ function update()
     dayTimer = 0;
   }
   tod = dayTimer / dayDur;
+
+  //update the windStr
+  windStr = windNoise.noise((GameLoop.currentTime / dayDur) * windNoiseFreq, windNoiseFreq);
 
   //update the sky. If it needs it.
   skyUpdateTimer += GameLoop.deltaTime;
@@ -579,6 +602,19 @@ function updateSkyVisuals()
     bgCtx.fill();
 
   }
+
+  //-----------
+  //   CLOUDS
+  //-----------
+  drawClouds( (1-skyLerp) );
+}
+
+function drawClouds( brightness )
+{
+  for (var c = 0; c < clouds.length; c++)
+  {
+    clouds[c].draw(bgCtx, brightness);
+  }
 }
 
 function resetStars()
@@ -586,8 +622,16 @@ function resetStars()
   for (var i = 0; i < stars.length; i++)
   {
     var newStar = stars[i];
-    newStar.position.x = Math.random() * bgCanvas.width;
-    newStar.position.y = Math.random() * bgCanvas.height;
+    setRandomStarPos(newStar);
+  }
+}
+
+function resetClouds()
+{
+  for (var i = 0; i < clouds.length; i++)
+  {
+    var newCloud = clouds[i];
+    setRandomCloudPos(newCloud);
   }
 }
 
@@ -735,3 +779,58 @@ function ShootingStar()
 //------------------------------------------------
 //                     CLOUDS
 //------------------------------------------------
+function Cloud()
+{
+  this.position = new Vector2D(0,0);
+  this.scale = 1;
+
+  this.points = [];
+
+  this.init = function ()
+  {
+    this.points = [];
+
+    var nPoints = 150;
+    var minW = 100;
+    var maxW = 200;
+    var minH = 20;
+    var maxH = 50;
+
+    var noise = new SimplexNoise();
+    var nScale = 0.66;
+
+    for (var i = 0; i < nPoints; i++)
+    {
+      var angleN = i / (nPoints-1);
+      var noiseN = -(Math.cos(2 * Math.PI * angleN) * 0.5) + 0.5;
+      var t = angleN * 2 * Math.PI;
+
+      var sizeScale = (noise.noise(t * noiseN * nScale, nScale) + 1) * 0.5;
+      sizeScale = EasingUtil.easeOutQuad(sizeScale, 0, 1, 1);
+
+      var theW = Math.scaleNormal(sizeScale, minW, maxW);
+      var theH = Math.scaleNormal(sizeScale, minH, maxH);
+
+      var x	=	theW * Math.cos(t) * this.scale;
+      var y	=	theH * Math.sin(t) * this.scale;
+
+      this.points.push(new Vector2D(x, y));
+    }
+  }
+
+  this.draw = function( theCanvas, brightness )
+  {
+    var colorV = 255 * brightness;
+
+    theCanvas.fillStyle = 'rgba('+colorV+','+colorV+','+colorV+',0.8)';
+    theCanvas.beginPath();
+
+    for (var p = 0; p < this.points.length; p++)
+    {
+      var thePoint = this.points[p];
+      theCanvas.lineTo( this.position.x + thePoint.x, this.position.y + thePoint.y );
+    }
+
+    theCanvas.fill();
+  }
+}

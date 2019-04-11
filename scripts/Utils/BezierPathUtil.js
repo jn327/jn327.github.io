@@ -18,10 +18,10 @@ BezierPathUtil.createCurve = function( points, thePath, tension, moveToStart )
     thePath.moveTo(firstPoint.x, firstPoint.y);
   }
 
-  var nPoints = points.length - 1;
+  var nPoints = points.length;
 
   //if there's only one point, just go to that!
-  if (nPoints == 1)
+  if (nPoints == 2)
   {
     lastPoint = points[1];
     thePath.lineTo(lastPoint.x, lastPoint.y);
