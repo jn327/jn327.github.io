@@ -68,6 +68,8 @@ var sandCurlOffset            = 30;
 
 var lowestSandPoint;          //used to figure out were to start the river
 
+var riverPoints               = [];
+var riverWidths               = [];
 var riverWMin                 = 350;
 var riverWMax                 = 500;
 var riverNoiseFreq            = 0.05;
@@ -185,7 +187,6 @@ function drawTerrain()
   var terrainNoise = new SimplexNoise();
 
   drawSand( terrainNoise );
-  //TODO:save off the lowest sand point and use it to start the river!!!
   drawRivers( terrainNoise );
 }
 
@@ -252,8 +253,8 @@ function drawSand( theNoise )
 
 function drawRivers( theNoise )
 {
-  var riverPoints = [];
-  var riverWidths = [];
+  riverPoints = [];
+  riverWidths = [];
 
   var riverStartX = lowestSandPoint.x;
   var edgeOffset = 0.33;
@@ -287,8 +288,8 @@ function drawRivers( theNoise )
   var nRiverLayers = 6;
 
   mgCtx.lineJoin = 'round';
-  mgCtx.lineWidth = 3;
-  mgCtx.strokeStyle = "rgba(255,255,255, 0.5)";
+  mgCtx.lineWidth = 2;
+  mgCtx.strokeStyle = "rgba(255,255,255, 0.33)";
 
   for ( var k = 0; k < nRiverLayers; k++ )
   {
@@ -302,7 +303,6 @@ function drawRivers( theNoise )
     mgCtx.fillStyle = ColorUtil.rgbToHex(riverColor);
 
     var thePath = new Path2D();
-    var easedWidth = riverWidth * widthMultipEased;
 
     var riverPointsUp = [];
     var riverPointsDown = [];
@@ -381,6 +381,56 @@ function update()
     skyUpdateTimer = 0;
     updateSkyVisuals();
   }
+
+  //animate the river a little
+  fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
+
+  animateRiver();
+}
+
+function animateRiver()
+{
+  //the actual drawing bit
+  var nRiverLines = 3;
+
+  for ( var k = 0; k < nRiverLines; k++ )
+  {
+    //sort out alpha and width
+    var widthFreq = 0.1;
+    var thePos = tod + ((widthFreq/nRiverLines) * k);
+
+    var widthMultip = (thePos % widthFreq) / widthFreq;
+    var widthMultipEased = EasingUtil.easeOutQuad(widthMultip, 0, 1, 1);
+    widthMultipEased = Math.scaleNormal(widthMultipEased, 0.75, 1);
+
+    var theAlpha = -(Math.cos((2 * Math.PI * thePos) / widthFreq) * 0.5) + 0.5;
+    theAlpha = Math.scaleNormal(theAlpha, 0, 0.33);
+
+    fgCtx.lineJoin = 'round';
+    fgCtx.lineWidth = 4;
+    fgCtx.strokeStyle = "rgba(255,255,255, "+theAlpha+")";
+
+    //get on to the drawing
+    fgCtx.beginPath();
+    var thePath = new Path2D();
+
+    var riverPointsUp = [];
+    var riverPointsDown = [];
+    for (var p = 0; p < riverPoints.length; p++)
+    {
+      var thePoint = riverPoints[p];
+      var theWidth = riverWidths[p] * widthMultipEased;
+
+      riverPointsUp.push(new Vector2D(thePoint.x - theWidth, thePoint.y));
+      riverPointsDown.unshift(new Vector2D(thePoint.x + theWidth, thePoint.y));
+    }
+
+    var riverEdgeRoundness = 0.5;
+    thePath = BezierPathUtil.createCurve(riverPointsUp, thePath, riverEdgeRoundness);
+    thePath = BezierPathUtil.createCurve(riverPointsDown, thePath, riverEdgeRoundness);
+
+    fgCtx.stroke(thePath);
+  }
 }
 
 function updateSkyVisuals()
@@ -452,7 +502,9 @@ function updateSkyVisuals()
   //-----------------------
   //TODO: wanna be able to tint it a bit with the sky gradient tooo!!!
   var darkenAmount = 96;
-  mgCanvas.style.filter = 'brightness('+((100-darkenAmount) + ((1-skyLerp)*darkenAmount))+'%)';
+  var theFilter = 'brightness('+((100-darkenAmount) + ((1-skyLerp)*darkenAmount))+'%)';
+  mgCanvas.style.filter = theFilter;
+  fgCanvas.style.filter = theFilter;
 
   //----------
   //   SUN
