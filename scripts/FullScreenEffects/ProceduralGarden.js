@@ -96,6 +96,8 @@ var minCloudSize              = 0.33;
 var maxCloudSize              = 1.66;
 var clouds                    = [];
 
+var grass                     = [];
+
 //------------------------------------------------
 //                    Start
 //------------------------------------------------
@@ -115,6 +117,7 @@ function init()
 function start()
 {
   initCanvas();
+
   initWindAndClouds();
   initStars();
   drawTerrain();
@@ -265,6 +268,7 @@ function drawRivers( theNoise )
 {
   riverPoints = [];
   riverWidths = [];
+  grass = [];
 
   var riverStartX = lowestSandPoint.x;
   var edgeOffset = 0.33;
@@ -278,7 +282,7 @@ function drawRivers( theNoise )
   var riverWidth = Math.getRnd(riverWMin, riverWMax);
   var valleyWidth = Math.getRnd(valleyWMin, valleyWMax);
 
-  var nRiverPoints = 20;
+  var nRiverPoints = 30;
   for (j = 0; j < nRiverPoints; j++)
   {
     var riverPointN = j / (nRiverPoints-1);
@@ -296,6 +300,26 @@ function drawRivers( theNoise )
 
     var easedValleyW = valleyEndW + ((valleyWidth - valleyEndW) * EasingUtil.easeInSine(riverPointN, 0, 1, 1));
     valleyWidths.push(easedRiverW + easedValleyW);
+
+    //plop down some plants around here!
+    if (riverPointN >= 0.2)
+    {
+      for (var g = 0; g < 2; g ++)
+      {
+        var valleyOffsetX = easedRiverW + (easedValleyW * Math.getRnd(0.25, 0.9));
+        if (g == 0) { valleyOffsetX = -valleyOffsetX; }
+
+        var rndOffsetX = Math.getRnd(-1, 1) * 0;
+        var rndOffsetY = Math.getRnd(-1, 1) * 0;
+
+        var theGrass = new Grass();
+        theGrass.scale = riverPointN;
+        theGrass.init();
+        theGrass.position.x = riverStartX + currX + riverOffsetX + valleyOffsetX + rndOffsetX;
+        theGrass.position.y = riverStartY + currY + rndOffsetY;
+        grass.push(theGrass);
+      }
+    }
   }
 
   //draw the valley!!!
@@ -309,7 +333,6 @@ function drawRivers( theNoise )
     mgCtx.beginPath();
 
     var valleyColor = ColorUtil.lerp(widthMultip, valleyColorStart, valleyColorEnd);
-    //TODO: maybe change the opacity??
     mgCtx.fillStyle = 'rgba('+valleyColor[0]+','+valleyColor[1]+','+valleyColor[2]+', '+valleyOpacity+')';
 
     var thePath = new Path2D();
@@ -321,8 +344,11 @@ function drawRivers( theNoise )
       var thePoint = riverPoints[p];
       var theWidth = valleyWidths[p] * widthMultipEased;
 
-      valleyPointsUp.push(new Vector2D(thePoint.x - theWidth, thePoint.y));
-      valleyPointsDown.unshift(new Vector2D(thePoint.x + theWidth, thePoint.y));
+      var pLeft = new Vector2D(thePoint.x - theWidth, thePoint.y);
+      var pRight = new Vector2D(thePoint.x + theWidth, thePoint.y);
+
+      valleyPointsUp.push(pLeft);
+      valleyPointsDown.unshift(pRight);
     }
 
     var valleyEdgeRoundness = 0.5;
@@ -430,6 +456,8 @@ function update()
   fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
 
   animateRiver();
+
+  updatePlants();
 }
 
 function animateRiver()
@@ -477,6 +505,16 @@ function animateRiver()
     thePath = BezierPathUtil.createCurve(riverPointsDown, thePath, riverEdgeRoundness);
 
     fgCtx.stroke(thePath);
+  }
+}
+
+function updatePlants()
+{
+  //TODO:loop thru the plants, update and draw them.
+  for (var i = 0; i < grass.length; i++)
+  {
+    grass[i].update();
+    grass[i].draw(fgCtx);
   }
 }
 
@@ -886,10 +924,70 @@ function Grass()
 {
   this.position = new Vector2D(0,0);
   this.scale = 1;
+  this.color = [103, 165, 96];
 
-  this.draw = function()
+  this.minW = 10;
+  this.maxW = 40;
+  this.minH = 10;
+  this.maxH = 75;
+
+  this.lifeTime = 0;
+
+  this.points = [];
+
+  this.prevUpdateTod = 0;
+
+  this.init = function()
   {
+    this.points = [];
+    var nPoints = Math.getRnd(10, 18);
 
+    var noise = new SimplexNoise();
+    var nScale = 1;
+
+    for (var i = 0; i < nPoints; i++)
+    {
+      var angleN = i / (nPoints-1);
+      var t = -angleN * Math.PI;
+
+      var sizeScale = i % 2 != 0 ? Math.getRnd(0.66, 1) : 0.25;
+
+      var x	=	sizeScale * Math.cos(t) * this.scale;
+      var y	=	sizeScale * Math.sin(t) * this.scale;
+
+      this.points.push(new Vector2D(x, y));
+    }
+  }
+
+  this.update = function()
+  {
+      //TODO:stuff
+      //var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : this.prevUpdateTod - tod;
+      //this.prevUpdateTod = tod;
+
+      //this.lifeTime += todDelta * 2;
+  }
+
+  this.draw = function( theCanvas )
+  {
+    var bendMultip = 0.2;
+
+    theCanvas.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
+    theCanvas.beginPath();
+
+    for (var p = 0; p < this.points.length; p++)
+    {
+      var thePoint = this.points[p];
+
+      var offsetX = EasingUtil.easeOutQuart(thePoint.y, 0, bendMultip * windStr, 1);
+
+      var theX = Math.scaleNormal(thePoint.x + offsetX, this.minW, this.maxW);
+      var theY = Math.scaleNormal(thePoint.y, this.minH, this.maxH);
+
+      theCanvas.lineTo( this.position.x + theX, this.position.y + theY );
+    }
+
+    theCanvas.fill();
   }
 }
 
@@ -915,7 +1013,7 @@ function Cloud()
   {
     this.points = [];
 
-    var nPoints = 150;
+    var nPoints = Math.getRnd(100, 150);
 
     var noise = new SimplexNoise();
     var nScale = 0.66;
