@@ -304,7 +304,7 @@ function drawRivers( theNoise )
   {
     var widthMultip = 1 - (v/(nValleyLayers-1));
     var widthMultipMin = 0.1;
-    var widthMultipEased = EasingUtil.easeOutQuad(widthMultip, widthMultipMin, 1-widthMultipMin, 1);
+    var widthMultipEased = EasingUtil.easeOutSine(widthMultip, widthMultipMin, 1-widthMultipMin, 1);
 
     mgCtx.beginPath();
 
@@ -371,15 +371,18 @@ function validateCanvasSize()
 {
   var bTrue = false;
 
-  if(CanvasScaler.updateCanvasSize( bgCanvas ))
+  var maxScale = 1800;
+  var minScaleV = 1800;
+  var minScaleH = 400;
+  if(CanvasScaler.updateCanvasSize( bgCanvas, maxScale, minScaleV, minScaleH ))
   {
     bTrue = true;
   }
-  if(CanvasScaler.updateCanvasSize( mgCanvas ))
+  if(CanvasScaler.updateCanvasSize( mgCanvas, maxScale, minScaleV, minScaleH ))
   {
     bTrue = true;
   }
-  if(CanvasScaler.updateCanvasSize( fgCanvas ))
+  if(CanvasScaler.updateCanvasSize( fgCanvas, maxScale, minScaleV, minScaleH ))
   {
     bTrue = true;
   }
@@ -869,7 +872,26 @@ function ShootingStar()
 //------------------------------------------------
 //                    PLANTS
 //------------------------------------------------
+function Palm()
+{
 
+}
+
+function Shrub()
+{
+
+}
+
+function Grass()
+{
+  this.position = new Vector2D(0,0);
+  this.scale = 1;
+
+  this.draw = function()
+  {
+
+  }
+}
 
 //------------------------------------------------
 //                     CLOUDS
