@@ -282,6 +282,8 @@ function drawRivers( theNoise )
   var xSampleSize = 1;
   var ySampleSize = 1;
 
+  //TODO: maybe should scale the freq distances as we go.
+  // at the moment it seems like we get most of the stuff down near close!
   var plantFreqX = 50;
   var xCounter = 0;
   var plantFreqY = 8;
@@ -336,7 +338,7 @@ function drawRivers( theNoise )
       {
           if ((x <= riverLeftX || x >= riverRightX) && xCounter == 0)
           {
-            if (Math.random() > 0.5)
+            if (Math.random() > 0.5 && x > 0 && x < fgCanvas.width)
             {
               //TODO: maybe a bit of randomization?
               var theGrass = new Grass();
@@ -903,9 +905,7 @@ function Grass()
   this.scale = 1;
   this.color;
 
-  this.minW = 10;
   this.maxW = 50;
-  this.minH = 10;
   this.maxH = 100;
 
   this.lifeTime = 0;
@@ -920,19 +920,20 @@ function Grass()
   this.init = function()
   {
     this.points = [];
-    var nPoints = Math.getRnd(10, 18);
+    var nPoints = Math.getRnd(16, 24);
 
     this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
 
     var noise = new SimplexNoise();
-    var nScale = 1;
+    var spikeFreq = nPoints;
 
     for (var i = 0; i < nPoints; i++)
     {
-      var angleN = i / (nPoints-1);
-      var t = -angleN * Math.PI;
+      var angleN = i / (nPoints);
+      var t = angleN * Math.PI;
 
-      var sizeScale = i % 2 != 0 ? Math.getRnd(0.66, 1) : Math.getRnd(0.25, 0.33);
+      //var sizeScale = i % 2 != 0 ? Math.getRnd(0.66, 1) : Math.getRnd(0.25, 0.33);
+      var sizeScale = Math.scaleNormal(0.5 + (Math.cos(spikeFreq*t) * 0.5), 0.25, 1);
 
       var x	=	sizeScale * Math.cos(t) * this.scale;
       var y	=	sizeScale * Math.sin(t) * this.scale;
@@ -961,14 +962,12 @@ function Grass()
     {
       var thePoint = this.points[p];
 
-      var offsetX = EasingUtil.easeOutQuart(thePoint.y, 0, bendMultip * windStr, 1);
+      var theX = thePoint.x * this.maxW;
+      theX += EasingUtil.easeOutQuart(thePoint.y, 0, bendMultip * windStr, 1);
 
-      var theX = Math.scaleNormal(thePoint.x + offsetX, this.minW, this.maxW);
-      var theY = Math.scaleNormal(thePoint.y, this.minH, this.maxH);
+      var theY = thePoint.y * this.maxH;
 
-      var cp0 = new Vector2D(this.position.x + (theX * 1.2), this.position.y + (theY * 1));
-
-      theCanvas.quadraticCurveTo(cp0.x, cp0.y, this.position.x + theX, this.position.y + theY );
+      theCanvas.lineTo(this.position.x + theX, this.position.y - theY);
     }
 
     theCanvas.fill();

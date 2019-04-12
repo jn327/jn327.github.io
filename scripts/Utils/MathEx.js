@@ -21,7 +21,7 @@ Math.minMaxNormal = function(val, min, max)
 }
 
 //Given a normalized value 0-1, will return between min and max
-// so scaleNormal(0.5, 20, 60) would return 40 and scaleNormal(60, 20, 60) would return 1
+// so scaleNormal(0.5, 20, 60) would return 40 and scaleNormal(1, 20, 60) would return 60
 Math.scaleNormal = function(val, min, max)
 {
   return min + (val * (max - min));
