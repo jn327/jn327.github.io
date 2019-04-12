@@ -68,18 +68,21 @@ var sandCurlOffset            = 30;
 
 var lowestSandPoint;          //used to figure out were to start the river
 
-var riverPoints               = [];
-var riverWidths               = [];
+var riverMidPointsUp          = [];
+var riverMidPointsDown        = [];
+var riverEdgePointsUp         = [];
+var riverEdgePointsDown       = [];
+var valleyEdgePointsUp        = [];
+var valleyEdgePointsDown      = [];
 var riverOpacity              = 0.5;
 var riverWMin                 = 350;
 var riverWMax                 = 500;
 var riverEndW                 = 2;
-var riverNoiseFreq            = 0.05;
-var riverOffsetMultip         = 400;
+var riverNoiseFreq            = 0.01;
+var riverOffsetMultip         = 200;
 var riverColorStart           = [184, 231, 255];
 var riverColorEnd             = [53, 154, 255];
 
-var valleyWidths              = [];
 var valleyOpacity             = 0.33;
 var valleyWMin                = 500;
 var valleyWMax                = 750;
@@ -97,6 +100,7 @@ var maxCloudSize              = 1.66;
 var clouds                    = [];
 
 var grass                     = [];
+var reeds                     = [];
 
 //------------------------------------------------
 //                    Start
@@ -266,129 +270,114 @@ function drawSand( theNoise )
 
 function drawRivers( theNoise )
 {
-  riverPoints = [];
-  riverWidths = [];
-  grass = [];
+  riverMidPointsUp      = [];
+  riverMidPointsDown    = [];
+  riverEdgePointsUp     = [];
+  riverEdgePointsDown   = [];
+  valleyEdgePointsUp    = [];
+  valleyEdgePointsDown  = [];
+  grass                 = [];
+
+  //draw the river and valley pixel by pixel...
+  var xSampleSize = 1;
+  var ySampleSize = 1;
+
+  var plantFreqX = 50;
+  var xCounter = 0;
+  var plantFreqY = 8;
+  var yCounter = 0;
 
   var riverStartX = lowestSandPoint.x;
-  var edgeOffset = 0.33;
-  var riverEndX = (mgCanvas.width * edgeOffset) + (mgCanvas.width * (1-(edgeOffset * 2)));
+  var edgeOffset  = 0.33;
+  var riverEndX   = (mgCanvas.width * edgeOffset) + (mgCanvas.width * (1-(edgeOffset * 2)));
   var riverXDelta = riverEndX - riverStartX;
 
-  var riverStartY = lowestSandPoint.y + 6;
-  var riverEndY = mgCanvas.height;
-  var riverYDelta = riverEndY - riverStartY;
+  var riverStartY = lowestSandPoint.y;
+  var riverEndY   = mgCanvas.height + ySampleSize;
 
-  var riverWidth = Math.getRnd(riverWMin, riverWMax);
-  var valleyWidth = Math.getRnd(valleyWMin, valleyWMax);
+  var riverStartW   = Math.getRnd(riverWMin, riverWMax);
+  var valleyStartW  = Math.getRnd(valleyWMin, valleyWMax);
 
-  var nRiverPoints = 30;
-  for (j = 0; j < nRiverPoints; j++)
+  for (var y = riverStartY; y <= riverEndY; y += ySampleSize)
   {
-    var riverPointN = j / (nRiverPoints-1);
-    var riverNoiseScaleN = theNoise.noise(j * riverNoiseFreq, riverNoiseFreq);
-    var riverOffsetX = riverNoiseScaleN * riverOffsetMultip;
-    riverOffsetX *= -(Math.cos(2 * Math.PI * riverPointN) * 0.5) + 0.5;
+    var yNormal = Math.minMaxNormal(y, riverStartY, riverEndY);
 
-    var currX = (riverXDelta * riverPointN);
-    var currY = (riverYDelta * riverPointN);
+    var offestNoise = theNoise.noise(y * riverNoiseFreq, riverNoiseFreq);
+    var offsetX = offestNoise * riverOffsetMultip;
+    offsetX *= -(Math.cos(2 * Math.PI * yNormal) * 0.5) + 0.5;
+    offsetX += (riverXDelta * yNormal); //move towards the center.
 
-    var easedRiverW = riverEndW + ((riverWidth - riverEndW) * EasingUtil.easeInSine(riverPointN, 0, 1, 1));
+    //get the river and valley widths
+    var easedRiverW = riverEndW + ((riverStartW - riverEndW) * EasingUtil.easeInSine(yNormal, 0, 1, 1));
+    var easedValleyW = valleyEndW + ((valleyStartW - valleyEndW) * EasingUtil.easeInSine(yNormal, 0, 1, 1));
 
-    riverPoints.push(new Vector2D(riverStartX + currX + riverOffsetX, riverStartY + currY));
-    riverWidths.push(easedRiverW);
+    //push the middle points
+    var midX  = riverStartX + offsetX;
+    var valleyW = easedRiverW + easedValleyW;
 
-    var easedValleyW = valleyEndW + ((valleyWidth - valleyEndW) * EasingUtil.easeInSine(riverPointN, 0, 1, 1));
-    valleyWidths.push(easedRiverW + easedValleyW);
+    var leftX         = midX - valleyW;
+    var rightX        = midX + valleyW;
+    var riverLeftX    = midX - easedRiverW;
+    var riverRightX   = midX + easedRiverW;
 
-    //plop down some plants around here!
-    if (riverPointN >= 0.2)
+    var thePoint = new Vector2D(midX, y);
+    riverMidPointsUp.push(thePoint);
+    riverMidPointsDown.unshift(thePoint);
+
+    riverEdgePointsUp.push(new Vector2D(-easedRiverW, 0));
+    riverEdgePointsDown.unshift(new Vector2D(easedRiverW, 0));
+
+    valleyEdgePointsUp.push(new Vector2D(-valleyW, 0));
+    valleyEdgePointsDown.unshift(new Vector2D(valleyW, 0));
+
+    if (yNormal >= 0.1 && yCounter == 0)
     {
-      for (var g = 0; g < 2; g ++)
+      for (var x = leftX; x <= rightX; x += xSampleSize)
       {
-        var valleyOffsetX = easedRiverW + (easedValleyW * Math.getRnd(0.25, 0.9));
-        if (g == 0) { valleyOffsetX = -valleyOffsetX; }
+          if ((x <= riverLeftX || x >= riverRightX) && xCounter == 0)
+          {
+            if (Math.random() > 0.5)
+            {
+              //TODO: maybe a bit of randomization?
+              var theGrass = new Grass();
+              theGrass.scale = yNormal;
+              theGrass.init();
+              theGrass.position = new Vector2D(x, y);
+              grass.push(theGrass);
+            }
+          }
 
-        var rndOffsetX = Math.getRnd(-1, 1) * 0;
-        var rndOffsetY = Math.getRnd(-1, 1) * 0;
-
-        var theGrass = new Grass();
-        theGrass.scale = riverPointN;
-        theGrass.init();
-        theGrass.position.x = riverStartX + currX + riverOffsetX + valleyOffsetX + rndOffsetX;
-        theGrass.position.y = riverStartY + currY + rndOffsetY;
-        grass.push(theGrass);
+          xCounter ++;
+          if (xCounter >= plantFreqX) { xCounter = 0; }
       }
     }
+
+    yCounter ++;
+    if (yCounter >= plantFreqY) { yCounter = 0; }
   }
 
-  //draw the valley!!!
-  var nValleyLayers = 4;
-  for ( var v = 0; v < nValleyLayers; v++ )
+  // build a path and draw the valley & river!
+  drawLayeredBezierShape( 4, valleyColorStart, valleyColorEnd, valleyOpacity, riverMidPointsUp, riverMidPointsDown, valleyEdgePointsUp, valleyEdgePointsDown );
+  drawLayeredBezierShape( 4, riverColorEnd, riverColorStart, riverOpacity, riverMidPointsUp, riverMidPointsDown, riverEdgePointsUp, riverEdgePointsDown );
+
+}
+
+function drawLayeredBezierShape( nLoops, colorStart, colorEnd, opacity, midUp, midDown, edgeUp, edgeDown )
+{
+  for (var i = 0; i < nLoops; i++)
   {
-    var widthMultip = 1 - (v/(nValleyLayers-1));
-    var widthMultipMin = 0.1;
-    var widthMultipEased = EasingUtil.easeOutSine(widthMultip, widthMultipMin, 1-widthMultipMin, 1);
+    var loopN = 1 - (i / (nLoops - 1));
+    loopN = EasingUtil.easeOutSine( loopN, 0, 1, 1 );
 
     mgCtx.beginPath();
 
-    var valleyColor = ColorUtil.lerp(widthMultip, valleyColorStart, valleyColorEnd);
-    mgCtx.fillStyle = 'rgba('+valleyColor[0]+','+valleyColor[1]+','+valleyColor[2]+', '+valleyOpacity+')';
+    var color = ColorUtil.lerp(loopN, colorStart, colorEnd);
+    mgCtx.fillStyle = 'rgba('+color[0]+','+color[1]+','+color[2]+', '+opacity+')';
 
     var thePath = new Path2D();
-
-    var valleyPointsUp = [];
-    var valleyPointsDown = [];
-    for (var p = 0; p < riverPoints.length; p++)
-    {
-      var thePoint = riverPoints[p];
-      var theWidth = valleyWidths[p] * widthMultipEased;
-
-      var pLeft = new Vector2D(thePoint.x - theWidth, thePoint.y);
-      var pRight = new Vector2D(thePoint.x + theWidth, thePoint.y);
-
-      valleyPointsUp.push(pLeft);
-      valleyPointsDown.unshift(pRight);
-    }
-
-    var valleyEdgeRoundness = 0.5;
-    thePath = BezierPathUtil.createCurve(valleyPointsUp, thePath, valleyEdgeRoundness);
-    thePath = BezierPathUtil.createCurve(valleyPointsDown, thePath, valleyEdgeRoundness);
-
-    mgCtx.fill(thePath);
-  }
-
-  //the actual drawing bit
-  var nRiverLayers = 4;
-
-  for ( var k = 0; k < nRiverLayers; k++ )
-  {
-    var widthMultip = 1 - (k/(nRiverLayers-1));
-    var widthMultipMin = 0.1;
-    var widthMultipEased = EasingUtil.easeOutSine(widthMultip, widthMultipMin, 1-widthMultipMin, 1);
-
-    mgCtx.beginPath();
-
-    var riverColor = ColorUtil.lerp(widthMultip, riverColorEnd, riverColorStart);
-    mgCtx.fillStyle = 'rgba('+riverColor[0]+','+riverColor[1]+','+riverColor[2]+', '+riverOpacity+')';
-
-    var thePath = new Path2D();
-
-    var riverPointsUp = [];
-    var riverPointsDown = [];
-    for (var p = 0; p < riverPoints.length; p++)
-    {
-      var thePoint = riverPoints[p];
-      var theWidth = riverWidths[p] * widthMultipEased;
-
-      riverPointsUp.push(new Vector2D(thePoint.x - theWidth, thePoint.y));
-      riverPointsDown.unshift(new Vector2D(thePoint.x + theWidth, thePoint.y));
-    }
-
-    var riverEdgeRoundness = 0.5;
-    thePath = BezierPathUtil.createCurve(riverPointsUp, thePath, riverEdgeRoundness);
-    thePath = BezierPathUtil.createCurve(riverPointsDown, thePath, riverEdgeRoundness);
-
+    var edgeRoundness = 0.5;
+    thePath = BezierPathUtil.createCurve(midUp, thePath, edgeRoundness, edgeUp, loopN);
+    thePath = BezierPathUtil.createCurve(midDown, thePath, edgeRoundness, edgeDown, loopN);
     mgCtx.fill(thePath);
   }
 }
@@ -473,7 +462,7 @@ function animateRiver()
 
     var widthMultip = (thePos % widthFreq) / widthFreq;
     var widthMultipEased = EasingUtil.easeOutQuad(widthMultip, 0, 1, 1);
-    widthMultipEased = Math.scaleNormal(widthMultipEased, 0.66, 1);
+    widthMultipEased = Math.scaleNormal(widthMultipEased, 0.5, 1);
 
     var theAlpha = -(Math.cos((2 * Math.PI * thePos) / widthFreq) * 0.5) + 0.5;
     theAlpha = Math.scaleNormal(theAlpha, 0, 0.33);
@@ -488,21 +477,9 @@ function animateRiver()
     //get on to the drawing
     fgCtx.beginPath();
     var thePath = new Path2D();
-
-    var riverPointsUp = [];
-    var riverPointsDown = [];
-    for (var p = 0; p < riverPoints.length; p++)
-    {
-      var thePoint = riverPoints[p];
-      var theWidth = riverWidths[p] * widthMultipEased;
-
-      riverPointsUp.push(new Vector2D(thePoint.x - theWidth, thePoint.y));
-      riverPointsDown.unshift(new Vector2D(thePoint.x + theWidth, thePoint.y));
-    }
-
-    var riverEdgeRoundness = 0.5;
-    thePath = BezierPathUtil.createCurve(riverPointsUp, thePath, riverEdgeRoundness);
-    thePath = BezierPathUtil.createCurve(riverPointsDown, thePath, riverEdgeRoundness);
+    var edgeRoundness = 0.5;
+    thePath = BezierPathUtil.createCurve(riverMidPointsUp, thePath, edgeRoundness, riverEdgePointsUp, widthMultipEased);
+    thePath = BezierPathUtil.createCurve(riverMidPointsDown, thePath, edgeRoundness, riverEdgePointsDown, widthMultipEased);
 
     fgCtx.stroke(thePath);
   }
@@ -924,14 +901,17 @@ function Grass()
 {
   this.position = new Vector2D(0,0);
   this.scale = 1;
-  this.color = [103, 165, 96];
+  this.color;
 
   this.minW = 10;
-  this.maxW = 40;
+  this.maxW = 50;
   this.minH = 10;
-  this.maxH = 75;
+  this.maxH = 100;
 
   this.lifeTime = 0;
+
+  this.colorOne  = [103, 165, 96];
+  this.colorZero = [57, 114, 56];
 
   this.points = [];
 
@@ -942,6 +922,8 @@ function Grass()
     this.points = [];
     var nPoints = Math.getRnd(10, 18);
 
+    this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
+
     var noise = new SimplexNoise();
     var nScale = 1;
 
@@ -950,7 +932,7 @@ function Grass()
       var angleN = i / (nPoints-1);
       var t = -angleN * Math.PI;
 
-      var sizeScale = i % 2 != 0 ? Math.getRnd(0.66, 1) : 0.25;
+      var sizeScale = i % 2 != 0 ? Math.getRnd(0.66, 1) : Math.getRnd(0.25, 0.33);
 
       var x	=	sizeScale * Math.cos(t) * this.scale;
       var y	=	sizeScale * Math.sin(t) * this.scale;
@@ -984,7 +966,9 @@ function Grass()
       var theX = Math.scaleNormal(thePoint.x + offsetX, this.minW, this.maxW);
       var theY = Math.scaleNormal(thePoint.y, this.minH, this.maxH);
 
-      theCanvas.lineTo( this.position.x + theX, this.position.y + theY );
+      var cp0 = new Vector2D(this.position.x + (theX * 1.2), this.position.y + (theY * 1));
+
+      theCanvas.quadraticCurveTo(cp0.x, cp0.y, this.position.x + theX, this.position.y + theY );
     }
 
     theCanvas.fill();

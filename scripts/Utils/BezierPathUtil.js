@@ -1,10 +1,11 @@
 var BezierPathUtil = {};
 
-BezierPathUtil.createCurve = function( points, thePath, tension, moveToStart )
+BezierPathUtil.createCurve = function( points, thePath, tension, offsetPoints, distanceNormal, moveToStart )
 {
   if (thePath == undefined) { thePath = new Path2D(); }
   if (moveToStart == undefined) { moveToStart = false; }
   if (tension == undefined) { tension = 0.5; }
+  if (distanceNormal == undefined) { distanceNormal = 1; }
 
   if (points.length < 2)
   {
@@ -33,9 +34,19 @@ BezierPathUtil.createCurve = function( points, thePath, tension, moveToStart )
       var bFirst = i == 0;
       var bLast = i == nPoints-1;
 
-      var p1 = points[i];
-      var p2 = bLast ? p1 : points[i+1];
-      var p0 = bFirst ? p1 : points[i-1];
+      var p1Offset = new Vector2D(0, 0);
+      var p2Offset = new Vector2D(0, 0);
+      var p0Offset = new Vector2D(0, 0);
+      if (offsetPoints != undefined)
+      {
+        p1Offset = offsetPoints[i].getMultiplied(distanceNormal);
+        if (!bLast) { p2Offset = offsetPoints[i+1].getMultiplied(distanceNormal); }
+        if (!bFirst) { p0Offset = offsetPoints[i-1].getMultiplied(distanceNormal); }
+      }
+
+      var p1 = points[i].sum(p1Offset);
+      var p2 = bLast ? p1 : points[i+1].sum(p2Offset);
+      var p0 = bFirst ? p1 : points[i-1].sum(p0Offset);
 
       //get the control points
       var dist01 = p1.distance(p0);
