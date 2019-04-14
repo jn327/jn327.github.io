@@ -1,6 +1,39 @@
-var BezierPathUtil = {};
+var PathUtil = {};
 
-BezierPathUtil.createCurve = function( points, thePath, tension, offsetPoints, distanceNormal, moveToStart )
+PathUtil.createPath = function( points, thePath, offsetPoints, distanceNormal )
+{
+  if (distanceNormal == undefined) { distanceNormal = 1; }
+
+  if (points.length < 2)
+  {
+    console.log("We can't create a path with < 2 points.")
+    return thePath;
+  }
+
+  var nPoints = points.length;
+  for (var i = 0; i < nPoints; i++)
+  {
+    var offset = new Vector2D(0, 0);
+    if (offsetPoints != undefined)
+    {
+      if (offsetPoints.length > 1)
+      {
+        offset = offsetPoints[i].getMultiplied(distanceNormal);
+      }
+      else
+      {
+        offset = offsetPoints[0];
+      }
+    }
+
+    var p1 = points[i].sum(offset);
+    thePath.lineTo(p1.x, p1.y);
+  }
+
+  return thePath;
+}
+
+PathUtil.createBezierCurve = function( points, thePath, tension, offsetPoints, distanceNormal, moveToStart )
 {
   if (thePath == undefined) { thePath = new Path2D(); }
   if (moveToStart == undefined) { moveToStart = false; }
@@ -39,9 +72,18 @@ BezierPathUtil.createCurve = function( points, thePath, tension, offsetPoints, d
       var p0Offset = new Vector2D(0, 0);
       if (offsetPoints != undefined)
       {
-        p1Offset = offsetPoints[i].getMultiplied(distanceNormal);
-        if (!bLast) { p2Offset = offsetPoints[i+1].getMultiplied(distanceNormal); }
-        if (!bFirst) { p0Offset = offsetPoints[i-1].getMultiplied(distanceNormal); }
+        if (offsetPoints.length > 1)
+        {
+          p1Offset = offsetPoints[i].getMultiplied(distanceNormal);
+          if (!bLast) { p2Offset = offsetPoints[i+1].getMultiplied(distanceNormal); }
+          if (!bFirst) { p0Offset = offsetPoints[i-1].getMultiplied(distanceNormal); }
+        }
+        else
+        {
+          p1Offset = offsetPoints[0];
+          p2Offset = offsetPoints[0];
+          p0Offset = offsetPoints[0];
+        }
       }
 
       var p1 = points[i].sum(p1Offset);

@@ -1,6 +1,7 @@
 //HTML Elements
 var bgCanvas, bgCtx;
 var mgCanvas, mgCtx;
+var mgCanvas2, mgCtx2;
 var fgCanvas, fgCtx;
 
 //variables... TODO: maybe encapsulate/namespace these??
@@ -99,7 +100,13 @@ var minCloudSize              = 0.33;
 var maxCloudSize              = 1.66;
 var clouds                    = [];
 
-var grass                     = [];
+var mg2UpdateFreq             = 0.033;
+var mg2UpdateTimer            = 0;
+
+var fgUpdateFreq              = 0.1;
+var fgUpdateTimer             = 0;
+
+var shrubs                    = [];
 var reeds                     = [];
 
 //------------------------------------------------
@@ -109,7 +116,7 @@ init();
 function init()
 {
   var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise',
-    'Utils/EasingUtil', 'Utils/BezierPathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler' ];
+    'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler' ];
   for (var i = 0; i < includes.length; i++ )
   {
     var theScript = document.createElement('script');
@@ -133,6 +140,11 @@ function initCanvas()
   fgCanvas.className = "fullFixed";
   document.body.insertBefore(fgCanvas, document.body.firstChild);
   fgCtx    = fgCanvas.getContext('2d');
+
+  mgCanvas2 = document.createElement("canvas");
+  mgCanvas2.className = "fullFixed";
+  document.body.insertBefore(mgCanvas2, document.body.firstChild);
+  mgCtx2    = mgCanvas2.getContext('2d');
 
   mgCanvas = document.createElement("canvas");
   mgCanvas.className = "fullFixed";
@@ -276,17 +288,17 @@ function drawRivers( theNoise )
   riverEdgePointsDown   = [];
   valleyEdgePointsUp    = [];
   valleyEdgePointsDown  = [];
-  grass                 = [];
+  shrubs                = [];
 
   //draw the river and valley pixel by pixel...
-  var xSampleSize = 1;
-  var ySampleSize = 1;
+  var xSampleSize = 4;
+  var ySampleSize = 4;
 
   //TODO: maybe should scale the freq distances as we go.
   // at the moment it seems like we get most of the stuff down near close!
-  var plantFreqX = 50;
+  var plantFreqX = 10;
   var xCounter = 0;
-  var plantFreqY = 8;
+  var plantFreqY = 2;
   var yCounter = 0;
 
   var riverStartX = lowestSandPoint.x;
@@ -341,11 +353,9 @@ function drawRivers( theNoise )
             if (Math.random() > 0.5 && x > 0 && x < fgCanvas.width)
             {
               //TODO: maybe a bit of randomization?
-              var theGrass = new Grass();
-              theGrass.scale = yNormal;
-              theGrass.init();
-              theGrass.position = new Vector2D(x, y);
-              grass.push(theGrass);
+              var shrub = new Shrub();
+              shrub.init(yNormal, new Vector2D(x, y));
+              shrubs.push(shrub);
             }
           }
 
@@ -359,12 +369,12 @@ function drawRivers( theNoise )
   }
 
   // build a path and draw the valley & river!
-  drawLayeredBezierShape( 4, valleyColorStart, valleyColorEnd, valleyOpacity, riverMidPointsUp, riverMidPointsDown, valleyEdgePointsUp, valleyEdgePointsDown );
-  drawLayeredBezierShape( 4, riverColorEnd, riverColorStart, riverOpacity, riverMidPointsUp, riverMidPointsDown, riverEdgePointsUp, riverEdgePointsDown );
+  fillLayeredShape( 4, valleyColorStart, valleyColorEnd, valleyOpacity, riverMidPointsUp, riverMidPointsDown, valleyEdgePointsUp, valleyEdgePointsDown );
+  fillLayeredShape( 4, riverColorEnd, riverColorStart, riverOpacity, riverMidPointsUp, riverMidPointsDown, riverEdgePointsUp, riverEdgePointsDown );
 
 }
 
-function drawLayeredBezierShape( nLoops, colorStart, colorEnd, opacity, midUp, midDown, edgeUp, edgeDown )
+function fillLayeredShape( nLoops, colorStart, colorEnd, opacity, midUp, midDown, edgeUp, edgeDown )
 {
   for (var i = 0; i < nLoops; i++)
   {
@@ -377,9 +387,8 @@ function drawLayeredBezierShape( nLoops, colorStart, colorEnd, opacity, midUp, m
     mgCtx.fillStyle = 'rgba('+color[0]+','+color[1]+','+color[2]+', '+opacity+')';
 
     var thePath = new Path2D();
-    var edgeRoundness = 0.5;
-    thePath = BezierPathUtil.createCurve(midUp, thePath, edgeRoundness, edgeUp, loopN);
-    thePath = BezierPathUtil.createCurve(midDown, thePath, edgeRoundness, edgeDown, loopN);
+    thePath = PathUtil.createPath(midUp, thePath, edgeUp, loopN);
+    thePath = PathUtil.createPath(midDown, thePath, edgeDown, loopN);
     mgCtx.fill(thePath);
   }
 }
@@ -399,6 +408,10 @@ function validateCanvasSize()
   {
     bTrue = true;
   }
+  if(CanvasScaler.updateCanvasSize( mgCanvas2, maxScale, minScaleV, minScaleH ))
+  {
+    bTrue = true;
+  }
   if(CanvasScaler.updateCanvasSize( fgCanvas, maxScale, minScaleV, minScaleH ))
   {
     bTrue = true;
@@ -415,6 +428,8 @@ function update()
   if (validateCanvasSize())
   {
     skyUpdateTimer = skyUpdateFreq;
+    mg2UpdateTimer = mg2UpdateFreq;
+    fgUpdateTimer = fgUpdateFreq;
 
     resetClouds();
     resetStars();
@@ -443,12 +458,25 @@ function update()
     updateSkyVisuals();
   }
 
-  //animate the river a little
-  fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
+  //update the river
+  mg2UpdateTimer += GameLoop.deltaTime;
+  if (mg2UpdateTimer > mg2UpdateFreq)
+  {
+    mg2UpdateTimer = 0;
 
-  animateRiver();
+    mgCtx2.clearRect(0, 0, mgCanvas2.width, mgCanvas2.height);
+    animateRiver();
+  }
 
-  updatePlants();
+  //update the PLANTS
+  fgUpdateTimer += GameLoop.deltaTime;
+  if (fgUpdateTimer > fgUpdateFreq)
+  {
+    fgUpdateTimer = 0;
+
+    fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
+    updatePlants();
+  }
 }
 
 function animateRiver()
@@ -463,8 +491,8 @@ function animateRiver()
     var thePos = tod + ((widthFreq/nRiverLines) * k);
 
     var widthMultip = (thePos % widthFreq) / widthFreq;
-    var widthMultipEased = EasingUtil.easeOutQuad(widthMultip, 0, 1, 1);
-    widthMultipEased = Math.scaleNormal(widthMultipEased, 0.5, 1);
+    widthMultip = EasingUtil.easeOutQuad(widthMultip, 0, 1, 1);
+    widthMultip = Math.scaleNormal(widthMultip, 0.5, 1);
 
     var theAlpha = -(Math.cos((2 * Math.PI * thePos) / widthFreq) * 0.5) + 0.5;
     theAlpha = Math.scaleNormal(theAlpha, 0, 0.33);
@@ -472,28 +500,27 @@ function animateRiver()
     var lineWidth = (thePos % widthFreq) / widthFreq;
     lineWidth = Math.scaleNormal(lineWidth, 3, 9);
 
-    fgCtx.lineJoin = 'round';
-    fgCtx.lineWidth = lineWidth;
-    fgCtx.strokeStyle = "rgba(255,255,255, "+theAlpha+")";
+    mgCtx2.lineJoin = 'round';
+    mgCtx2.lineWidth = lineWidth;
+    mgCtx2.strokeStyle = "rgba(255,255,255, "+theAlpha+")";
 
     //get on to the drawing
-    fgCtx.beginPath();
+    mgCtx2.beginPath();
     var thePath = new Path2D();
-    var edgeRoundness = 0.5;
-    thePath = BezierPathUtil.createCurve(riverMidPointsUp, thePath, edgeRoundness, riverEdgePointsUp, widthMultipEased);
-    thePath = BezierPathUtil.createCurve(riverMidPointsDown, thePath, edgeRoundness, riverEdgePointsDown, widthMultipEased);
+    thePath = PathUtil.createPath(riverMidPointsUp, thePath, riverEdgePointsUp, widthMultip);
+    thePath = PathUtil.createPath(riverMidPointsDown, thePath, riverEdgePointsDown, widthMultip);
 
-    fgCtx.stroke(thePath);
+    mgCtx2.stroke(thePath);
   }
 }
 
 function updatePlants()
 {
   //TODO:loop thru the plants, update and draw them.
-  for (var i = 0; i < grass.length; i++)
+  for (var i = 0; i < shrubs.length; i++)
   {
-    grass[i].update();
-    grass[i].draw(fgCtx);
+    shrubs[i].update();
+    shrubs[i].draw(fgCtx);
   }
 }
 
@@ -568,6 +595,7 @@ function updateSkyVisuals()
   var darkenAmount = 96;
   var theFilter = 'brightness('+((100-darkenAmount) + ((1-skyLerp)*darkenAmount))+'%)';
   mgCanvas.style.filter = theFilter;
+  mgCanvas2.style.filter = theFilter;
   fgCanvas.style.filter = theFilter;
 
   //----------
@@ -894,12 +922,12 @@ function Palm()
 
 }
 
-function Shrub()
+function Reeds()
 {
 
 }
 
-function Grass()
+function Shrub()
 {
   this.position = new Vector2D(0,0);
   this.scale = 1;
@@ -913,11 +941,13 @@ function Grass()
   this.colorOne  = [103, 165, 96];
   this.colorZero = [57, 114, 56];
 
+  this.ageSpeed = 0.2;
+
   this.points = [];
 
   this.prevUpdateTod = 0;
 
-  this.init = function()
+  this.init = function( scale, pos )
   {
     this.points = [];
     var nPoints = Math.getRnd(16, 24);
@@ -927,13 +957,17 @@ function Grass()
     var noise = new SimplexNoise();
     var spikeFreq = nPoints;
 
+    this.scale      = scale;
+    this.position   = pos;
+    this.lifeTime   = Math.random();
+
     for (var i = 0; i < nPoints; i++)
     {
       var angleN = i / (nPoints);
       var t = angleN * Math.PI;
 
-      //var sizeScale = i % 2 != 0 ? Math.getRnd(0.66, 1) : Math.getRnd(0.25, 0.33);
-      var sizeScale = Math.scaleNormal(0.5 + (Math.cos(spikeFreq*t) * 0.5), 0.25, 1);
+      var sizeScale = Math.scaleNormal(0.5 + (-Math.cos(spikeFreq*t) * 0.5), 0.2, 1);
+      sizeScale = EasingUtil.easeOutSine(sizeScale, 0, 1, 1);
 
       var x	=	sizeScale * Math.cos(t) * this.scale;
       var y	=	sizeScale * Math.sin(t) * this.scale;
@@ -944,16 +978,19 @@ function Grass()
 
   this.update = function()
   {
-      //TODO:stuff
-      //var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : this.prevUpdateTod - tod;
-      //this.prevUpdateTod = tod;
+      var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
+      this.prevUpdateTod = tod;
 
-      //this.lifeTime += todDelta * 2;
+      this.lifeTime += todDelta * this.ageSpeed;
+      if (this.lifeTime > 1)
+      {
+        this.lifeTime = 1;
+      }
   }
 
   this.draw = function( theCanvas )
   {
-    var bendMultip = 0.2;
+    var bendMultip = 75;
 
     theCanvas.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
     theCanvas.beginPath();
@@ -962,10 +999,10 @@ function Grass()
     {
       var thePoint = this.points[p];
 
-      var theX = thePoint.x * this.maxW;
-      theX += EasingUtil.easeOutQuart(thePoint.y, 0, bendMultip * windStr, 1);
+      var theX = thePoint.x * this.maxW * this.lifeTime;
+      theX -= EasingUtil.easeInQuart(thePoint.y, 0, bendMultip * windStr, 1);
 
-      var theY = thePoint.y * this.maxH;
+      var theY = thePoint.y * this.maxH * this.lifeTime;
 
       theCanvas.lineTo(this.position.x + theX, this.position.y - theY);
     }
@@ -996,7 +1033,7 @@ function Cloud()
   {
     this.points = [];
 
-    var nPoints = Math.getRnd(100, 150);
+    var nPoints = Math.getRnd(75, 100);
 
     var noise = new SimplexNoise();
     var nScale = 0.66;
@@ -1038,6 +1075,8 @@ function Cloud()
       this.position.x = -this.maxW;
     }
 
+    //TODO: maybe change the scale on a noise function?
+
   }
 
   this.draw = function( theCanvas, brightness )
@@ -1052,7 +1091,6 @@ function Cloud()
       var thePoint = this.points[p];
       theCanvas.lineTo( this.position.x + thePoint.x, this.position.y + thePoint.y );
     }
-
     theCanvas.fill();
   }
 }
