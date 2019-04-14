@@ -106,8 +106,7 @@ var mg2UpdateTimer            = 0;
 var fgUpdateFreq              = 0.1;
 var fgUpdateTimer             = 0;
 
-var shrubs                    = [];
-var reeds                     = [];
+var plants                    = [];
 
 //------------------------------------------------
 //                    Start
@@ -288,7 +287,7 @@ function drawRivers( theNoise )
   riverEdgePointsDown   = [];
   valleyEdgePointsUp    = [];
   valleyEdgePointsDown  = [];
-  shrubs                = [];
+  plants                = [];
 
   //draw the river and valley pixel by pixel...
   var xSampleSize = 4;
@@ -348,19 +347,69 @@ function drawRivers( theNoise )
     {
       for (var x = leftX; x <= rightX; x += xSampleSize)
       {
-          if ((x <= riverLeftX || x >= riverRightX) && xCounter == 0)
+        if (xCounter == 0 && x > 0 && x < fgCanvas.width)
+        {
+          var riverDistN = undefined; // how close we are to the edge of the river, 0 being the center
+          var valleyDistN = undefined; // how close we are to the edge of the valley, 0 being river edge
+          if ( x <= midX )
           {
-            if (Math.random() > 0.5 && x > 0 && x < fgCanvas.width)
+            if (x >= riverLeftX) { riverDistN = (x - riverLeftX)/easedRiverW; }
+            if (x <= riverLeftX) { valleyDistN = (x - leftX)/easedValleyW; }
+          }
+          else
+          {
+            if (x <= riverRightX) { riverDistN = 1 - ((x - midX)/easedRiverW); } //TODO: get rid of 1- and do it better
+            if (x >= riverRightX) { valleyDistN = (x - riverRightX)/easedValleyW; }
+          }
+
+          var thePlants = [];
+
+          if (valleyDistN != undefined)
+          {
+            //TODO: vary based on dist...
+            if (Math.random() > 0.5)
             {
-              //TODO: maybe a bit of randomization?
               var shrub = new Shrub();
-              shrub.init(yNormal, new Vector2D(x, y));
-              shrubs.push(shrub);
+              thePlants.push(shrub);
             }
           }
 
-          xCounter ++;
-          if (xCounter >= plantFreqX) { xCounter = 0; }
+          if (valleyDistN != undefined)
+          {
+            //TODO: vary based on dist...
+            if (Math.random() > 0.5)
+            {
+              var grass = new Grass();
+              thePlants.push(grass);
+            }
+          }
+
+          if ((riverDistN <= 0.66 && riverDistN != undefined) || (valleyDistN <= 0.4 && valleyDistN != undefined))
+          {
+            //TODO: vary based on dist...
+            if (Math.random() >= 0.1)
+            {
+              var reed = new Reed();
+              thePlants.push(reed);
+            }
+          }
+
+          var nPlants = thePlants.length;
+          if (nPlants > 0)
+          {
+            var thePlant;
+            for (var p = 0; p < nPlants; p++)
+            {
+              thePlant = thePlants[p];
+              thePlant.init(yNormal, new Vector2D(x, y));
+              plants.push(thePlant);
+            }
+          }
+
+        }
+
+        xCounter ++;
+        if (xCounter >= plantFreqX) { xCounter = 0; }
       }
     }
 
@@ -369,6 +418,8 @@ function drawRivers( theNoise )
   }
 
   // build a path and draw the valley & river!
+
+  //TODO: gradient the color as we go up/down in y!
   fillLayeredShape( 4, valleyColorStart, valleyColorEnd, valleyOpacity, riverMidPointsUp, riverMidPointsDown, valleyEdgePointsUp, valleyEdgePointsDown );
   fillLayeredShape( 4, riverColorEnd, riverColorStart, riverOpacity, riverMidPointsUp, riverMidPointsDown, riverEdgePointsUp, riverEdgePointsDown );
 
@@ -516,11 +567,11 @@ function animateRiver()
 
 function updatePlants()
 {
-  //TODO:loop thru the plants, update and draw them.
-  for (var i = 0; i < shrubs.length; i++)
+  //loop thru the plants, update and draw them
+  for (var i = 0; i < plants.length; i++)
   {
-    shrubs[i].update();
-    shrubs[i].draw(fgCtx);
+    plants[i].update();
+    plants[i].draw(fgCtx);
   }
 }
 
@@ -922,12 +973,86 @@ function Palm()
 
 }
 
-function Reeds()
+function Reed()
 {
+  this.position = new Vector2D(0,0);
+  this.scale = 1;
+  this.color;
 
+  this.maxW = 2;
+  this.maxH = 30;
+
+  this.lifeTime = 0;
+
+  this.colorOne  = [103, 165, 96];
+  this.colorZero = [57, 114, 56];
+
+  this.ageSpeed = 0.2;
+
+  this.points = [];
+
+  this.prevUpdateTod = 0;
+
+  this.init = function( scale, pos )
+  {
+    this.points = [];
+
+    this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
+
+    this.scale      = scale;
+    this.position   = pos;
+    this.lifeTime   = Math.random();
+
+    var nPoints = Math.getRnd(8, 16);
+
+    for (var i = 0; i < nPoints; i++)
+    {
+      var angleN = i / (nPoints);
+      var t = angleN * Math.PI;
+
+      var x	=	angleN * this.scale;
+      var y	=	Math.sin(t) * this.scale;
+
+      this.points.push(new Vector2D(x, y));
+    }
+  }
+
+  this.update = function()
+  {
+      var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
+      this.prevUpdateTod = tod;
+
+      this.lifeTime += todDelta * this.ageSpeed;
+      if (this.lifeTime > 1)
+      {
+        this.lifeTime = 1;
+      }
+  }
+
+  this.draw = function( theCanvas )
+  {
+    var bendMultip = 50;
+
+    theCanvas.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
+    theCanvas.beginPath();
+
+    for (var p = 0; p < this.points.length; p++)
+    {
+      var thePoint = this.points[p];
+
+      var theX = thePoint.x * this.maxW * this.lifeTime;
+      theX -= EasingUtil.easeInCubic(thePoint.y, 0, bendMultip * windStr, 1);
+
+      var theY = thePoint.y * this.maxH * this.lifeTime;
+
+      theCanvas.lineTo(this.position.x + theX, this.position.y - theY);
+    }
+
+    theCanvas.fill();
+  }
 }
 
-function Shrub()
+function Grass()
 {
   this.position = new Vector2D(0,0);
   this.scale = 1;
@@ -969,8 +1094,11 @@ function Shrub()
       var sizeScale = Math.scaleNormal(0.5 + (-Math.cos(spikeFreq*t) * 0.5), 0.2, 1);
       sizeScale = EasingUtil.easeOutSine(sizeScale, 0, 1, 1);
 
-      var x	=	sizeScale * Math.cos(t) * this.scale;
-      var y	=	sizeScale * Math.sin(t) * this.scale;
+      var xCos = Math.cos(t);
+      var ySin = Math.sin(t);
+
+      var x	=	sizeScale * xCos * this.scale;
+      var y	=	sizeScale * ySin * this.scale;
 
       this.points.push(new Vector2D(x, y));
     }
@@ -1000,6 +1128,96 @@ function Shrub()
       var thePoint = this.points[p];
 
       var theX = thePoint.x * this.maxW * this.lifeTime;
+      theX -= EasingUtil.easeInQuart(thePoint.y, 0, bendMultip * windStr, 1);
+
+      var theY = thePoint.y * this.maxH * this.lifeTime;
+
+      theCanvas.lineTo(this.position.x + theX, this.position.y - theY);
+    }
+
+    theCanvas.fill();
+  }
+}
+
+function Shrub()
+{
+  this.position = new Vector2D(0,0);
+  this.scale = 1;
+  this.color;
+
+  this.maxW = 50;
+  this.maxH = 100;
+
+  this.lifeTime = 0;
+
+  this.colorOne  = [103, 165, 96];
+  this.colorZero = [57, 114, 56];
+
+  this.ageSpeed = 0.2;
+
+  this.points = [];
+
+  this.prevUpdateTod = 0;
+
+  this.init = function( scale, pos )
+  {
+    this.points = [];
+    //var nPoints = Math.getRnd(16, 24);
+    var nPoints = Math.getRnd(20, 40);
+
+    this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
+
+    var noise = new SimplexNoise();
+    var spikeFreq = nPoints * 0.2;
+
+    this.scale      = scale;
+    this.position   = pos;
+    this.lifeTime   = Math.random();
+
+    //TODO: offset x towards the edges more to create a bend.
+    for (var i = 0; i < nPoints; i++)
+    {
+      var angleN = i / (nPoints);
+      var t = angleN * Math.PI;
+
+      var sizeScale = Math.scaleNormal(0.5 + (-Math.cos(spikeFreq*t) * 0.5), 0.2, 1);
+      sizeScale = EasingUtil.easeOutSine(sizeScale, 0, 1, 1);
+
+      var xCos = Math.cos(t);
+      var ySin = Math.sin(t);
+
+      var x	=	sizeScale * xCos * this.scale;
+      var y	=	sizeScale * ySin * this.scale;
+
+      this.points.push(new Vector2D(x, y));
+    }
+  }
+
+  this.update = function()
+  {
+      var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
+      this.prevUpdateTod = tod;
+
+      this.lifeTime += todDelta * this.ageSpeed;
+      if (this.lifeTime > 1)
+      {
+        this.lifeTime = 1;
+      }
+  }
+
+  this.draw = function( theCanvas )
+  {
+    var bendMultip = 75;
+
+    theCanvas.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
+    theCanvas.beginPath();
+
+    for (var p = 0; p < this.points.length; p++)
+    {
+      var thePoint = this.points[p];
+
+      var curvedX = thePoint.x * EasingUtil.easeNone(thePoint.y, 0, 2, 1);
+      var theX = curvedX * this.maxW * this.lifeTime;
       theX -= EasingUtil.easeInQuart(thePoint.y, 0, bendMultip * windStr, 1);
 
       var theY = thePoint.y * this.maxH * this.lifeTime;
