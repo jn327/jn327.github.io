@@ -354,11 +354,11 @@ function drawRivers( theNoise )
           if ( x <= midX )
           {
             if (x >= riverLeftX) { riverDistN = (x - riverLeftX)/easedRiverW; }
-            if (x <= riverLeftX) { valleyDistN = (x - leftX)/easedValleyW; }
+            if (x <= riverLeftX) { valleyDistN = 1 - ((x - leftX)/easedValleyW); }
           }
           else
           {
-            if (x <= riverRightX) { riverDistN = 1 - ((x - midX)/easedRiverW); } //TODO: get rid of 1- and do it better
+            if (x <= riverRightX) { riverDistN = 1 - ((x - midX)/easedRiverW); }
             if (x >= riverRightX) { valleyDistN = (x - riverRightX)/easedValleyW; }
           }
 
@@ -384,7 +384,8 @@ function drawRivers( theNoise )
             }
           }
 
-          if ((riverDistN <= 0.66 && riverDistN != undefined) || (valleyDistN <= 0.4 && valleyDistN != undefined))
+          if ((riverDistN <= 0.66 && riverDistN != undefined) ||
+           (valleyDistN <= 0.25 && valleyDistN != undefined))
           {
             //TODO: vary based on dist...
             if (Math.random() >= 0.1)
@@ -418,14 +419,12 @@ function drawRivers( theNoise )
   }
 
   // build a path and draw the valley & river!
-
-  //TODO: gradient the color as we go up/down in y!
-  fillLayeredShape( 4, valleyColorStart, valleyColorEnd, valleyOpacity, riverMidPointsUp, riverMidPointsDown, valleyEdgePointsUp, valleyEdgePointsDown );
-  fillLayeredShape( 4, riverColorEnd, riverColorStart, riverOpacity, riverMidPointsUp, riverMidPointsDown, riverEdgePointsUp, riverEdgePointsDown );
+  fillLayeredShape( 4, valleyColorStart, valleyColorEnd, valleyOpacity, riverMidPointsUp, riverMidPointsDown, valleyEdgePointsUp, valleyEdgePointsDown, riverStartY, riverEndY, valleyColorStart );
+  fillLayeredShape( 4, riverColorEnd, riverColorStart, riverOpacity, riverMidPointsUp, riverMidPointsDown, riverEdgePointsUp, riverEdgePointsDown, riverStartY, riverEndY, riverColorEnd );
 
 }
 
-function fillLayeredShape( nLoops, colorStart, colorEnd, opacity, midUp, midDown, edgeUp, edgeDown )
+function fillLayeredShape( nLoops, colorStart, colorEnd, opacity, midUp, midDown, edgeUp, edgeDown, startY, endY, grdColor )
 {
   for (var i = 0; i < nLoops; i++)
   {
@@ -435,7 +434,14 @@ function fillLayeredShape( nLoops, colorStart, colorEnd, opacity, midUp, midDown
     mgCtx.beginPath();
 
     var color = ColorUtil.lerp(loopN, colorStart, colorEnd);
-    mgCtx.fillStyle = 'rgba('+color[0]+','+color[1]+','+color[2]+', '+opacity+')';
+
+    //gradient the color as we go up/down in y!
+    var grd = mgCtx.createLinearGradient(0, startY, 0, endY);
+    var grdOpacity = EasingUtil.easeOutQuad(opacity, 0, 1, 1);
+    grd.addColorStop(0.1, 'rgba('+grdColor[0]+','+grdColor[1]+','+grdColor[2]+', '+grdOpacity+')');
+    grd.addColorStop(0.66, 'rgba('+color[0]+','+color[1]+','+color[2]+', '+opacity+')');
+
+    mgCtx.fillStyle = grd;
 
     var thePath = new Path2D();
     thePath = PathUtil.createPath(midUp, thePath, edgeUp, loopN);
@@ -553,7 +559,12 @@ function animateRiver()
 
     mgCtx2.lineJoin = 'round';
     mgCtx2.lineWidth = lineWidth;
-    mgCtx2.strokeStyle = "rgba(255,255,255, "+theAlpha+")";
+
+    var grd = mgCtx2.createLinearGradient(0, riverMidPointsUp[0].y, 0, mgCanvas.height);
+    grd.addColorStop(0.1, "rgba(255,255,255, 0)");
+    grd.addColorStop(1, "rgba(255,255,255, "+theAlpha+")");
+
+    mgCtx2.strokeStyle = grd;
 
     //get on to the drawing
     mgCtx2.beginPath();
@@ -968,6 +979,7 @@ function ShootingStar()
 //------------------------------------------------
 //                    PLANTS
 //------------------------------------------------
+//TODO: we can definately share a lot of code here!!!!
 function Palm()
 {
 
@@ -979,8 +991,8 @@ function Reed()
   this.scale = 1;
   this.color;
 
-  this.maxW = 2;
-  this.maxH = 30;
+  this.maxW = 3;
+  this.maxH = 44;
 
   this.lifeTime = 0;
 
@@ -1003,7 +1015,7 @@ function Reed()
     this.position   = pos;
     this.lifeTime   = Math.random();
 
-    var nPoints = Math.getRnd(8, 16);
+    var nPoints = 9;
 
     for (var i = 0; i < nPoints; i++)
     {
@@ -1075,7 +1087,7 @@ function Grass()
   this.init = function( scale, pos )
   {
     this.points = [];
-    var nPoints = Math.getRnd(16, 24);
+    var nPoints = Math.getRnd(14, 18);
 
     this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
 
@@ -1162,8 +1174,7 @@ function Shrub()
   this.init = function( scale, pos )
   {
     this.points = [];
-    //var nPoints = Math.getRnd(16, 24);
-    var nPoints = Math.getRnd(20, 40);
+    var nPoints = Math.getRnd(25, 30);
 
     this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
 
