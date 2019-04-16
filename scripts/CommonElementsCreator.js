@@ -1,4 +1,6 @@
-function createHeaderElement( parentElement, selectedIndex, rootLocation )
+var CommonElementsCreator = {};
+
+CommonElementsCreator.createHeaderElement = function( selectedIndex, parentElement, rootLocation )
 {
   if (parentElement == undefined)
   {
@@ -62,5 +64,17 @@ function createHeaderElement( parentElement, selectedIndex, rootLocation )
 
     linkItem.appendChild(imgItem);
     imgList.appendChild(linkItem);
+  }
+}
+
+CommonElementsCreator.appendScipts = function( includes )
+{
+  var l = includes.length;
+  var theScript;
+  for (var i = 0; i < l; i++ )
+  {
+    theScript = document.createElement('script');
+    theScript.src = 'scripts/'+includes[i]+'.js';
+    document.head.appendChild(theScript);
   }
 }

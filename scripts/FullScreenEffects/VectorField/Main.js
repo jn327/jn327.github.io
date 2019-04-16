@@ -45,7 +45,7 @@ function init()
 {
   var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil',
     'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'FullScreenEffects/VectorField/Particle' ];
-  ScriptIncluder.appendScipts(includes);
+  CommonElementsCreator.appendScipts(includes);
 }
 
 function start()

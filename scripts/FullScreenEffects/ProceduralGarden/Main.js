@@ -114,7 +114,7 @@ function init()
 {
   var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise',
     'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject' ];
-  ScriptIncluder.appendScipts(includes);
+  CommonElementsCreator.appendScipts(includes);
 }
 
 function start()
