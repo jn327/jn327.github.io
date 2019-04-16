@@ -64,33 +64,18 @@ function setRandomHue()
 
 function initCanvas()
 {
-  activeCanvas = document.createElement("canvas");
-  activeCanvas.className = "fullFixed";
-  document.body.insertBefore(activeCanvas, document.body.firstChild);
+  activeCanvas = CommonElementsCreator.createCanvas();
   activeCtx    = activeCanvas.getContext('2d');
 
-  bgCanvas = document.createElement("canvas");
-  bgCanvas.className = "fullFixed";
-  document.body.insertBefore(bgCanvas, document.body.firstChild);
-  bgCtx = bgCanvas.getContext('2d');
+  bgCanvas  = CommonElementsCreator.createCanvas();
+  bgCtx     = bgCanvas.getContext('2d');
 
   validateCanvasSize();
 }
 
 function validateCanvasSize()
 {
-  var bTrue = false;
-
-  if(CanvasScaler.updateCanvasSize( bgCanvas ))
-  {
-    bTrue = true;
-  }
-  if(CanvasScaler.updateCanvasSize( activeCanvas ))
-  {
-    bTrue = true;
-  }
-
-  return bTrue;
+  return CanvasScaler.updateCanvasSize( [bgCanvas, activeCanvas] );
 }
 
 function initVectorField()

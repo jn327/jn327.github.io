@@ -24,6 +24,7 @@ var sunSizeMax                = 320;
 var sunColorMid               = [255, 252, 214]; // [255, 236, 94];
 var sunColorEdges             = [239, 11, 31]; // [255, 110, 94];
 
+var moon;
 var moonSizeMax               = 60;
 var moonSizeMin               = 30;
 var moonRiseTime              = 0.9;
@@ -113,13 +114,17 @@ init();
 function init()
 {
   var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise',
-    'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject' ];
+    'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
+    'FullScreenEffects/ProceduralGarden/Moon', 'FullScreenEffects/ProceduralGarden/Cloud',
+    'FullScreenEffects/ProceduralGarden/Plants', 'FullScreenEffects/ProceduralGarden/Stars' ];
   CommonElementsCreator.appendScipts(includes);
 }
 
 function start()
 {
   initCanvas();
+
+  moon = new Moon();
 
   initWindAndClouds();
   initStars();
@@ -128,25 +133,17 @@ function start()
 
 function initCanvas()
 {
-  fgCanvas = document.createElement("canvas");
-  fgCanvas.className = "fullFixed";
-  document.body.insertBefore(fgCanvas, document.body.firstChild);
-  fgCtx    = fgCanvas.getContext('2d');
+  fgCanvas  = CommonElementsCreator.createCanvas();
+  fgCtx     = fgCanvas.getContext('2d');
 
-  mgCanvas2 = document.createElement("canvas");
-  mgCanvas2.className = "fullFixed";
-  document.body.insertBefore(mgCanvas2, document.body.firstChild);
+  mgCanvas2 = CommonElementsCreator.createCanvas();
   mgCtx2    = mgCanvas2.getContext('2d');
 
-  mgCanvas = document.createElement("canvas");
-  mgCanvas.className = "fullFixed";
-  document.body.insertBefore(mgCanvas, document.body.firstChild);
-  mgCtx    = mgCanvas.getContext('2d');
+  mgCanvas  = CommonElementsCreator.createCanvas();
+  mgCtx     = mgCanvas.getContext('2d');
 
-  bgCanvas = document.createElement("canvas");
-  bgCanvas.className = "fullFixed";
-  document.body.insertBefore(bgCanvas, document.body.firstChild);
-  bgCtx = bgCanvas.getContext('2d');
+  bgCanvas  = CommonElementsCreator.createCanvas();
+  bgCtx     = bgCanvas.getContext('2d');
 
   validateCanvasSize();
 }
@@ -444,29 +441,12 @@ function fillLayeredShape( nLoops, colorStart, colorEnd, opacity, midUp, midDown
 
 function validateCanvasSize()
 {
-  var bTrue = false;
-
   var maxScale = 1800;
   var minScaleV = 1800;
   var minScaleH = 400;
-  if(CanvasScaler.updateCanvasSize( bgCanvas, maxScale, minScaleV, minScaleH ))
-  {
-    bTrue = true;
-  }
-  if(CanvasScaler.updateCanvasSize( mgCanvas, maxScale, minScaleV, minScaleH ))
-  {
-    bTrue = true;
-  }
-  if(CanvasScaler.updateCanvasSize( mgCanvas2, maxScale, minScaleV, minScaleH ))
-  {
-    bTrue = true;
-  }
-  if(CanvasScaler.updateCanvasSize( fgCanvas, maxScale, minScaleV, minScaleH ))
-  {
-    bTrue = true;
-  }
 
-  return bTrue;
+  return CanvasScaler.updateCanvasSize( [bgCanvas, mgCanvas, mgCanvas2, fgCanvas],
+    maxScale, minScaleV, minScaleH );
 }
 
 //------------------------------------------------
@@ -580,6 +560,7 @@ function updatePlants()
 
 function updateSkyVisuals()
 {
+  //TODO:This megafunction needs to be split up into smaller chunks.
   //---------------
   //   SKY COLOR
   //---------------
@@ -735,71 +716,15 @@ function updateSkyVisuals()
 
     var moonColor = ColorUtil.lerp(moonTimeLerp, moonColorMid, moonColorEdges);
 
-    var moonSize = Math.scaleNormal(moonTimeLerp, moonSizeMin, moonSizeMax);
+    moon.size = Math.scaleNormal(moonTimeLerp, moonSizeMin, moonSizeMax);
     //var sunX = (dayTimeNormal * (bgCanvas.width + (2 * sunSize))) - sunSize;
     var moonX = moonTimeNormal * bgCanvas.width;
     var heightOffsetTop = 0.1;
     var heightOffsetBottom = 0.2;
-    var moonY = (heightOffsetTop*bgCanvas.height) + moonSize + (moonTimeLerp * ((1-heightOffsetBottom)*bgCanvas.height));
+    var moonY = (heightOffsetTop*bgCanvas.height) + moon.size + (moonTimeLerp * ((1-heightOffsetBottom)*bgCanvas.height));
 
     //draw the moon.
-    //TODO: this should be in its own class function really 'moon.draw()'...
-    bgCtx.fillStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 0.025)';
-    bgCtx.beginPath();
-    bgCtx.arc(moonX-1, moonY+2, moonSize*2, 0, 2 * Math.PI);
-    bgCtx.fill();
-
-    bgCtx.fillStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 0.05)';
-    bgCtx.beginPath();
-    bgCtx.arc(moonX-2, moonY-1, moonSize*1.4, 0, 2 * Math.PI);
-    bgCtx.fill();
-
-    bgCtx.strokeStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 0.05)';
-    bgCtx.lineWidth   = 2;
-    bgCtx.beginPath();
-    bgCtx.arc(moonX, moonY, moonSize*1.8, 0, 2 * Math.PI);
-    bgCtx.stroke();
-
-    bgCtx.fillStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 1)';
-    bgCtx.beginPath();
-    bgCtx.arc(moonX, moonY, moonSize, 0, 2 * Math.PI);
-    bgCtx.fill();
-
-    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    bgCtx.beginPath();
-    bgCtx.arc(moonX+2, moonY+5, moonSize-5, 0, 2 * Math.PI);
-    bgCtx.fill();
-
-    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    bgCtx.beginPath();
-    bgCtx.arc(moonX+(moonSize*0.1), moonY+(moonSize*0.3), moonSize*0.2, 0, 2 * Math.PI);
-    bgCtx.fill();
-
-    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    bgCtx.beginPath();
-    bgCtx.arc(moonX+(moonSize*0.6), moonY+(moonSize*0.1), moonSize*0.15, 0, 2 * Math.PI);
-    bgCtx.fill();
-
-    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    bgCtx.beginPath();
-    bgCtx.arc(moonX-(moonSize*0.4), moonY+(moonSize*0.025), moonSize*0.1, 0, 2 * Math.PI);
-    bgCtx.fill();
-
-    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    bgCtx.beginPath();
-    bgCtx.arc(moonX-(moonSize*0.6), moonY-(moonSize*0.1), moonSize*0.2, 0, 2 * Math.PI);
-    bgCtx.fill();
-
-    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    bgCtx.beginPath();
-    bgCtx.arc(moonX-(moonSize*0.3), moonY-(moonSize*0.6), moonSize*0.1, 0, 2 * Math.PI);
-    bgCtx.fill();
-
-    bgCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    bgCtx.beginPath();
-    bgCtx.arc(moonX+(moonSize*0.6), moonY-(moonSize*0.4), moonSize*0.15, 0, 2 * Math.PI);
-    bgCtx.fill();
-
+    moon.draw( bgCtx, moonX, moonY );
   }
 
   //-----------
@@ -839,497 +764,4 @@ function resetClouds()
 function onMouseDown()
 {
 
-}
-
-//------------------------------------------------
-//                    STARS
-//------------------------------------------------
-function Star()
-{
-  this.position = new Vector2D(0,0);
-  this.size = 1;
-  this.alphaOffset = 0;
-  this.alphaTimeMultip = 1;
-
-  this.draw = function(theCanvas, alphaMultip)
-  {
-    var theAlpha = 0.5 + (0.5*Math.cos(this.alphaTimeMultip * (this.alphaOffset+GameLoop.currentTime)));
-    theAlpha *= alphaMultip;
-
-    theCanvas.fillStyle = 'rgba(255,255,255,'+theAlpha+')';
-    theCanvas.beginPath();
-    theCanvas.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
-    theCanvas.fill();
-
-  }
-}
-
-function ShootingStar()
-{
-  this.startPosition = new Vector2D(0,0);
-  this.position = new Vector2D(0,0);
-  this.endPosition = new Vector2D(0,0);
-  this.size = 0.5;
-  this.startTime = 0;
-  this.minDur = 0.002;
-  this.maxDur = 0.01;
-  this.duration = 0;
-  this.direction = new Vector2D(0,0);
-
-  this.bSetup = false;
-  this.maxSpawnPosY = 0.33;
-  this.minSpawnPosX = 0.9;
-  this.minTravelDist = 0.4;
-  this.maxTravelDist = 0.8;
-
-  this.updateLifeTime = function( theCanvas, canvasWidth, canvasHeight, timeOfDay, alphaModif, performSetup )
-  {
-    if (!this.bSetup && performSetup)
-    {
-      this.startTime = timeOfDay;
-
-      this.startPosition.x = (this.minSpawnPosX + (Math.random() * (1-this.minSpawnPosX))) * canvasWidth;
-      this.startPosition.y = Math.random() * canvasHeight * this.maxSpawnPosY;
-
-      this.duration = Math.getRnd(this.minDur, this.maxDur);
-
-      var centerDirX = this.startPosition.x - (canvasWidth * 0.5);
-      var centerDirY = this.startPosition.y - (canvasHeight * 0.5);
-      var centerDir = new Vector2D(centerDirX, centerDirY);
-      centerDir = centerDir.normalize();
-
-      var moveDistX = Math.getRnd(this.minTravelDist, this.maxTravelDist) * canvasWidth;
-      var moveDistY = Math.getRnd(this.minTravelDist, this.maxTravelDist) * canvasHeight;
-
-      this.endPosition.x = this.startPosition.x - (centerDir.x * moveDistX);
-      this.endPosition.y = this.startPosition.y - (centerDir.y * moveDistY);
-
-      this.bSetup = true;
-    }
-
-    if (!this.bSetup)
-    {
-      return false;
-    }
-
-    //what if the startTime was 1 and we're now at 0, well check if current time < startTime
-    var currProgress = 0;
-    if (timeOfDay < this.startTime)
-    {
-      currProgress = (timeOfDay + (1 - this.startTime)) / this.duration;
-    }
-    else
-    {
-      currProgress = (timeOfDay - this.startTime) / this.duration;
-    }
-
-    // if we're at the end of our progress, then return.
-    if (currProgress > 1)
-    {
-      return false;
-    }
-
-    this.position.x = EasingUtil.easeOutCubic(currProgress, this.startPosition.x, this.endPosition.x - this.startPosition.x, 1);
-    this.position.y = EasingUtil.easeOutCubic(currProgress, this.startPosition.y, this.endPosition.y - this.startPosition.y, 1);
-
-    var alphaMultip = (1 - currProgress) * alphaModif;
-
-    theCanvas.fillStyle = 'rgba(255,255,255,'+alphaMultip+')';
-    theCanvas.beginPath();
-    theCanvas.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
-    theCanvas.fill();
-
-    //line behind it!
-    var startDirX = this.position.x - this.startPosition.x;
-    var startDirY = this.position.y - this.startPosition.y;
-    var startDir = new Vector2D(startDirX, startDirY);
-
-    theCanvas.strokeStyle = 'rgba(255,255,255,'+(0.5*alphaMultip)+')';
-    theCanvas.lineWidth   = 0.4;
-    theCanvas.beginPath();
-
-    var startDirLength = startDir.magnitude();
-    var maxLength = canvasWidth * 0.5;
-    if (startDirLength <= maxLength)
-    {
-      theCanvas.lineTo(this.startPosition.x, this.startPosition.y);
-    }
-    else
-    {
-      startDir = startDir.normalize();
-      startDir = startDir.multiply(maxLength);
-
-      theCanvas.lineTo(this.position.x - startDir.x, this.position.y - startDir.y);
-    }
-
-    theCanvas.lineTo(this.position.x, this.position.y);
-    theCanvas.stroke();
-
-    return true;
-  }
-}
-
-//------------------------------------------------
-//                    PLANTS
-//------------------------------------------------
-//TODO: we can definately share a lot of code here!!!!
-//TODO: level of detail!!!
-function Palm()
-{
-
-}
-
-function Reed()
-{
-  //Call our prototype
-  GameObject.call(this);
-
-  this.color;
-
-  this.maxW = 3;
-  this.maxH = 44;
-
-  this.lifeTime = 0;
-
-  this.colorOne  = [103, 165, 96];
-  this.colorZero = [57, 114, 56];
-
-  this.ageSpeed = 0.2;
-
-  this.points = [];
-
-  this.prevUpdateTod = 0;
-
-  this.init = function( scale, pos )
-  {
-    this.points = [];
-
-    this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
-
-    this.scale      = scale;
-    this.position   = pos;
-    this.lifeTime   = Math.random();
-
-    var nPoints = 9;
-
-    for (var i = 0; i < nPoints; i++)
-    {
-      var angleN = i / (nPoints);
-      var t = angleN * Math.PI;
-
-      var x	=	angleN * this.scale;
-      var y	=	Math.sin(t) * this.scale;
-
-      this.points.push(new Vector2D(x, y));
-    }
-  }
-
-  this.update = function()
-  {
-      var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
-      this.prevUpdateTod = tod;
-
-      this.lifeTime += todDelta * this.ageSpeed;
-      if (this.lifeTime > 1)
-      {
-        this.lifeTime = 1;
-      }
-  }
-
-  this.draw = function( theCanvas )
-  {
-    var bendMultip = 50;
-
-    theCanvas.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
-    theCanvas.beginPath();
-
-    for (var p = 0; p < this.points.length; p++)
-    {
-      var thePoint = this.points[p];
-
-      var theX = thePoint.x * this.maxW * this.lifeTime;
-      theX -= EasingUtil.easeInCubic(thePoint.y, 0, bendMultip * windStr, 1);
-
-      var theY = thePoint.y * this.maxH * this.lifeTime;
-
-      theCanvas.lineTo(this.position.x + theX, this.position.y - theY);
-    }
-
-    theCanvas.fill();
-  }
-}
-
-function Grass()
-{
-  //Call our prototype
-  GameObject.call(this);
-
-  this.color;
-
-  this.maxW = 50;
-  this.maxH = 100;
-
-  this.lifeTime = 0;
-
-  this.colorOne  = [103, 165, 96];
-  this.colorZero = [57, 114, 56];
-
-  this.ageSpeed = 0.2;
-
-  this.points = [];
-
-  this.prevUpdateTod = 0;
-
-  this.init = function( scale, pos )
-  {
-    this.points = [];
-    var nPoints = Math.getRnd(14, 18);
-
-    this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
-
-    var noise = new SimplexNoise();
-    var spikeFreq = nPoints;
-
-    this.scale      = scale;
-    this.position   = pos;
-    this.lifeTime   = Math.random();
-
-    for (var i = 0; i < nPoints; i++)
-    {
-      var angleN = i / (nPoints);
-      var t = angleN * Math.PI;
-
-      var sizeScale = Math.scaleNormal(0.5 + (-Math.cos(spikeFreq*t) * 0.5), 0.2, 1);
-      sizeScale = EasingUtil.easeOutSine(sizeScale, 0, 1, 1);
-
-      var xCos = Math.cos(t);
-      var ySin = Math.sin(t);
-
-      var x	=	sizeScale * xCos * this.scale;
-      var y	=	sizeScale * ySin * this.scale;
-
-      this.points.push(new Vector2D(x, y));
-    }
-  }
-
-  this.update = function()
-  {
-      var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
-      this.prevUpdateTod = tod;
-
-      this.lifeTime += todDelta * this.ageSpeed;
-      if (this.lifeTime > 1)
-      {
-        this.lifeTime = 1;
-      }
-  }
-
-  this.draw = function( theCanvas )
-  {
-    var bendMultip = 75;
-
-    theCanvas.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
-    theCanvas.beginPath();
-
-    for (var p = 0; p < this.points.length; p++)
-    {
-      var thePoint = this.points[p];
-
-      var theX = thePoint.x * this.maxW * this.lifeTime;
-      theX -= EasingUtil.easeInQuart(thePoint.y, 0, bendMultip * windStr, 1);
-
-      var theY = thePoint.y * this.maxH * this.lifeTime;
-
-      theCanvas.lineTo(this.position.x + theX, this.position.y - theY);
-    }
-
-    theCanvas.fill();
-  }
-}
-
-function Shrub()
-{
-  //Call our prototype
-  GameObject.call(this);
-
-  this.color;
-
-  this.maxW = 50;
-  this.maxH = 100;
-
-  this.lifeTime = 0;
-
-  this.colorOne  = [103, 165, 96];
-  this.colorZero = [57, 114, 56];
-
-  this.ageSpeed = 0.2;
-
-  this.points = [];
-
-  this.prevUpdateTod = 0;
-
-  this.init = function( scale, pos )
-  {
-    this.points = [];
-    var nPoints = Math.getRnd(25, 30);
-
-    this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
-
-    var noise = new SimplexNoise();
-    var spikeFreq = nPoints * 0.2;
-
-    this.scale      = scale;
-    this.position   = pos;
-    this.lifeTime   = Math.random();
-
-    for (var i = 0; i < nPoints; i++)
-    {
-      var angleN = i / (nPoints);
-      var t = angleN * Math.PI;
-
-      var sizeScale = Math.scaleNormal(0.5 + (-Math.cos(spikeFreq*t) * 0.5), 0.2, 1);
-      sizeScale = EasingUtil.easeOutSine(sizeScale, 0, 1, 1);
-
-      var xCos = Math.cos(t);
-      var ySin = Math.sin(t);
-
-      var x	=	sizeScale * xCos * this.scale;
-      var y	=	sizeScale * ySin * this.scale;
-
-      this.points.push(new Vector2D(x, y));
-    }
-  }
-
-  this.update = function()
-  {
-      var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
-      this.prevUpdateTod = tod;
-
-      this.lifeTime += todDelta * this.ageSpeed;
-      if (this.lifeTime > 1)
-      {
-        this.lifeTime = 1;
-      }
-  }
-
-  this.draw = function( theCanvas )
-  {
-    var bendMultip = 75;
-
-    theCanvas.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
-    theCanvas.beginPath();
-
-    for (var p = 0; p < this.points.length; p++)
-    {
-      var thePoint = this.points[p];
-
-      var curvedX = thePoint.x * EasingUtil.easeNone(thePoint.y, 0, 2, 1);
-      var theX = curvedX * this.maxW * this.lifeTime;
-      theX -= EasingUtil.easeInQuart(thePoint.y, 0, bendMultip * windStr, 1);
-
-      var theY = thePoint.y * this.maxH * this.lifeTime;
-
-      theCanvas.lineTo(this.position.x + theX, this.position.y - theY);
-    }
-
-    theCanvas.fill();
-  }
-}
-
-//------------------------------------------------
-//                     CLOUDS
-//------------------------------------------------
-function Cloud()
-{
-  //Call our prototype
-  GameObject.call(this);
-
-  this.minScale = 0.33;
-  this.maxScale = 1.66;
-  this.moveSpeed;
-  this.moveSpeedMax = 2200;
-  this.moveSpeedMin = 1600;
-
-  this.width = 150;
-  this.height = 40;
-
-  this.minNoiseScaleX = 0.33;
-  this.minNoiseScaleY = 0.33;
-
-  this.simpleNoise;
-
-  this.points = [];
-
-  this.prevUpdateTod = 0;
-
-  this.init = function ()
-  {
-    this.points = [];
-    this.moveSpeed = Math.getRnd(this.moveSpeedMin, this.moveSpeedMax);
-
-    var nPoints = Math.getRnd(80, 90);
-
-    this.simpleNoise = new SimplexNoise();
-    var nScale = 0.66;
-
-    for (var i = 0; i < nPoints; i++)
-    {
-      var angleN = i / (nPoints-1);
-      var noiseN = -(Math.cos(2 * Math.PI * angleN) * 0.5) + 0.5;
-      var t = angleN * 2 * Math.PI;
-
-      var sizeScale = (this.simpleNoise.noise(t * noiseN * nScale, nScale) + 1) * 0.5;
-      sizeScale = EasingUtil.easeOutQuad(sizeScale, 0, 1, 1);
-
-      var x	=	Math.scaleNormal(sizeScale, this.minNoiseScaleX, 1) * Math.cos(t);
-      var y	=	Math.scaleNormal(sizeScale, this.minNoiseScaleY, 1) * Math.sin(t);
-
-      this.points.push(new Vector2D(x, y));
-    }
-  }
-
-  this.update = function()
-  {
-    var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
-    this.prevUpdateTod = tod;
-
-    this.position.x += windStr * todDelta * this.moveSpeed;
-
-    if (this.position.x < -this.width)
-    {
-      this.init();
-      this.position.x = bgCanvas.width + this.width;
-    }
-    else if (this.position.x > bgCanvas.width + this.width)
-    {
-      this.init();
-      this.position.x = -this.width;
-    }
-
-    // change the scale on a noise function
-    var scaleChangeFreq = 0.00001;
-    var sizeScale = (this.simpleNoise.noise(GameLoop.currentTime * scaleChangeFreq, 0) + 1) * 0.5;
-    sizeScale = EasingUtil.easeOutQuad(sizeScale, 0, 1, 1);
-    sizeScale = Math.scaleNormal(sizeScale, this.minScale, this.maxScale);
-    this.scale = sizeScale;
-  }
-
-  this.draw = function( theCanvas, brightness )
-  {
-    var colorV = 255 * brightness;
-
-    theCanvas.fillStyle = 'rgba('+colorV+','+colorV+','+colorV+',0.8)';
-    theCanvas.beginPath();
-
-    var l = this.points.length;
-    var thePoint;
-    for (var p = 0; p < l; p++)
-    {
-      thePoint = this.points[p];
-
-      theCanvas.lineTo( this.position.x + (thePoint.x * this.scale * this.width),
-        this.position.y + (thePoint.y * this.scale * this.height) );
-    }
-    theCanvas.fill();
-  }
 }

@@ -78,3 +78,22 @@ CommonElementsCreator.appendScipts = function( includes )
     document.head.appendChild(theScript);
   }
 }
+
+CommonElementsCreator.createCanvas = function( parentElement, className )
+{
+  if (parentElement == undefined)
+  {
+    parentElement = document.body;
+  }
+
+  if (className == undefined)
+  {
+    className = "fullFixed";
+  }
+
+  var canvas = document.createElement("canvas");
+  canvas.className = className;
+  document.body.insertBefore(canvas, parentElement.firstChild);
+
+  return canvas;
+}
