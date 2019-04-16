@@ -44,13 +44,8 @@ init();
 function init()
 {
   var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil',
-    'GameLoop', 'MouseTracker', 'CanvasScaler', 'Particle' ];
-  for (var i = 0; i < includes.length; i++ )
-  {
-    var theScript = document.createElement('script');
-    theScript.src = 'scripts/'+includes[i]+'.js';
-    document.head.appendChild(theScript);
-  }
+    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'FullScreenEffects/VectorField/Particle' ];
+  ScriptIncluder.appendScipts(includes);
 }
 
 function start()
@@ -151,7 +146,7 @@ function setupParticle(theParticle)
 {
   theParticle.position.x = Math.random() * lastPixelX;
   theParticle.position.y = Math.random() * lastPixelY;
-  theParticle.size = particleSize;
+  theParticle.scale = particleSize;
 
   return theParticle;
 }
@@ -271,16 +266,16 @@ function renderCanvas()
 
     // move the particle
     particle.update();
-    particle.clampPosition(0,0, activeCanvas.width, activeCanvas.height);
+    particle.wrapPosition(0,0, activeCanvas.width, activeCanvas.height);
 
     //draw the particles
-    bgCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
-    //bgCtx.fillRect(xPos, yPos, particle.size, particle.size);
+    bgCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
+    //bgCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
 
     activeCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,98%,0.66)';
     //activeCtx.fillStyle = 'rgba(255,255,255,1)';
-    activeCtx.fillRect(particle.position.x, particle.position.y, particle.size, particle.size);
-    //activeCtx.fillRect(xPos, yPos, particle.size, particle.size);
+    activeCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
+    //activeCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
   }
 
 }

@@ -1,7 +1,8 @@
 function Particle()
 {
-  this.position = new Vector2D(0,0);
-  this.size = 1;
+  //Call our prototype
+  GameObject.call(this);
+
   this.velocity = new Vector2D(0,0);
   this.friction = 1; //loose this percentage * 100 every second.
 
@@ -22,7 +23,7 @@ function Particle()
     this.velocity.multiply(1 - deltaFriction);
   }
 
-  this.clampPosition = function(xMin, yMin, xMax, yMax)
+  this.wrapPosition = function(xMin, yMin, xMax, yMax)
   {
       if (this.position.x < xMin)
       {

@@ -27,6 +27,15 @@ Math.scaleNormal = function(val, min, max)
   return min + (val * (max - min));
 }
 
+//same as above but expecting a value from -1 to 1
+Math.scaleNormalSigned = function(val, min, max)
+{
+  var scaledVal = Math.scaleNormal(Math.abs(val), min, max);
+  if (val < 0) { scaledVal = -scaledVal; }
+
+  return scaledVal;
+}
+
 Math.angleBetweenPoints = function(x1, y1, x2, y2)
 {
   return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;

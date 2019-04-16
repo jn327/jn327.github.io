@@ -62,7 +62,7 @@ var sandNoiseFreqNear         = 0.0015;
 var sandNoiseFreqFar          = 0.003;
 var nSandLayersMax            = 5;
 var nSandLayersMin            = 5;
-var sandSampleStepSize        = 6;
+var sandSampleStepSize        = 8;
 
 var ridgeNoiseStr             = 0.45; //how rideged should our sand be
 var sandCurlOffset            = 30;
@@ -96,8 +96,6 @@ var windNoise;                //perlin noise
 var windNoiseFreq             = 0.0005;
 var minClouds                 = 3;
 var maxClouds                 = 8;
-var minCloudSize              = 0.33;
-var maxCloudSize              = 1.66;
 var clouds                    = [];
 
 var mg2UpdateFreq             = 0.033;
@@ -115,13 +113,8 @@ init();
 function init()
 {
   var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise',
-    'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler' ];
-  for (var i = 0; i < includes.length; i++ )
-  {
-    var theScript = document.createElement('script');
-    theScript.src = 'scripts/'+includes[i]+'.js';
-    document.head.appendChild(theScript);
-  }
+    'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject' ];
+  ScriptIncluder.appendScipts(includes);
 }
 
 function start()
@@ -168,7 +161,6 @@ function initWindAndClouds()
     var newCloud = new Cloud();
     setRandomCloudPos(newCloud);
     newCloud.init();
-    newCloud.scale = Math.getRnd( minCloudSize, maxCloudSize );
 
     clouds[i] = newCloud;
   }
@@ -654,7 +646,7 @@ function updateSkyVisuals()
   //   DARKEN MIDGROUND
   //-----------------------
   //TODO: wanna be able to tint it a bit with the sky gradient tooo!!!
-  var darkenAmount = 96;
+  var darkenAmount = 85;
   var theFilter = 'brightness('+((100-darkenAmount) + ((1-skyLerp)*darkenAmount))+'%)';
   mgCanvas.style.filter = theFilter;
   mgCanvas2.style.filter = theFilter;
@@ -751,6 +743,7 @@ function updateSkyVisuals()
     var moonY = (heightOffsetTop*bgCanvas.height) + moonSize + (moonTimeLerp * ((1-heightOffsetBottom)*bgCanvas.height));
 
     //draw the moon.
+    //TODO: this should be in its own class function really 'moon.draw()'...
     bgCtx.fillStyle = 'rgba('+moonColor[0]+', '+moonColor[1]+','+moonColor[2]+', 0.025)';
     bgCtx.beginPath();
     bgCtx.arc(moonX-1, moonY+2, moonSize*2, 0, 2 * Math.PI);
@@ -980,6 +973,7 @@ function ShootingStar()
 //                    PLANTS
 //------------------------------------------------
 //TODO: we can definately share a lot of code here!!!!
+//TODO: level of detail!!!
 function Palm()
 {
 
@@ -987,8 +981,9 @@ function Palm()
 
 function Reed()
 {
-  this.position = new Vector2D(0,0);
-  this.scale = 1;
+  //Call our prototype
+  GameObject.call(this);
+
   this.color;
 
   this.maxW = 3;
@@ -1066,8 +1061,9 @@ function Reed()
 
 function Grass()
 {
-  this.position = new Vector2D(0,0);
-  this.scale = 1;
+  //Call our prototype
+  GameObject.call(this);
+
   this.color;
 
   this.maxW = 50;
@@ -1153,8 +1149,9 @@ function Grass()
 
 function Shrub()
 {
-  this.position = new Vector2D(0,0);
-  this.scale = 1;
+  //Call our prototype
+  GameObject.call(this);
+
   this.color;
 
   this.maxW = 50;
@@ -1185,7 +1182,6 @@ function Shrub()
     this.position   = pos;
     this.lifeTime   = Math.random();
 
-    //TODO: offset x towards the edges more to create a bend.
     for (var i = 0; i < nPoints; i++)
     {
       var angleN = i / (nPoints);
@@ -1245,14 +1241,22 @@ function Shrub()
 //------------------------------------------------
 function Cloud()
 {
-  this.position = new Vector2D(0,0);
-  this.scale = 1;
-  this.moveSpeed = 2000;
+  //Call our prototype
+  GameObject.call(this);
 
-  this.minW = 100;
-  this.maxW = 200;
-  this.minH = 20;
-  this.maxH = 50;
+  this.minScale = 0.33;
+  this.maxScale = 1.66;
+  this.moveSpeed;
+  this.moveSpeedMax = 2200;
+  this.moveSpeedMin = 1600;
+
+  this.width = 150;
+  this.height = 40;
+
+  this.minNoiseScaleX = 0.33;
+  this.minNoiseScaleY = 0.33;
+
+  this.simpleNoise;
 
   this.points = [];
 
@@ -1261,10 +1265,11 @@ function Cloud()
   this.init = function ()
   {
     this.points = [];
+    this.moveSpeed = Math.getRnd(this.moveSpeedMin, this.moveSpeedMax);
 
-    var nPoints = Math.getRnd(75, 100);
+    var nPoints = Math.getRnd(80, 90);
 
-    var noise = new SimplexNoise();
+    this.simpleNoise = new SimplexNoise();
     var nScale = 0.66;
 
     for (var i = 0; i < nPoints; i++)
@@ -1273,14 +1278,11 @@ function Cloud()
       var noiseN = -(Math.cos(2 * Math.PI * angleN) * 0.5) + 0.5;
       var t = angleN * 2 * Math.PI;
 
-      var sizeScale = (noise.noise(t * noiseN * nScale, nScale) + 1) * 0.5;
+      var sizeScale = (this.simpleNoise.noise(t * noiseN * nScale, nScale) + 1) * 0.5;
       sizeScale = EasingUtil.easeOutQuad(sizeScale, 0, 1, 1);
 
-      var theW = Math.scaleNormal(sizeScale, this.minW, this.maxW);
-      var theH = Math.scaleNormal(sizeScale, this.minH, this.maxH);
-
-      var x	=	theW * Math.cos(t) * this.scale;
-      var y	=	theH * Math.sin(t) * this.scale;
+      var x	=	Math.scaleNormal(sizeScale, this.minNoiseScaleX, 1) * Math.cos(t);
+      var y	=	Math.scaleNormal(sizeScale, this.minNoiseScaleY, 1) * Math.sin(t);
 
       this.points.push(new Vector2D(x, y));
     }
@@ -1288,24 +1290,28 @@ function Cloud()
 
   this.update = function()
   {
-    var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : this.prevUpdateTod - tod;
+    var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
     this.prevUpdateTod = tod;
 
-    this.position.x += windStr * todDelta * this.moveSpeed / this.scale;
+    this.position.x += windStr * todDelta * this.moveSpeed;
 
-    if (this.position.x < -this.maxW)
+    if (this.position.x < -this.width)
     {
       this.init();
-      this.position.x = bgCanvas.width + this.maxW;
+      this.position.x = bgCanvas.width + this.width;
     }
-    else if (this.position.x > bgCanvas.width + this.maxW)
+    else if (this.position.x > bgCanvas.width + this.width)
     {
       this.init();
-      this.position.x = -this.maxW;
+      this.position.x = -this.width;
     }
 
-    //TODO: maybe change the scale on a noise function?
-
+    // change the scale on a noise function
+    var scaleChangeFreq = 0.00001;
+    var sizeScale = (this.simpleNoise.noise(GameLoop.currentTime * scaleChangeFreq, 0) + 1) * 0.5;
+    sizeScale = EasingUtil.easeOutQuad(sizeScale, 0, 1, 1);
+    sizeScale = Math.scaleNormal(sizeScale, this.minScale, this.maxScale);
+    this.scale = sizeScale;
   }
 
   this.draw = function( theCanvas, brightness )
@@ -1315,10 +1321,14 @@ function Cloud()
     theCanvas.fillStyle = 'rgba('+colorV+','+colorV+','+colorV+',0.8)';
     theCanvas.beginPath();
 
-    for (var p = 0; p < this.points.length; p++)
+    var l = this.points.length;
+    var thePoint;
+    for (var p = 0; p < l; p++)
     {
-      var thePoint = this.points[p];
-      theCanvas.lineTo( this.position.x + thePoint.x, this.position.y + thePoint.y );
+      thePoint = this.points[p];
+
+      theCanvas.lineTo( this.position.x + (thePoint.x * this.scale * this.width),
+        this.position.y + (thePoint.y * this.scale * this.height) );
     }
     theCanvas.fill();
   }
