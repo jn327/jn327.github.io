@@ -70,6 +70,7 @@ var sandCurlOffset            = 30;
 
 var lowestSandPoint;          //used to figure out were to start the river
 
+var river;
 var riverMidPointsUp          = [];
 var riverMidPointsDown        = [];
 var riverEdgePointsUp         = [];
@@ -113,10 +114,14 @@ var plants                    = [];
 init();
 function init()
 {
-  var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise',
+  var includes =
+  [
+    'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise',
     'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
     'FullScreenEffects/ProceduralGarden/Moon', 'FullScreenEffects/ProceduralGarden/Cloud',
-    'FullScreenEffects/ProceduralGarden/Plants', 'FullScreenEffects/ProceduralGarden/Stars' ];
+    'FullScreenEffects/ProceduralGarden/Plants', 'FullScreenEffects/ProceduralGarden/Stars',
+    'FullScreenEffects/ProceduralGarden/Stars', 'FullScreenEffects/ProceduralGarden/River'
+  ];
   CommonElementsCreator.appendScipts(includes);
 }
 
@@ -125,6 +130,7 @@ function start()
   initCanvas();
 
   moon = new Moon();
+  river = new River();
 
   initWindAndClouds();
   initStars();
@@ -270,10 +276,8 @@ function drawSand( theNoise )
 
 function drawRivers( theNoise )
 {
-  riverMidPointsUp      = [];
-  riverMidPointsDown    = [];
-  riverEdgePointsUp     = [];
-  riverEdgePointsDown   = [];
+  river.reset();
+
   valleyEdgePointsUp    = [];
   valleyEdgePointsDown  = [];
   plants                = [];
@@ -322,12 +326,10 @@ function drawRivers( theNoise )
     var riverLeftX    = midX - easedRiverW;
     var riverRightX   = midX + easedRiverW;
 
-    var thePoint = new Vector2D(midX, y);
-    riverMidPointsUp.push(thePoint);
-    riverMidPointsDown.unshift(thePoint);
-
-    riverEdgePointsUp.push(new Vector2D(-easedRiverW, 0));
-    riverEdgePointsDown.unshift(new Vector2D(easedRiverW, 0));
+    var pointMid = new Vector2D(midX, y);
+    var pointLeft = new Vector2D(-easedRiverW, 0);
+    var pointRight = new Vector2D(easedRiverW, 0);
+    river.addPoints(pointMid, pointLeft, pointRight);
 
     valleyEdgePointsUp.push(new Vector2D(-valleyW, 0));
     valleyEdgePointsDown.unshift(new Vector2D(valleyW, 0));
@@ -408,9 +410,8 @@ function drawRivers( theNoise )
   }
 
   // build a path and draw the valley & river!
-  fillLayeredShape( 4, valleyColorStart, valleyColorEnd, valleyOpacity, riverMidPointsUp, riverMidPointsDown, valleyEdgePointsUp, valleyEdgePointsDown, riverStartY, riverEndY, valleyColorStart );
-  fillLayeredShape( 4, riverColorEnd, riverColorStart, riverOpacity, riverMidPointsUp, riverMidPointsDown, riverEdgePointsUp, riverEdgePointsDown, riverStartY, riverEndY, riverColorEnd );
-
+  fillLayeredShape( 4, valleyColorStart, valleyColorEnd, valleyOpacity, river.midPointsUp, river.midPointsDown, valleyEdgePointsUp, valleyEdgePointsDown, riverStartY, riverEndY, valleyColorStart );
+  fillLayeredShape( 4, riverColorEnd, riverColorStart, riverOpacity, river.midPointsUp, river.midPointsDown, river.edgePointsUp, river.edgePointsDown, riverStartY, riverEndY, riverColorEnd );
 }
 
 function fillLayeredShape( nLoops, colorStart, colorEnd, opacity, midUp, midDown, edgeUp, edgeDown, startY, endY, grdColor )
@@ -494,7 +495,7 @@ function update()
     mg2UpdateTimer = 0;
 
     mgCtx2.clearRect(0, 0, mgCanvas2.width, mgCanvas2.height);
-    animateRiver();
+    river.drawWaves( tod, mgCtx2, river.midPointsUp[0].y, mgCanvas.height );
   }
 
   //update the PLANTS
@@ -505,46 +506,6 @@ function update()
 
     fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
     updatePlants();
-  }
-}
-
-function animateRiver()
-{
-  //the actual drawing bit
-  var nRiverLines = 3;
-
-  for ( var k = 0; k < nRiverLines; k++ )
-  {
-    //sort out alpha and width
-    var widthFreq = 0.1;
-    var thePos = tod + ((widthFreq/nRiverLines) * k);
-
-    var widthMultip = (thePos % widthFreq) / widthFreq;
-    widthMultip = EasingUtil.easeOutQuad(widthMultip, 0, 1, 1);
-    widthMultip = Math.scaleNormal(widthMultip, 0.5, 1);
-
-    var theAlpha = -(Math.cos((2 * Math.PI * thePos) / widthFreq) * 0.5) + 0.5;
-    theAlpha = Math.scaleNormal(theAlpha, 0, 0.33);
-
-    var lineWidth = (thePos % widthFreq) / widthFreq;
-    lineWidth = Math.scaleNormal(lineWidth, 3, 9);
-
-    mgCtx2.lineJoin = 'round';
-    mgCtx2.lineWidth = lineWidth;
-
-    var grd = mgCtx2.createLinearGradient(0, riverMidPointsUp[0].y, 0, mgCanvas.height);
-    grd.addColorStop(0.1, "rgba(255,255,255, 0)");
-    grd.addColorStop(1, "rgba(255,255,255, "+theAlpha+")");
-
-    mgCtx2.strokeStyle = grd;
-
-    //get on to the drawing
-    mgCtx2.beginPath();
-    var thePath = new Path2D();
-    thePath = PathUtil.createPath(riverMidPointsUp, thePath, riverEdgePointsUp, widthMultip);
-    thePath = PathUtil.createPath(riverMidPointsDown, thePath, riverEdgePointsDown, widthMultip);
-
-    mgCtx2.stroke(thePath);
   }
 }
 
