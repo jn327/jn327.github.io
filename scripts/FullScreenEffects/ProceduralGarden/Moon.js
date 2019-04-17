@@ -1,67 +1,75 @@
 function Moon()
 {
-  this.size = 1;
-  this.color = [255, 255, 255];
+  //Call our prototype
+  GameObject.call(this);
 
-  this.draw = function( ctx, x, y )
+  this.color = [255, 255, 255];
+  this.setTime    = 0.1;
+  this.riseTime   = 0.9;
+  this.sizeMax    = 60;
+  this.sizeMin    = 30;
+
+  this.update = function( t, ctx, avblW, avblH )
+  {
+    if ( t > this.setTime && t < this.riseTime )
+    {
+      return;
+    }
+
+    var moonTimeMid = 0.5;
+    var totalMoonTime = this.setTime + (1-this.riseTime);
+    var moonTime = (t < this.setTime) ? (1-this.riseTime) + t : t - this.riseTime;
+    var moonTimeNormal = moonTime / totalMoonTime;
+
+    var moonTimeLerp = moonTimeNormal <= moonTimeMid ? EasingUtil.easeOutCubic(moonTimeNormal, 1, -1, 0.5)
+      : EasingUtil.easeInCubic(moonTimeNormal-0.5, 0, 1, 0.5);
+
+    this.size = Math.scaleNormal(moonTimeLerp, this.sizeMin, this.sizeMax);
+
+    var heightOffsetTop = 0.1;
+    var heightOffsetBottom = 0.2;
+
+    this.position.x = moonTimeNormal * avblW;
+    this.position.y = (heightOffsetTop * avblH) + this.size + (moonTimeLerp * ((1-heightOffsetBottom) * avblH));
+
+    //draw the moon.
+    this.draw( ctx );
+  }
+
+  this.draw = function( ctx )
   {
     //halo and rings
-    ctx.fillStyle = 'rgba('+this.color[0]+', '+this.color[1]+','+this.color[2]+', 0.025)';
-    ctx.beginPath();
-    ctx.arc(x-1, y+2, this.size*2, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba('+this.color[0]+', '+this.color[1]+','+this.color[2]+', 0.05)';
-    ctx.beginPath();
-    ctx.arc(x-2, y-1, this.size*1.4, 0, 2 * Math.PI);
-    ctx.fill();
+    this.drawCircle( ctx, 'rgba('+this.color[0]+', '+this.color[1]+','+this.color[2]+', 0.025)', -1, 2, this.size*2 );
+    this.drawCircle( ctx, 'rgba('+this.color[0]+', '+this.color[1]+','+this.color[2]+', 0.05)', -2, -1, this.size*1.4 );
 
     ctx.strokeStyle = 'rgba('+this.color[0]+', '+this.color[1]+','+this.color[2]+', 0.05)';
     ctx.lineWidth   = 2;
     ctx.beginPath();
-    ctx.arc(x, y, this.size*1.8, 0, 2 * Math.PI);
+    ctx.arc(this.position.x, this.position.y, this.size*1.8, 0, 2 * Math.PI);
     ctx.stroke();
 
     //the actual moon shape
-    ctx.fillStyle = 'rgba('+this.color[0]+', '+this.color[1]+','+this.color[2]+', 1)';
-    ctx.beginPath();
-    ctx.arc(x, y, this.size, 0, 2 * Math.PI);
-    ctx.fill();
+    this.drawCircle( ctx, 'rgba('+this.color[0]+', '+this.color[1]+','+this.color[2]+', 1)', 0, 0, this.size );
+
+    //shadow
+    var spotColor = 'rgba(0, 0, 0, 0.05)';
+    this.drawCircle( ctx, spotColor, 2, 5, this.size-5 );
 
     //the craters
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.beginPath();
-    ctx.arc(x+2, y+5, this.size-5, 0, 2 * Math.PI);
-    ctx.fill();
+    this.drawCircle( ctx, spotColor, this.size*0.1, this.size*0.3, this.size*0.2 );
+    this.drawCircle( ctx, spotColor, this.size*0.6, this.size*0.1, this.size*0.15 );
+    this.drawCircle( ctx, spotColor, -this.size*0.4, this.size*0.025, this.size*0.1 );
+    this.drawCircle( ctx, spotColor, -this.size*0.6, -this.size*0.1, this.size*0.2 );
+    this.drawCircle( ctx, spotColor, -this.size*0.6, -this.size*0.1, this.size*0.2 );
+    this.drawCircle( ctx, spotColor, -this.size*0.3, -this.size*0.6, this.size*0.1 );
+    this.drawCircle( ctx, spotColor, this.size*0.6, -this.size*0.4, this.size*0.15 );
+  }
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  this.drawCircle = function( ctx, fillStyle, x, y, size)
+  {
+    ctx.fillStyle = fillStyle;
     ctx.beginPath();
-    ctx.arc(x+(this.size*0.1), y+(this.size*0.3), this.size*0.2, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.beginPath();
-    ctx.arc(x+(this.size*0.6), y+(this.size*0.1), this.size*0.15, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.beginPath();
-    ctx.arc(x-(this.size*0.4), y+(this.size*0.025), this.size*0.1, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.beginPath();
-    ctx.arc(x-(this.size*0.6), y-(this.size*0.1), this.size*0.2, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.beginPath();
-    ctx.arc(x-(this.size*0.3), y-(this.size*0.6), this.size*0.1, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.beginPath();
-    ctx.arc(x+(this.size*0.6), y-(this.size*0.4), this.size*0.15, 0, 2 * Math.PI);
+    ctx.arc(this.position.x + x, this.position.y + y, size, 0, 2 * Math.PI);
     ctx.fill();
   }
 }

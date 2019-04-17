@@ -25,12 +25,6 @@ var sunColorMid               = [255, 252, 214]; // [255, 236, 94];
 var sunColorEdges             = [239, 11, 31]; // [255, 110, 94];
 
 var moon;
-var moonSizeMax               = 60;
-var moonSizeMin               = 30;
-var moonRiseTime              = 0.9;
-var moonSetTime               = 0.1;
-var moonColorMid              = [255, 254, 244];
-var moonColorEdges            = [255, 246, 244];
 
 var starsHideTime             = 0.2;
 var starsShowTime             = 0.8;
@@ -357,7 +351,7 @@ function drawRivers( theNoise )
 
           if (valleyDistN != undefined)
           {
-            //TODO: vary based on dist...
+            //TODO: vary randomness based on dist...
             if (Math.random() > 0.5)
             {
               var shrub = new Shrub();
@@ -367,7 +361,7 @@ function drawRivers( theNoise )
 
           if (valleyDistN != undefined)
           {
-            //TODO: vary based on dist...
+            //TODO: vary randomness based on dist...
             if (Math.random() > 0.5)
             {
               var grass = new Grass();
@@ -378,7 +372,7 @@ function drawRivers( theNoise )
           if ((riverDistN <= 0.66 && riverDistN != undefined) ||
            (valleyDistN <= 0.25 && valleyDistN != undefined))
           {
-            //TODO: vary based on dist...
+            //TODO: vary randomness based on dist...
             if (Math.random() >= 0.1)
             {
               var reed = new Reed();
@@ -495,10 +489,10 @@ function update()
     mg2UpdateTimer = 0;
 
     mgCtx2.clearRect(0, 0, mgCanvas2.width, mgCanvas2.height);
-    river.drawWaves( tod, mgCtx2, river.midPointsUp[0].y, mgCanvas.height );
+    river.drawWaves( tod, mgCtx2, lowestSandPoint.y, mgCanvas.height );
   }
 
-  //update the PLANTS
+  //update the plants
   fgUpdateTimer += GameLoop.deltaTime;
   if (fgUpdateTimer > fgUpdateFreq)
   {
@@ -665,28 +659,7 @@ function updateSkyVisuals()
   //----------
   //   MOON
   //----------
-  if (tod < moonSetTime || tod > moonRiseTime)
-  {
-    var moonTimeMid = 0.5;
-    var totalMoonTime = moonSetTime + (1-moonRiseTime);
-    var moonTime = (tod < moonSetTime) ? (1-moonRiseTime) + tod : tod - moonRiseTime;
-    var moonTimeNormal = moonTime / totalMoonTime;
-
-    var moonTimeLerp = moonTimeNormal <= moonTimeMid ? EasingUtil.easeOutCubic(moonTimeNormal, 1, -1, 0.5)
-      : EasingUtil.easeInCubic(moonTimeNormal-0.5, 0, 1, 0.5);
-
-    var moonColor = ColorUtil.lerp(moonTimeLerp, moonColorMid, moonColorEdges);
-
-    moon.size = Math.scaleNormal(moonTimeLerp, moonSizeMin, moonSizeMax);
-    //var sunX = (dayTimeNormal * (bgCanvas.width + (2 * sunSize))) - sunSize;
-    var moonX = moonTimeNormal * bgCanvas.width;
-    var heightOffsetTop = 0.1;
-    var heightOffsetBottom = 0.2;
-    var moonY = (heightOffsetTop*bgCanvas.height) + moon.size + (moonTimeLerp * ((1-heightOffsetBottom)*bgCanvas.height));
-
-    //draw the moon.
-    moon.draw( bgCtx, moonX, moonY );
-  }
+  moon.update( tod, bgCtx, bgCanvas.width, bgCanvas.height );
 
   //-----------
   //   CLOUDS
