@@ -67,9 +67,6 @@ var valleyColorEnd            = [153, 117, 73];
 var windStr;                  //-1 to 1 scale
 var windNoise;                //perlin noise
 var windNoiseFreq             = 0.0005;
-var minClouds                 = 3;
-var maxClouds                 = 8;
-var clouds                    = [];
 
 var mg2UpdateFreq             = 0.033;
 var mg2UpdateTimer            = 0;
@@ -89,8 +86,8 @@ function init()
   [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise',
     'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
-    'FullScreenEffects/ProceduralGarden/Sun',
-    'FullScreenEffects/ProceduralGarden/Moon', 'FullScreenEffects/ProceduralGarden/Cloud',
+    'FullScreenEffects/ProceduralGarden/Sun', 'FullScreenEffects/ProceduralGarden/Moon',
+    'FullScreenEffects/ProceduralGarden/Cloud', 'FullScreenEffects/ProceduralGarden/CloudsManager',
     'FullScreenEffects/ProceduralGarden/Plants', 'FullScreenEffects/ProceduralGarden/Stars',
     'FullScreenEffects/ProceduralGarden/Stars', 'FullScreenEffects/ProceduralGarden/StarsManager',
     'FullScreenEffects/ProceduralGarden/River',
@@ -108,7 +105,7 @@ function start()
 
   windNoise = new SimplexNoise();
 
-  initClouds();
+  CloudsManager.initClouds( bgCanvas.width, bgCanvas.height );
   StarsManager.initStars( dayDur, bgCanvas.width, bgCanvas.height );
   drawTerrain();
 }
@@ -128,27 +125,6 @@ function initCanvas()
   bgCtx     = bgCanvas.getContext('2d');
 
   validateCanvasSize();
-}
-
-//TODO: cloud factory
-function initClouds()
-{
-  var nClouds = Math.getRnd(minClouds, maxClouds);
-  for (var i = 0; i < nClouds; i++)
-  {
-    var newCloud = new Cloud();
-    setRandomCloudPos(newCloud);
-    newCloud.init();
-
-    clouds[i] = newCloud;
-  }
-}
-
-function setRandomCloudPos(theCloud)
-{
-  theCloud.position.x = Math.random() * bgCanvas.width;
-  var cloudsEnd = 0.25;
-  theCloud.position.y = EasingUtil.easeInQuad(Math.random(), 0, cloudsEnd, 1) * bgCanvas.height;
 }
 
 //TODO: a terrain drawer class to handle this!
@@ -410,7 +386,7 @@ function update()
     mg2UpdateTimer = mg2UpdateFreq;
     fgUpdateTimer = fgUpdateFreq;
 
-    resetClouds();
+    CloudsManager.randomizeClouds( bgCanvas.width, bgCanvas.height );
     StarsManager.randomizeStars( bgCanvas.width, bgCanvas.height );
 
     drawTerrain();
@@ -490,7 +466,7 @@ function updateSkyVisuals()
   moon.draw( bgCtx );
 
   //clouds
-  drawClouds( skyBrightness );
+  CloudsManager.drawClouds( bgCtx, skyBrightness );
 }
 
 function getSkyBrightness()
@@ -556,23 +532,6 @@ function drawSkyGradient()
   grd.addColorStop(1, 'rgba('+sun.color[0]+', '+sun.color[1]+','+sun.color[2]+', '+gradientAlphaLerp+')');
   bgCtx.fillStyle = grd;
   bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
-}
-
-function drawClouds( brightness )
-{
-  for (var c = 0; c < clouds.length; c++)
-  {
-    clouds[c].update();
-    clouds[c].draw(bgCtx, brightness);
-  }
-}
-
-function resetClouds()
-{
-  for (var i = 0; i < clouds.length; i++)
-  {
-    setRandomCloudPos(clouds[i]);
-  }
 }
 
 //------------------------------------------------
