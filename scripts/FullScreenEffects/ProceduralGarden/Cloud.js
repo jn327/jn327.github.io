@@ -75,7 +75,10 @@ function Cloud()
 
   this.draw = function( theCanvas, brightness )
   {
-    var colorV = 255 * brightness;
+    var darkenAmount = 0.95;
+    var brightnessMultip = ((1-darkenAmount) + (brightness*darkenAmount));
+
+    var colorV = 255 * brightnessMultip;
 
     theCanvas.fillStyle = 'rgba('+colorV+','+colorV+','+colorV+',0.8)';
     theCanvas.beginPath();

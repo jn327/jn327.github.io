@@ -6,12 +6,10 @@ var fgCanvas, fgCtx;
 
 //variables... TODO: maybe encapsulate/namespace these??
 var dayDur                    = 45;
-var dayTimer                  = dayDur*0.5;
+var dayTimer                  = dayDur * 0.5;
 var tod                       = 0; //0-1
 var skyBlueMin                = 0.075;
 var skyBlueMax                = 0.925;
-var sunRiseTime               = 0.1;
-var sunSetTime                = 0.9;
 
 var skyUpdateFreq             = 0.05;
 var skyUpdateTimer            = 0;
@@ -19,29 +17,8 @@ var skyUpdateTimer            = 0;
 var skyColorDay               = [183, 231, 255]; // [163, 225, 255];
 var skyColorNight             = [28, 19, 25];
 
-var sunSizeMin                = 80;
-var sunSizeMax                = 320;
-var sunColorMid               = [255, 252, 214]; // [255, 236, 94];
-var sunColorEdges             = [239, 11, 31]; // [255, 110, 94];
-
 var moon;
-
-var starsHideTime             = 0.2;
-var starsShowTime             = 0.8;
-var stars                     = [];
-var minStars                  = 1000;
-var maxStars                  = 1500;
-var minStarSize               = 0.1;
-var maxStarSize               = 1.2;
-var starNoise;
-var starNoiseScale            = 0.003;
-var starTwinkleMultip         = 0.25;
-var starAlphaOffsetMultip     = 25;
-
-var shootingStarFreqMin       = 0.005;
-var shootingStarFreqMax       = 0.05;
-var shootingStarWaitDur       = shootingStarFreqMin;
-var currShootingStar;
+var sun;
 
 var skyGradientMin            = 0.2;
 var skyGradientMax            = 0.8;
@@ -112,9 +89,11 @@ function init()
   [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise',
     'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
+    'FullScreenEffects/ProceduralGarden/Sun',
     'FullScreenEffects/ProceduralGarden/Moon', 'FullScreenEffects/ProceduralGarden/Cloud',
     'FullScreenEffects/ProceduralGarden/Plants', 'FullScreenEffects/ProceduralGarden/Stars',
-    'FullScreenEffects/ProceduralGarden/Stars', 'FullScreenEffects/ProceduralGarden/River'
+    'FullScreenEffects/ProceduralGarden/Stars', 'FullScreenEffects/ProceduralGarden/StarsManager',
+    'FullScreenEffects/ProceduralGarden/River',
   ];
   CommonElementsCreator.appendScipts(includes);
 }
@@ -123,11 +102,14 @@ function start()
 {
   initCanvas();
 
-  moon = new Moon();
-  river = new River();
+  moon    = new Moon();
+  sun     = new Sun();
+  river   = new River();
 
-  initWindAndClouds();
-  initStars();
+  windNoise = new SimplexNoise();
+
+  initClouds();
+  StarsManager.initStars( dayDur, bgCanvas.width, bgCanvas.height );
   drawTerrain();
 }
 
@@ -148,10 +130,9 @@ function initCanvas()
   validateCanvasSize();
 }
 
-function initWindAndClouds()
+//TODO: cloud factory
+function initClouds()
 {
-  windNoise = new SimplexNoise();
-
   var nClouds = Math.getRnd(minClouds, maxClouds);
   for (var i = 0; i < nClouds; i++)
   {
@@ -163,33 +144,6 @@ function initWindAndClouds()
   }
 }
 
-function initStars()
-{
-  starNoise = new SimplexNoise();
-
-  currShootingStar = new ShootingStar();
-
-  var nStars = Math.getRnd(minStars, maxStars);
-  for (var i = 0; i < nStars; i++)
-  {
-    var newStar = new Star();
-    setRandomStarPos(newStar);
-    var starSize = (starNoise.noise(newStar.position.x * starNoiseScale, newStar.position.y * starNoiseScale) + 1) * 0.5;
-    newStar.size = Math.scaleNormal(starSize, minStarSize, maxStarSize);
-    newStar.alphaOffset = Math.random() * starAlphaOffsetMultip;
-    newStar.alphaTimeMultip = (Math.random() * starTwinkleMultip) / dayDur;
-
-    stars[i] = newStar;
-  }
-}
-
-function setRandomStarPos(theStar)
-{
-  theStar.position.x = Math.random() * bgCanvas.width;
-  var starsEnd = 0.75;
-  theStar.position.y = EasingUtil.easeInQuad(Math.random(), 0, starsEnd, 1) * bgCanvas.height;
-}
-
 function setRandomCloudPos(theCloud)
 {
   theCloud.position.x = Math.random() * bgCanvas.width;
@@ -197,6 +151,7 @@ function setRandomCloudPos(theCloud)
   theCloud.position.y = EasingUtil.easeInQuad(Math.random(), 0, cloudsEnd, 1) * bgCanvas.height;
 }
 
+//TODO: a terrain drawer class to handle this!
 function drawTerrain()
 {
   mgCtx.clearRect(0, 0, mgCanvas.width, mgCanvas.height);
@@ -456,7 +411,7 @@ function update()
     fgUpdateTimer = fgUpdateFreq;
 
     resetClouds();
-    resetStars();
+    StarsManager.randomizeStars( bgCanvas.width, bgCanvas.height );
 
     drawTerrain();
   }
@@ -515,107 +470,62 @@ function updatePlants()
 
 function updateSkyVisuals()
 {
-  //TODO:This megafunction needs to be split up into smaller chunks.
-  //---------------
-  //   SKY COLOR
-  //---------------
-  var todColor = skyColorNight;
-  var skyLerp = 1;
+  var skyBrightness = getSkyBrightness();
+
+  drawSkyColor(skyBrightness);
+
+  //darken the terrain and other bits
+  tintMidground(skyBrightness);
+
+  //stars
+  StarsManager.drawStars(tod, bgCtx, bgCanvas.width, bgCanvas.height);
+
+  //sun and sky gradient
+  sun.update( tod, bgCanvas.width, bgCanvas.height );
+  drawSkyGradient();
+  sun.draw(bgCtx);
+
+  //moon
+  moon.update( tod, bgCanvas.width, bgCanvas.height );
+  moon.draw( bgCtx );
+
+  //clouds
+  drawClouds( skyBrightness );
+}
+
+function getSkyBrightness()
+{
+  var skyLerp = 0;
   if (tod > skyBlueMin && tod < skyBlueMax)
   {
     var skyChangeNormal = Math.minMaxNormal(tod, skyBlueMin, skyBlueMax);
     var skyMid = Math.scaleNormal(0.5, skyBlueMin, skyBlueMax);
-    skyLerp = skyChangeNormal <= skyMid ? EasingUtil.easeOutCubic(skyChangeNormal, 1, -1, 0.5)
-      : EasingUtil.easeInCubic(skyChangeNormal-0.5, 0, 1, 0.5);
-
-    todColor = ColorUtil.lerp(skyLerp, skyColorDay, skyColorNight);
+    skyLerp = skyChangeNormal <= skyMid ? EasingUtil.easeOutCubic(skyChangeNormal, 0, 1, 0.5)
+      : EasingUtil.easeInCubic(skyChangeNormal-0.5, 1, -1, 0.5);
   }
-  var skyColor = ColorUtil.rgbToHex(todColor);
+  return skyLerp;
+}
+
+function drawSkyColor (brightness)
+{
+  var skyColor = ColorUtil.rgbToHex(ColorUtil.lerp(brightness, skyColorNight, skyColorDay));
   bgCtx.fillStyle = skyColor;
   bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
+}
 
-  //-----------
-  //   STARS
-  //-----------
-  if (tod < starsHideTime || tod > starsShowTime)
-  {
-    var starsTimeMid = 0.5;
-    var totalStarsTime = starsHideTime + (1-starsShowTime);
-    var starsTime = (tod < starsHideTime) ? starsHideTime - tod : tod - starsShowTime;
-    var nightTimeNormal = 1 - (starsTime / totalStarsTime);
-
-    var nightTimeLerp = nightTimeNormal <= starsTimeMid ? EasingUtil.easeOutCubic(nightTimeNormal, 0, 1, 0.5)
-      : EasingUtil.easeInCubic(nightTimeNormal-0.5, 1, -1, 0.5);
-
-    //draw some stars!!!
-    for (var i = 0; i < stars.length; i++)
-    {
-      stars[i].draw(bgCtx, nightTimeLerp);
-    }
-
-    //Shooting stars
-    var currProgress = 0;
-    if (tod < currShootingStar.startTime)
-    {
-      currProgress = (tod + ((1 - currShootingStar.startTime)+currShootingStar.duration)) / shootingStarWaitDur;
-    }
-    else
-    {
-      currProgress = (tod - (currShootingStar.startTime+currShootingStar.duration)) / shootingStarWaitDur;
-    }
-
-    var bStarAlive = currShootingStar.updateLifeTime( bgCtx, bgCanvas.width, bgCanvas.height, tod, nightTimeLerp, currProgress >= 1 );
-    if (!bStarAlive && currShootingStar.bSetup)
-    {
-      currShootingStar.bSetup = false;
-      shootingStarWaitDur = Math.getRnd(shootingStarFreqMin, shootingStarFreqMax);
-
-      var stopTime = tod + shootingStarWaitDur;
-      if (stopTime > 1)
-      {
-        stopTime = stopTime - 1;
-      }
-    }
-  }
-
-  //-----------------------
-  //   DARKEN MIDGROUND
-  //-----------------------
-  //TODO: wanna be able to tint it a bit with the sky gradient tooo!!!
+function tintMidground( brightness )
+{
+  //TODO: wanna be able to tint it a bit with the sky gradient too!!!
   var darkenAmount = 85;
-  var theFilter = 'brightness('+((100-darkenAmount) + ((1-skyLerp)*darkenAmount))+'%)';
+  var theFilter = 'brightness('+((100-darkenAmount) + (brightness*darkenAmount))+'%)';
   mgCanvas.style.filter = theFilter;
   mgCanvas2.style.filter = theFilter;
   fgCanvas.style.filter = theFilter;
+}
 
-  //----------
-  //   SUN
-  //----------
-  //if the sun is visible, how far into the daytime is it...
-  var sunColor = sunColorEdges;
-  var sunY = 0;
-  var sunX = 0;
-  var sunSize = 0;
-  var bSunOut = tod > sunRiseTime && tod < sunSetTime;
-  if (bSunOut)
-  {
-    var dayTimeNormal = Math.minMaxNormal(tod, sunRiseTime, sunSetTime);
-    var dayTimeMid = Math.scaleNormal(0.5, sunRiseTime, sunSetTime);
-    var dayTimeLerp = dayTimeNormal <= dayTimeMid ? EasingUtil.easeOutCubic(dayTimeNormal, 1, -1, 0.5)
-      : EasingUtil.easeInCubic(dayTimeNormal-0.5, 0, 1, 0.5);
-
-    //change color and size nearer rise and set
-    sunColor = ColorUtil.lerp(dayTimeLerp, sunColorMid, sunColorEdges);
-
-    sunSize = Math.scaleNormal(dayTimeLerp, sunSizeMin, sunSizeMax);
-    sunX = dayTimeNormal * bgCanvas.width;
-    var heightOffsetTop = 0.05;
-    var heightOffsetBottom = 0.1;
-    sunY = (bgCanvas.height*heightOffsetTop) + sunSize + (dayTimeLerp * ((1-heightOffsetBottom)*bgCanvas.height));
-  }
-
+function drawSkyGradient()
+{
   //This wants to be a M shape, peaking around skyGradientMin and skyGradientMax...
-  // gradient around the sky...
   var gradientTimeNormal = 0;
   var gradientTimeMid = 0.5;
 
@@ -642,29 +552,10 @@ function updateSkyVisuals()
   var gradientHeight = gradientHeightLerp * bgCanvas.height * skyGradientHMultip;
 
   var grd = bgCtx.createLinearGradient(0, bgCanvas.height-gradientHeight, 0, bgCanvas.height);
-  grd.addColorStop(0, 'rgba('+sunColor[0]+', '+sunColor[1]+','+sunColor[2]+', 0)');
-  grd.addColorStop(1, 'rgba('+sunColor[0]+', '+sunColor[1]+','+sunColor[2]+', '+gradientAlphaLerp+')');
+  grd.addColorStop(0, 'rgba('+sun.color[0]+', '+sun.color[1]+','+sun.color[2]+', 0)');
+  grd.addColorStop(1, 'rgba('+sun.color[0]+', '+sun.color[1]+','+sun.color[2]+', '+gradientAlphaLerp+')');
   bgCtx.fillStyle = grd;
   bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
-
-  if (bSunOut)
-  {
-    //draw the sun.
-    bgCtx.fillStyle = ColorUtil.rgbToHex(sunColor);
-    bgCtx.beginPath();
-    bgCtx.arc(sunX, sunY, sunSize, 0, 2 * Math.PI);
-    bgCtx.fill();
-  }
-
-  //----------
-  //   MOON
-  //----------
-  moon.update( tod, bgCtx, bgCanvas.width, bgCanvas.height );
-
-  //-----------
-  //   CLOUDS
-  //-----------
-  drawClouds( (1-skyLerp) );
 }
 
 function drawClouds( brightness )
@@ -673,14 +564,6 @@ function drawClouds( brightness )
   {
     clouds[c].update();
     clouds[c].draw(bgCtx, brightness);
-  }
-}
-
-function resetStars()
-{
-  for (var i = 0; i < stars.length; i++)
-  {
-    setRandomStarPos(stars[i]);
   }
 }
 

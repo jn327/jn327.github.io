@@ -3,41 +3,44 @@ function Moon()
   //Call our prototype
   GameObject.call(this);
 
-  this.color = [255, 255, 255];
+  this.bVisible   = false;
+  this.color      = [255, 255, 255];
   this.setTime    = 0.1;
   this.riseTime   = 0.9;
-  this.sizeMax    = 60;
   this.sizeMin    = 30;
+  this.sizeMax    = 60;
 
-  this.update = function( t, ctx, avblW, avblH )
+  this.update = function( t, avblW, avblH )
   {
-    if ( t > this.setTime && t < this.riseTime )
+    this.bVisible = ( t >= this.riseTime && t <= this.setTime );
+
+    if (this.bVisible)
     {
-      return;
+      var moonTimeMid = 0.5;
+      var totalMoonTime = this.setTime + (1-this.riseTime);
+      var moonTime = (t < this.setTime) ? (1-this.riseTime) + t : t - this.riseTime;
+      var moonTimeNormal = moonTime / totalMoonTime;
+
+      var moonTimeLerp = moonTimeNormal <= moonTimeMid ? EasingUtil.easeOutCubic(moonTimeNormal, 1, -1, 0.5)
+        : EasingUtil.easeInCubic(moonTimeNormal-0.5, 0, 1, 0.5);
+
+      this.size = Math.scaleNormal(moonTimeLerp, this.sizeMin, this.sizeMax);
+
+      var heightOffsetTop = 0.1;
+      var heightOffsetBottom = 0.2;
+
+      this.position.x = moonTimeNormal * avblW;
+      this.position.y = (heightOffsetTop * avblH) + this.size + (moonTimeLerp * ((1-heightOffsetBottom) * avblH));
     }
-
-    var moonTimeMid = 0.5;
-    var totalMoonTime = this.setTime + (1-this.riseTime);
-    var moonTime = (t < this.setTime) ? (1-this.riseTime) + t : t - this.riseTime;
-    var moonTimeNormal = moonTime / totalMoonTime;
-
-    var moonTimeLerp = moonTimeNormal <= moonTimeMid ? EasingUtil.easeOutCubic(moonTimeNormal, 1, -1, 0.5)
-      : EasingUtil.easeInCubic(moonTimeNormal-0.5, 0, 1, 0.5);
-
-    this.size = Math.scaleNormal(moonTimeLerp, this.sizeMin, this.sizeMax);
-
-    var heightOffsetTop = 0.1;
-    var heightOffsetBottom = 0.2;
-
-    this.position.x = moonTimeNormal * avblW;
-    this.position.y = (heightOffsetTop * avblH) + this.size + (moonTimeLerp * ((1-heightOffsetBottom) * avblH));
-
-    //draw the moon.
-    this.draw( ctx );
   }
 
   this.draw = function( ctx )
   {
+    if (this.bVisible == false)
+    {
+      return;
+    }
+
     //halo and rings
     this.drawCircle( ctx, 'rgba('+this.color[0]+', '+this.color[1]+','+this.color[2]+', 0.025)', -1, 2, this.size*2 );
     this.drawCircle( ctx, 'rgba('+this.color[0]+', '+this.color[1]+','+this.color[2]+', 0.05)', -2, -1, this.size*1.4 );

@@ -6,15 +6,15 @@ function Star()
   this.alphaOffset = 0;
   this.alphaTimeMultip = 1;
 
-  this.draw = function(theCanvas, alphaMultip)
+  this.draw = function(ctx, alphaMultip)
   {
     var theAlpha = 0.5 + (0.5*Math.cos(this.alphaTimeMultip * (this.alphaOffset+GameLoop.currentTime)));
     theAlpha *= alphaMultip;
 
-    theCanvas.fillStyle = 'rgba(255,255,255,'+theAlpha+')';
-    theCanvas.beginPath();
-    theCanvas.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
-    theCanvas.fill();
+    ctx.fillStyle = 'rgba(255,255,255,'+theAlpha+')';
+    ctx.beginPath();
+    ctx.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
+    ctx.fill();
 
   }
 }
@@ -37,7 +37,7 @@ function ShootingStar()
   this.minTravelDist = 0.4;
   this.maxTravelDist = 0.8;
 
-  this.updateLifeTime = function( theCanvas, canvasWidth, canvasHeight, timeOfDay, alphaModif, performSetup )
+  this.updateLifeTime = function( ctx, canvasWidth, canvasHeight, timeOfDay, alphaModif, performSetup )
   {
     if (!this.bSetup && performSetup)
     {
@@ -89,36 +89,36 @@ function ShootingStar()
 
     var alphaMultip = (1 - currProgress) * alphaModif;
 
-    theCanvas.fillStyle = 'rgba(255,255,255,'+alphaMultip+')';
-    theCanvas.beginPath();
-    theCanvas.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
-    theCanvas.fill();
+    ctx.fillStyle = 'rgba(255,255,255,'+alphaMultip+')';
+    ctx.beginPath();
+    ctx.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
+    ctx.fill();
 
     //line behind it!
     var startDirX = this.position.x - this.startPosition.x;
     var startDirY = this.position.y - this.startPosition.y;
     var startDir = new Vector2D(startDirX, startDirY);
 
-    theCanvas.strokeStyle = 'rgba(255,255,255,'+(0.5*alphaMultip)+')';
-    theCanvas.lineWidth   = 0.4;
-    theCanvas.beginPath();
+    ctx.strokeStyle = 'rgba(255,255,255,'+(0.5*alphaMultip)+')';
+    ctx.lineWidth   = 0.4;
+    ctx.beginPath();
 
     var startDirLength = startDir.magnitude();
     var maxLength = canvasWidth * 0.5;
     if (startDirLength <= maxLength)
     {
-      theCanvas.lineTo(this.startPosition.x, this.startPosition.y);
+      ctx.lineTo(this.startPosition.x, this.startPosition.y);
     }
     else
     {
       startDir = startDir.normalize();
       startDir = startDir.multiply(maxLength);
 
-      theCanvas.lineTo(this.position.x - startDir.x, this.position.y - startDir.y);
+      ctx.lineTo(this.position.x - startDir.x, this.position.y - startDir.y);
     }
 
-    theCanvas.lineTo(this.position.x, this.position.y);
-    theCanvas.stroke();
+    ctx.lineTo(this.position.x, this.position.y);
+    ctx.stroke();
 
     return true;
   }
