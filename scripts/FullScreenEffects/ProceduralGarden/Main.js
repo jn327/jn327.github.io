@@ -4,16 +4,20 @@ var mgCanvas, mgCtx;
 var mgCanvas2, mgCtx2;
 var fgCanvas, fgCtx;
 
-//variables... TODO: maybe encapsulate/namespace these??
+var skyUpdateFreq             = 0.05;
+var skyUpdateTimer            = 0;
+
+var mg2UpdateFreq             = 0.033;
+var mg2UpdateTimer            = 0;
+
+var fgUpdateFreq              = 0.1;
+var fgUpdateTimer             = 0;
+
 var dayDur                    = 45;
 var dayTimer                  = dayDur * 0.5;
 var tod                       = 0; //0-1
 var skyBlueMin                = 0.075;
 var skyBlueMax                = 0.925;
-
-var skyUpdateFreq             = 0.05;
-var skyUpdateTimer            = 0;
-
 var skyColorDay               = [183, 231, 255]; // [163, 225, 255];
 var skyColorNight             = [28, 19, 25];
 
@@ -24,6 +28,8 @@ var skyGradientMin            = 0.2;
 var skyGradientMax            = 0.8;
 var skyGradientHMultip        = 1;
 
+//TODO: terrain stuff can go into own manager
+//TODO: same for plants!
 var sandColorFar              = [252, 194, 121]; // [255, 215, 178];
 var sandColorNear             = [255, 236, 212]; // [255, 247, 137];
 var sandHeightMin             = 0.25;
@@ -67,12 +73,6 @@ var valleyColorEnd            = [153, 117, 73];
 var windStr;                  //-1 to 1 scale
 var windNoise;                //perlin noise
 var windNoiseFreq             = 0.0005;
-
-var mg2UpdateFreq             = 0.033;
-var mg2UpdateTimer            = 0;
-
-var fgUpdateFreq              = 0.1;
-var fgUpdateTimer             = 0;
 
 var plants                    = [];
 

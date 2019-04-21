@@ -12,7 +12,7 @@ function Moon()
 
   this.update = function( t, avblW, avblH )
   {
-    this.bVisible = ( t >= this.riseTime && t <= this.setTime );
+    this.bVisible = ( t >= this.riseTime || t <= this.setTime );
 
     if (this.bVisible)
     {
