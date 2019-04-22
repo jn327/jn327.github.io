@@ -30,13 +30,13 @@ CloudsManager.setRandomCloudPos = function(theCloud, theWidth, theHeight)
 }
 
 
-CloudsManager.updateAndDrawClouds = function( ctx, windStr, brightness )
+CloudsManager.updateAndDrawClouds = function( ctx, windStr, brightness, theWidth )
 {
   var l = this.clouds.length;
   for (var i = 0; i < l; i++)
   {
-    this.clouds[i].update( windStr );
-    this.clouds[i].draw(ctx, brightness);
+    this.clouds[i].update( windStr, theWidth );
+    this.clouds[i].draw( ctx, brightness );
   }
 }
 

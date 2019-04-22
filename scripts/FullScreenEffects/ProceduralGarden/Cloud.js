@@ -47,7 +47,7 @@ function Cloud()
     }
   }
 
-  this.update = function( windStr )
+  this.update = function( windStr, theWidth )
   {
     var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
     this.prevUpdateTod = tod;
@@ -57,9 +57,9 @@ function Cloud()
     if (this.position.x < -this.width)
     {
       this.init();
-      this.position.x = bgCanvas.width + this.width;
+      this.position.x = theWidth + this.width;
     }
-    else if (this.position.x > bgCanvas.width + this.width)
+    else if (this.position.x > theWidth + this.width)
     {
       this.init();
       this.position.x = -this.width;
