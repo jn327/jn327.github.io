@@ -202,7 +202,7 @@ function Terrain()
 
             var thePlants = [];
 
-            if (valleyDistN != undefined)
+            if ( thePlants.length <= 0 && valleyDistN != undefined )
             {
               //TODO: vary randomness based on dist...
               if (Math.random() > 0.5)
@@ -212,7 +212,7 @@ function Terrain()
               }
             }
 
-            if (valleyDistN != undefined)
+            if ( thePlants.length <= 0 && valleyDistN != undefined )
             {
               //TODO: vary randomness based on dist...
               if (Math.random() > 0.5)
@@ -222,8 +222,9 @@ function Terrain()
               }
             }
 
-            if ((riverDistN <= 0.66 && riverDistN != undefined) ||
-             (valleyDistN <= 0.25 && valleyDistN != undefined))
+            if ( thePlants.length <= 0 &&
+              ((riverDistN <= 0.66 && riverDistN != undefined) ||
+             (valleyDistN <= 0.25 && valleyDistN != undefined)) )
             {
               //TODO: vary randomness based on dist...
               if (Math.random() >= 0.1)

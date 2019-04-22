@@ -1,5 +1,90 @@
-//TODO: we can definately share a lot of code here!!!!
 //TODO: level of detail!!!
+function Plant()
+{
+  //Call our prototype
+  GameObject.call(this);
+
+  this.color;
+  this.colorYoung = [103, 165, 96];
+  this.colorOld   = [57, 114, 56];
+
+  this.width            = 1;
+  this.height           = 1;
+
+  this.lifeTime         = 0;
+  this.ageSpeed         = 0.2;
+  this.prevUpdateTod    = 0;
+  this.minLifeTimeScale = 0.1;
+  this.windBendMultip   = 1;
+
+  this.update = function()
+  {
+    if (this.lifeTime != 1) { return; }
+
+    var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
+    this.prevUpdateTod = tod;
+
+    this.lifeTime += todDelta * this.ageSpeed;
+    if (this.lifeTime > 1)
+    {
+      this.lifeTime = 1;
+    }
+  }
+}
+
+Plant.prototype.init = function( scale, pos )
+{
+  this.scale      = scale;
+  this.position   = pos;
+  this.lifeTime   = Math.random();
+}
+
+Plant.prototype.draw = function( ctx, windStr )
+{
+  this.color = ColorUtil.lerp(this.lifeTime, this.colorYoung, this.colorOld);
+}
+
+function PointPlant()
+{
+  //Call our prototype
+  Plant.call(this);
+
+  this.points = [];
+
+  this.init = function( scale, pos )
+  {
+    Plant.prototype.init.call( this, scale, pos );
+
+    this.points = [];
+    this.buildPoints();
+  }
+
+  this.draw = function( ctx, windStr )
+  {
+    Plant.prototype.draw.call( this, ctx, windStr );
+
+    ctx.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
+    ctx.beginPath();
+
+    //TODO: probably some easing
+    var lifeTimeScale = EasingUtil.easeOutQuad(this.lifeTime, this.minLifeTimeScale, 1-this.minLifeTimeScale, 1);
+
+    for (var p = 0; p < this.points.length; p++)
+    {
+      var thePoint = this.points[p];
+
+      var theX = thePoint.x * this.width * lifeTimeScale * this.scale;
+      theX += EasingUtil.easeInQuart(thePoint.y, 0, this.windBendMultip * windStr * this.scale, 1);
+
+      var theY = thePoint.y * this.height * lifeTimeScale * this.scale;
+
+      ctx.lineTo(this.position.x + theX, this.position.y - theY);
+    }
+
+    ctx.fill();
+  }
+}
+
 function Palm()
 {
 
@@ -8,34 +93,14 @@ function Palm()
 function Reed()
 {
   //Call our prototype
-  GameObject.call(this);
+  PointPlant.call(this);
 
-  this.color;
+  this.width            = 3;
+  this.height           = 44;
+  this.windBendMultip   = 60;
 
-  this.maxW = 3;
-  this.maxH = 44;
-
-  this.lifeTime = 0;
-
-  this.colorOne  = [103, 165, 96];
-  this.colorZero = [57, 114, 56];
-
-  this.ageSpeed = 0.2;
-
-  this.points = [];
-
-  this.prevUpdateTod = 0;
-
-  this.init = function( scale, pos )
+  this.buildPoints = function()
   {
-    this.points = [];
-
-    this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
-
-    this.scale      = scale;
-    this.position   = pos;
-    this.lifeTime   = Math.random();
-
     var nPoints = 9;
 
     for (var i = 0; i < nPoints; i++)
@@ -43,82 +108,31 @@ function Reed()
       var angleN = i / (nPoints);
       var t = angleN * Math.PI;
 
-      var x	=	angleN * this.scale;
-      var y	=	Math.sin(t) * this.scale;
+      var x	=	angleN;
+      var y	=	Math.sin(t);
 
       this.points.push(new Vector2D(x, y));
     }
-  }
-
-  this.update = function()
-  {
-      var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
-      this.prevUpdateTod = tod;
-
-      this.lifeTime += todDelta * this.ageSpeed;
-      if (this.lifeTime > 1)
-      {
-        this.lifeTime = 1;
-      }
-  }
-
-  this.draw = function( ctx, windStr )
-  {
-    var bendMultip = 50;
-
-    ctx.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
-    ctx.beginPath();
-
-    for (var p = 0; p < this.points.length; p++)
-    {
-      var thePoint = this.points[p];
-
-      var theX = thePoint.x * this.maxW * this.lifeTime;
-      theX -= EasingUtil.easeInCubic(thePoint.y, 0, bendMultip * windStr, 1);
-
-      var theY = thePoint.y * this.maxH * this.lifeTime;
-
-      ctx.lineTo(this.position.x + theX, this.position.y - theY);
-    }
-
-    ctx.fill();
   }
 }
 
 function Grass()
 {
   //Call our prototype
-  GameObject.call(this);
+  PointPlant.call(this);
 
   this.color;
 
-  this.maxW = 50;
-  this.maxH = 100;
+  this.width            = 50;
+  this.height           = 100;
+  this.windBendMultip   = 30;
 
-  this.lifeTime = 0;
-
-  this.colorOne  = [103, 165, 96];
-  this.colorZero = [57, 114, 56];
-
-  this.ageSpeed = 0.2;
-
-  this.points = [];
-
-  this.prevUpdateTod = 0;
-
-  this.init = function( scale, pos )
+  this.buildPoints = function()
   {
-    this.points = [];
-    var nPoints = Math.getRnd(14, 18);
-
-    this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
+    var nPoints = Math.getRnd(12, 16);
 
     var noise = new SimplexNoise();
     var spikeFreq = nPoints;
-
-    this.scale      = scale;
-    this.position   = pos;
-    this.lifeTime   = Math.random();
 
     for (var i = 0; i < nPoints; i++)
     {
@@ -131,82 +145,29 @@ function Grass()
       var xCos = Math.cos(t);
       var ySin = Math.sin(t);
 
-      var x	=	sizeScale * xCos * this.scale;
-      var y	=	sizeScale * ySin * this.scale;
+      var x	=	sizeScale * xCos;
+      var y	=	sizeScale * ySin;
 
       this.points.push(new Vector2D(x, y));
     }
-  }
-
-  this.update = function()
-  {
-      var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
-      this.prevUpdateTod = tod;
-
-      this.lifeTime += todDelta * this.ageSpeed;
-      if (this.lifeTime > 1)
-      {
-        this.lifeTime = 1;
-      }
-  }
-
-  this.draw = function( ctx, windStr )
-  {
-    var bendMultip = 75;
-
-    ctx.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
-    ctx.beginPath();
-
-    for (var p = 0; p < this.points.length; p++)
-    {
-      var thePoint = this.points[p];
-
-      var theX = thePoint.x * this.maxW * this.lifeTime;
-      theX -= EasingUtil.easeInQuart(thePoint.y, 0, bendMultip * windStr, 1);
-
-      var theY = thePoint.y * this.maxH * this.lifeTime;
-
-      ctx.lineTo(this.position.x + theX, this.position.y - theY);
-    }
-
-    ctx.fill();
   }
 }
 
 function Shrub()
 {
   //Call our prototype
-  GameObject.call(this);
+  PointPlant.call(this);
 
-  this.color;
+  this.width            = 50;
+  this.height           = 100;
+  this.windBendMultip   = 30;
 
-  this.maxW = 50;
-  this.maxH = 100;
-
-  this.lifeTime = 0;
-
-  this.colorOne  = [103, 165, 96];
-  this.colorZero = [57, 114, 56];
-
-  this.ageSpeed = 0.2;
-
-  this.points = [];
-
-  this.prevUpdateTod = 0;
-
-  this.init = function( scale, pos )
+  this.buildPoints = function()
   {
-    this.points = [];
-    var nPoints = Math.getRnd(25, 30);
-
-    this.color = ColorUtil.lerp(Math.random(), this.colorOne, this.colorZero);
+    var nPoints = Math.getRnd(30, 40);
 
     var noise = new SimplexNoise();
-    var spikeFreq = nPoints * 0.2;
-
-    this.scale      = scale;
-    this.position   = pos;
-    this.lifeTime   = Math.random();
+    var spikeFreq = nPoints * 0.25;
 
     for (var i = 0; i < nPoints; i++)
     {
@@ -219,45 +180,10 @@ function Shrub()
       var xCos = Math.cos(t);
       var ySin = Math.sin(t);
 
-      var x	=	sizeScale * xCos * this.scale;
-      var y	=	sizeScale * ySin * this.scale;
+      var x	=	sizeScale * xCos * EasingUtil.easeOutQuad(ySin, 0.25, 1, 1);
+      var y	=	sizeScale * ySin;
 
       this.points.push(new Vector2D(x, y));
     }
-  }
-
-  this.update = function()
-  {
-      var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
-      this.prevUpdateTod = tod;
-
-      this.lifeTime += todDelta * this.ageSpeed;
-      if (this.lifeTime > 1)
-      {
-        this.lifeTime = 1;
-      }
-  }
-
-  this.draw = function( ctx, windStr )
-  {
-    var bendMultip = 75;
-
-    ctx.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
-    ctx.beginPath();
-
-    for (var p = 0; p < this.points.length; p++)
-    {
-      var thePoint = this.points[p];
-
-      var curvedX = thePoint.x * EasingUtil.easeNone(thePoint.y, 0, 2, 1);
-      var theX = curvedX * this.maxW * this.lifeTime;
-      theX -= EasingUtil.easeInQuart(thePoint.y, 0, bendMultip * windStr, 1);
-
-      var theY = thePoint.y * this.maxH * this.lifeTime;
-
-      ctx.lineTo(this.position.x + theX, this.position.y - theY);
-    }
-
-    ctx.fill();
   }
 }
