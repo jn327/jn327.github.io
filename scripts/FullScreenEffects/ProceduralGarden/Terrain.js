@@ -2,6 +2,7 @@ function Terrain()
 {
   this.ctx;
   this.canvas;
+  this.plantsCtx;
 
   this.sandColorFar             = [252, 194, 121];
   this.sandColorNear            = [255, 236, 212];
@@ -37,10 +38,11 @@ function Terrain()
   this.valleyColorStart         = [73, 153, 103];
   this.valleyColorEnd           = [153, 117, 73];
 
-  this.init = function( theCtx, theCanvas )
+  this.init = function( theCtx, theCanvas, plantsCtx )
   {
-    this.ctx    = theCtx;
-    this.canvas = theCanvas;
+    this.ctx          = theCtx;
+    this.canvas       = theCanvas;
+    this.plantsCtx    = plantsCtx;
 
     this.buildAndDraw();
   }
@@ -130,14 +132,18 @@ function Terrain()
     PlantsManager.reset();
 
     //draw the river and valley pixel by pixel...
-    var xSampleSize = 4;
-    var ySampleSize = 4;
+    var xSampleSize = 1;
+    var ySampleSize = 1;
+
+    //TODO: points sample size?
 
     //TODO: maybe should scale the freq distances as we go.
     // at the moment it seems like we get most of the stuff down near close!
-    var plantFreqX = 10;
+    // to do so would have to get rid of the counters ... and find some other way of doing this.
+    // modulo, worried about missing if the freq and sample size are not multipliers? or ...
+    var plantFreqX = 3;
     var xCounter = 0;
-    var plantFreqY = 2;
+    var plantFreqY = 1;
     var yCounter = 0;
 
     var riverStartX = this.riverStartPoint.x;
@@ -181,8 +187,11 @@ function Terrain()
       this.valleyEdgePointsUp.push(new Vector2D(-valleyW, 0));
       this.valleyEdgePointsDown.unshift(new Vector2D(valleyW, 0));
 
-      if (yNormal >= 0.1 && yCounter == 0)
+      if (yNormal >= 0 && yCounter == 0)
       {
+        var minPlantScale = 0.01;
+        var scaleN = EasingUtil.easeInQuad(yNormal, minPlantScale, 1-minPlantScale, 1);
+
         for (var x = leftX; x <= rightX; x += xSampleSize)
         {
           if (xCounter == 0 && x > 0 && x < plantsCanvas.width)
@@ -201,40 +210,39 @@ function Terrain()
             }
 
             var thePlants = [];
+            var thesholdMax = 0.996;
+            var thresholdScaled = EasingUtil.easeOutSine(yNormal, 0, thesholdMax, 1);
+            thresholdScaled = EasingUtil.easeOutSine(thresholdScaled, 0, thesholdMax, 1);
 
-            if ( thePlants.length <= 0 && valleyDistN != undefined )
+            if (Math.random() >= thresholdScaled)
             {
-              //TODO: vary randomness based on dist...
-              if (Math.random() > 0.5)
+              if ( thePlants.length <= 0 && valleyDistN != undefined )
               {
                 var shrub = new Shrub();
                 thePlants.push(shrub);
               }
-            }
 
-            if ( thePlants.length <= 0 && valleyDistN != undefined )
-            {
-              //TODO: vary randomness based on dist...
-              if (Math.random() > 0.5)
+              if ( thePlants.length <= 0 && valleyDistN != undefined )
               {
                 var grass = new Grass();
                 thePlants.push(grass);
               }
-            }
 
-            if ( thePlants.length <= 0 &&
-              ((riverDistN <= 0.66 && riverDistN != undefined) ||
-             (valleyDistN <= 0.25 && valleyDistN != undefined)) )
-            {
-              //TODO: vary randomness based on dist...
-              if (Math.random() >= 0.1)
+              if ( thePlants.length <= 0 && (riverDistN != undefined || valleyDistN != undefined) )
               {
                 var reed = new Reed();
                 thePlants.push(reed);
               }
-            }
 
-            PlantsManager.addPlants(thePlants, yNormal, new Vector2D(x, y));
+              if (thePlants.length > 0)
+              {
+                var staticChanceMin = 0;
+                var staticChanceMax = 1;
+                var staticChance = EasingUtil.easeInQuart(yNormal, staticChanceMin, staticChanceMax-staticChanceMin, 1);
+
+                PlantsManager.addPlants(thePlants, scaleN, staticChance, new Vector2D(x, y));
+              }
+            }
           }
 
           xCounter ++;
@@ -247,33 +255,35 @@ function Terrain()
     }
 
     // build a path and draw the valley & river!
-    this.fillLayeredShape( this.ctx, 4, this.valleyColorStart, this.valleyColorEnd, this.valleyOpacity, this.river.midPointsUp, this.river.midPointsDown, this.valleyEdgePointsUp, this.valleyEdgePointsDown, riverStartY, riverEndY, this.valleyColorStart );
-    this.fillLayeredShape( this.ctx, 4, this.riverColorEnd, this.riverColorStart, this.riverOpacity, this.river.midPointsUp, this.river.midPointsDown, this.river.edgePointsUp, this.river.edgePointsDown, riverStartY, riverEndY, this.riverColorEnd );
+    this.fillLayeredShape( 4, this.valleyColorStart, this.valleyColorEnd, this.valleyOpacity, this.river.midPointsUp, this.river.midPointsDown, this.valleyEdgePointsUp, this.valleyEdgePointsDown, riverStartY, riverEndY, this.valleyColorStart );
+    this.fillLayeredShape( 4, this.riverColorEnd, this.riverColorStart, this.riverOpacity, this.river.midPointsUp, this.river.midPointsDown, this.river.edgePointsUp, this.river.edgePointsDown, riverStartY, riverEndY, this.riverColorEnd );
+
+    PlantsManager.drawStaticPlants(this.plantsCtx);
   }
 
-  this.fillLayeredShape = function( ctx, nLoops, colorStart, colorEnd, opacity, midUp, midDown, edgeUp, edgeDown, startY, endY, grdColor )
+  this.fillLayeredShape = function( nLoops, colorStart, colorEnd, opacity, midUp, midDown, edgeUp, edgeDown, startY, endY, grdColor )
   {
     for (var i = 0; i < nLoops; i++)
     {
       var loopN = 1 - (i / (nLoops - 1));
       loopN = EasingUtil.easeOutSine( loopN, 0, 1, 1 );
 
-      ctx.beginPath();
+      this.ctx.beginPath();
 
       var color = ColorUtil.lerp(loopN, colorStart, colorEnd);
 
       //gradient the color as we go up/down in y!
-      var grd = ctx.createLinearGradient(0, startY, 0, endY);
+      var grd = this.ctx.createLinearGradient(0, startY, 0, endY);
       var grdOpacity = EasingUtil.easeOutQuad(opacity, 0, 1, 1);
       grd.addColorStop(0.1, 'rgba('+grdColor[0]+','+grdColor[1]+','+grdColor[2]+', '+grdOpacity+')');
       grd.addColorStop(0.66, 'rgba('+color[0]+','+color[1]+','+color[2]+', '+opacity+')');
 
-      ctx.fillStyle = grd;
+      this.ctx.fillStyle = grd;
 
       var thePath = new Path2D();
       thePath = PathUtil.createPath(midUp, thePath, edgeUp, loopN);
       thePath = PathUtil.createPath(midDown, thePath, edgeDown, loopN);
-      ctx.fill(thePath);
+      this.ctx.fill(thePath);
     }
   }
 

@@ -1,25 +1,37 @@
 //Handles plants
 var PlantsManager = {};
 
-PlantsManager.plants = [];
+PlantsManager.dynamicPlants = [];
+PlantsManager.staticPlants = [];
 
 PlantsManager.reset = function()
 {
-  this.plants = [];
+  this.dynamicPlants = [];
+  this.staticPlants = [];
 }
 
 PlantsManager.updateAndDrawPlants = function( ctx, windStr )
 {
   //loop thru the plants, update and draw them
-  var l = this.plants.length;
+  var l = this.dynamicPlants.length;
   for (var i = 0; i < l; i++)
   {
-    this.plants[i].update();
-    this.plants[i].draw(ctx, windStr);
+    this.dynamicPlants[i].update();
+    this.dynamicPlants[i].draw(ctx, windStr);
   }
 }
 
-PlantsManager.addPlants = function( thePlants, scale, position )
+PlantsManager.drawStaticPlants = function( ctx )
+{
+  //loop thru the plants, update and draw them
+  var l = this.staticPlants.length;
+  for (var i = 0; i < l; i++)
+  {
+    this.staticPlants[i].draw(ctx, 0);
+  }
+}
+
+PlantsManager.addPlants = function( thePlants, scale, staticChance, position )
 {
   var nPlants = thePlants.length;
   if (nPlants > 0)
@@ -29,7 +41,15 @@ PlantsManager.addPlants = function( thePlants, scale, position )
     {
       thePlant = thePlants[p];
       thePlant.init(scale, position);
-      this.plants.push(thePlant);
+
+      if (Math.random() >= staticChance)
+      {
+        this.staticPlants.push(thePlant);
+      }
+      else
+      {
+        this.dynamicPlants.push(thePlant);
+      }
     }
   }
 }

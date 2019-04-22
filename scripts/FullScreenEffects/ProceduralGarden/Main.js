@@ -3,12 +3,13 @@ var skyCanvas, skyCtx;
 var terrainCanvas, terrainCtx;
 var effectsCanvas, effectsCtx;
 var plantsCanvas, plantsCtx;
+var activeCanvas, activeCtx;
 
 var skyUpdateFreq            = 0.05;
 var skyUpdateTimer           = 0;
 var effectsUpdateFreq        = 0.033;
 var effectsUpdateTimer       = 0;
-var plantsUpdateFreq         = 0.1;
+var plantsUpdateFreq         = 0.075;
 var plantsUpdateTimer        = 0;
 
 var dayDur                   = 45;
@@ -48,11 +49,14 @@ function start()
   wind    = new Wind();
 
   sky.init( dayDur, skyCtx, skyCanvas );
-  terrain.init( terrainCtx, terrainCanvas );
+  terrain.init( terrainCtx, terrainCanvas, plantsCtx );
 }
 
 function initCanvas()
 {
+  activeCanvas   = CommonElementsCreator.createCanvas();
+  activeCtx      = activeCanvas.getContext('2d');
+
   plantsCanvas   = CommonElementsCreator.createCanvas();
   plantsCtx      = plantsCanvas.getContext('2d');
 
@@ -74,7 +78,7 @@ function validateCanvasSize()
   var minScaleV = 1800;
   var minScaleH = 400;
 
-  return CanvasScaler.updateCanvasSize( [skyCanvas, terrainCanvas, effectsCanvas, plantsCanvas],
+  return CanvasScaler.updateCanvasSize( [skyCanvas, terrainCanvas, effectsCanvas, plantsCanvas, activeCanvas],
     maxScale, minScaleV, minScaleH );
 }
 
@@ -88,7 +92,7 @@ function update()
     skyUpdateTimer = skyUpdateFreq;
     effectsUpdateTimer = effectsUpdateFreq;
     plantsUpdateTimer = plantsUpdateFreq;
-    
+
     sky.reset();
     terrain.reset();
   }
@@ -134,8 +138,8 @@ function update()
   {
     plantsUpdateTimer = 0;
 
-    plantsCtx.clearRect(0, 0, plantsCanvas.width, plantsCanvas.height);
-    PlantsManager.updateAndDrawPlants( plantsCtx, wind.str );
+    activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+    PlantsManager.updateAndDrawPlants( activeCtx, wind.str );
   }
 }
 
@@ -148,6 +152,7 @@ function tintMidground()
   terrainCanvas.style.filter = theFilter;
   effectsCanvas.style.filter = theFilter;
   plantsCanvas.style.filter = theFilter;
+  activeCanvas.style.filter = theFilter;
 }
 
 //------------------------------------------------

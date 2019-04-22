@@ -66,7 +66,6 @@ function PointPlant()
     ctx.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
     ctx.beginPath();
 
-    //TODO: probably some easing
     var lifeTimeScale = EasingUtil.easeOutQuad(this.lifeTime, this.minLifeTimeScale, 1-this.minLifeTimeScale, 1);
 
     for (var p = 0; p < this.points.length; p++)
@@ -87,7 +86,7 @@ function PointPlant()
 
 function Palm()
 {
-
+  //TODO: a point plant?
 }
 
 function Reed()
@@ -105,10 +104,10 @@ function Reed()
 
     for (var i = 0; i < nPoints; i++)
     {
-      var angleN = i / (nPoints);
+      var angleN = i / (nPoints-1);
       var t = angleN * Math.PI;
 
-      var x	=	angleN;
+      var x	=	EasingUtil.easeOutQuad(angleN, 0, 1, 1);
       var y	=	Math.sin(t);
 
       this.points.push(new Vector2D(x, y));
