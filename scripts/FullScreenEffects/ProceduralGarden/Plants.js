@@ -62,12 +62,12 @@ function Reed()
       }
   }
 
-  this.draw = function( theCanvas )
+  this.draw = function( ctx, windStr )
   {
     var bendMultip = 50;
 
-    theCanvas.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
-    theCanvas.beginPath();
+    ctx.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
+    ctx.beginPath();
 
     for (var p = 0; p < this.points.length; p++)
     {
@@ -78,10 +78,10 @@ function Reed()
 
       var theY = thePoint.y * this.maxH * this.lifeTime;
 
-      theCanvas.lineTo(this.position.x + theX, this.position.y - theY);
+      ctx.lineTo(this.position.x + theX, this.position.y - theY);
     }
 
-    theCanvas.fill();
+    ctx.fill();
   }
 }
 
@@ -150,12 +150,12 @@ function Grass()
       }
   }
 
-  this.draw = function( theCanvas )
+  this.draw = function( ctx, windStr )
   {
     var bendMultip = 75;
 
-    theCanvas.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
-    theCanvas.beginPath();
+    ctx.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
+    ctx.beginPath();
 
     for (var p = 0; p < this.points.length; p++)
     {
@@ -166,10 +166,10 @@ function Grass()
 
       var theY = thePoint.y * this.maxH * this.lifeTime;
 
-      theCanvas.lineTo(this.position.x + theX, this.position.y - theY);
+      ctx.lineTo(this.position.x + theX, this.position.y - theY);
     }
 
-    theCanvas.fill();
+    ctx.fill();
   }
 }
 
@@ -238,12 +238,12 @@ function Shrub()
       }
   }
 
-  this.draw = function( theCanvas )
+  this.draw = function( ctx, windStr )
   {
     var bendMultip = 75;
 
-    theCanvas.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
-    theCanvas.beginPath();
+    ctx.fillStyle = 'rgba('+(this.color[0])+','+(this.color[1])+','+(this.color[2])+', 1)';
+    ctx.beginPath();
 
     for (var p = 0; p < this.points.length; p++)
     {
@@ -255,9 +255,9 @@ function Shrub()
 
       var theY = thePoint.y * this.maxH * this.lifeTime;
 
-      theCanvas.lineTo(this.position.x + theX, this.position.y - theY);
+      ctx.lineTo(this.position.x + theX, this.position.y - theY);
     }
 
-    theCanvas.fill();
+    ctx.fill();
   }
 }

@@ -1,0 +1,2 @@
+//Handles terrain
+var TerrainManager = {};

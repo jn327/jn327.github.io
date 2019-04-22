@@ -3,7 +3,7 @@ function Moon()
   //Call our prototype
   GameObject.call(this);
 
-  this.bVisible   = false;
+  this.visible    = false;
   this.color      = [255, 255, 255];
   this.setTime    = 0.1;
   this.riseTime   = 0.9;
@@ -12,9 +12,9 @@ function Moon()
 
   this.update = function( t, avblW, avblH )
   {
-    this.bVisible = ( t >= this.riseTime || t <= this.setTime );
+    this.visible = ( t >= this.riseTime || t <= this.setTime );
 
-    if (this.bVisible)
+    if (this.visible)
     {
       var moonTimeMid = 0.5;
       var totalMoonTime = this.setTime + (1-this.riseTime);
@@ -36,10 +36,7 @@ function Moon()
 
   this.draw = function( ctx )
   {
-    if (this.bVisible == false)
-    {
-      return;
-    }
+    if (this.visible == false) { return; }
 
     //halo and rings
     this.drawCircle( ctx, 'rgba('+this.color[0]+', '+this.color[1]+','+this.color[2]+', 0.025)', -1, 2, this.size*2 );

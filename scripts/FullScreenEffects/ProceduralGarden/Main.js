@@ -18,7 +18,7 @@ var dayTimer                  = dayDur * 0.5;
 var tod                       = 0; //0-1
 var skyBlueMin                = 0.075;
 var skyBlueMax                = 0.925;
-var skyColorDay               = [183, 231, 255]; // [163, 225, 255];
+var skyColorDay               = [183, 231, 255];
 var skyColorNight             = [28, 19, 25];
 
 var moon;
@@ -29,9 +29,8 @@ var skyGradientMax            = 0.8;
 var skyGradientHMultip        = 1;
 
 //TODO: terrain stuff can go into own manager
-//TODO: same for plants!
-var sandColorFar              = [252, 194, 121]; // [255, 215, 178];
-var sandColorNear             = [255, 236, 212]; // [255, 247, 137];
+var sandColorFar              = [252, 194, 121];
+var sandColorNear             = [255, 236, 212];
 var sandHeightMin             = 0.25;
 var sandHeightMax             = 0.5;
 var sandScaleMultipNear       = 0.5;
@@ -45,7 +44,7 @@ var sandSampleStepSize        = 8;
 var ridgeNoiseStr             = 0.45; //how rideged should our sand be
 var sandCurlOffset            = 30;
 
-var lowestSandPoint;          //used to figure out were to start the river
+var riverStartPoint;          //used to figure out were to start the river
 
 var river;
 var riverMidPointsUp          = [];
@@ -70,11 +69,7 @@ var valleyEndW                = 2;
 var valleyColorStart          = [73, 153, 103];
 var valleyColorEnd            = [153, 117, 73];
 
-var windStr;                  //-1 to 1 scale
-var windNoise;                //perlin noise
-var windNoiseFreq             = 0.0005;
-
-var plants                    = [];
+var wind;
 
 //------------------------------------------------
 //                    Start
@@ -88,9 +83,9 @@ function init()
     'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
     'FullScreenEffects/ProceduralGarden/Sun', 'FullScreenEffects/ProceduralGarden/Moon',
     'FullScreenEffects/ProceduralGarden/Cloud', 'FullScreenEffects/ProceduralGarden/CloudsManager',
-    'FullScreenEffects/ProceduralGarden/Plants', 'FullScreenEffects/ProceduralGarden/Stars',
+    'FullScreenEffects/ProceduralGarden/Plants', 'FullScreenEffects/ProceduralGarden/PlantsManager',
     'FullScreenEffects/ProceduralGarden/Stars', 'FullScreenEffects/ProceduralGarden/StarsManager',
-    'FullScreenEffects/ProceduralGarden/River',
+    'FullScreenEffects/ProceduralGarden/River', 'FullScreenEffects/ProceduralGarden/Wind'
   ];
   CommonElementsCreator.appendScipts(includes);
 }
@@ -103,7 +98,7 @@ function start()
   sun     = new Sun();
   river   = new River();
 
-  windNoise = new SimplexNoise();
+  wind     = new Wind();
 
   CloudsManager.initClouds( bgCanvas.width, bgCanvas.height );
   StarsManager.initStars( dayDur, bgCanvas.width, bgCanvas.height );
@@ -140,7 +135,7 @@ function drawTerrain()
 
 function drawSand( theNoise )
 {
-  lowestSandPoint = new Vector2D(0,0);
+  riverStartPoint = new Vector2D(0,0);
 
   var interLayerNoise = new SimplexNoise();
 
@@ -184,11 +179,11 @@ function drawSand( theNoise )
 
       thePoint.y = sandTopY + (sandHeightDelta * scaleMultip * thePoint.y);
 
-      if ( i >= (nSandLayers-1) && thePoint.y > lowestSandPoint.y
+      if ( i >= (nSandLayers-1) && thePoint.y > riverStartPoint.y
         && thePoint.x > 0 && thePoint.x < mgCanvas.width)
       {
-        lowestSandPoint.x = thePoint.x;
-        lowestSandPoint.y = thePoint.y;
+        riverStartPoint.x = thePoint.x;
+        riverStartPoint.y = thePoint.y;
       }
 
       mgCtx.lineTo(thePoint.x, thePoint.y);
@@ -205,7 +200,7 @@ function drawRivers( theNoise )
 
   valleyEdgePointsUp    = [];
   valleyEdgePointsDown  = [];
-  plants                = [];
+  PlantsManager.reset();
 
   //draw the river and valley pixel by pixel...
   var xSampleSize = 4;
@@ -218,12 +213,12 @@ function drawRivers( theNoise )
   var plantFreqY = 2;
   var yCounter = 0;
 
-  var riverStartX = lowestSandPoint.x;
+  var riverStartX = riverStartPoint.x;
   var edgeOffset  = 0.33;
   var riverEndX   = (mgCanvas.width * edgeOffset) + (mgCanvas.width * (1-(edgeOffset * 2)));
   var riverXDelta = riverEndX - riverStartX;
 
-  var riverStartY = lowestSandPoint.y;
+  var riverStartY = riverStartPoint.y;
   var riverEndY   = mgCanvas.height + ySampleSize;
 
   var riverStartW   = Math.getRnd(riverWMin, riverWMax);
@@ -311,18 +306,7 @@ function drawRivers( theNoise )
             }
           }
 
-          var nPlants = thePlants.length;
-          if (nPlants > 0)
-          {
-            var thePlant;
-            for (var p = 0; p < nPlants; p++)
-            {
-              thePlant = thePlants[p];
-              thePlant.init(yNormal, new Vector2D(x, y));
-              plants.push(thePlant);
-            }
-          }
-
+          PlantsManager.addPlants(thePlants, yNormal, new Vector2D(x, y));
         }
 
         xCounter ++;
@@ -402,8 +386,8 @@ function update()
   var prevTod = tod;
   tod = dayTimer / dayDur;
 
-  //update the windStr
-  windStr = windNoise.noise((GameLoop.currentTime / dayDur) * windNoiseFreq, windNoiseFreq);
+  //update the wind
+  wind.update( dayDur );
 
   //update the sky. If it needs it.
   skyUpdateTimer += GameLoop.deltaTime;
@@ -420,7 +404,7 @@ function update()
     mg2UpdateTimer = 0;
 
     mgCtx2.clearRect(0, 0, mgCanvas2.width, mgCanvas2.height);
-    river.drawWaves( tod, mgCtx2, lowestSandPoint.y, mgCanvas.height );
+    river.drawWaves( tod, mgCtx2, riverStartPoint.y, mgCanvas.height );
   }
 
   //update the plants
@@ -430,17 +414,7 @@ function update()
     fgUpdateTimer = 0;
 
     fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
-    updatePlants();
-  }
-}
-
-function updatePlants()
-{
-  //loop thru the plants, update and draw them
-  for (var i = 0; i < plants.length; i++)
-  {
-    plants[i].update();
-    plants[i].draw(fgCtx);
+    PlantsManager.updateAndDrawPlants( fgCtx, wind.str );
   }
 }
 
@@ -466,7 +440,7 @@ function updateSkyVisuals()
   moon.draw( bgCtx );
 
   //clouds
-  CloudsManager.drawClouds( bgCtx, skyBrightness );
+  CloudsManager.updateAndDrawClouds( bgCtx, wind.str, skyBrightness );
 }
 
 function getSkyBrightness()
@@ -494,6 +468,7 @@ function tintMidground( brightness )
   //TODO: wanna be able to tint it a bit with the sky gradient too!!!
   var darkenAmount = 85;
   var theFilter = 'brightness('+((100-darkenAmount) + (brightness*darkenAmount))+'%)';
+
   mgCanvas.style.filter = theFilter;
   mgCanvas2.style.filter = theFilter;
   fgCanvas.style.filter = theFilter;

@@ -47,7 +47,7 @@ function Cloud()
     }
   }
 
-  this.update = function()
+  this.update = function( windStr )
   {
     var todDelta = (tod < this.prevUpdateTod) ? (tod + (1 - this.prevUpdateTod)) : tod - this.prevUpdateTod;
     this.prevUpdateTod = tod;
@@ -73,15 +73,15 @@ function Cloud()
     this.scale = sizeScale;
   }
 
-  this.draw = function( theCanvas, brightness )
+  this.draw = function( ctx, brightness )
   {
     var darkenAmount = 0.95;
     var brightnessMultip = ((1-darkenAmount) + (brightness*darkenAmount));
 
     var colorV = 255 * brightnessMultip;
 
-    theCanvas.fillStyle = 'rgba('+colorV+','+colorV+','+colorV+',0.8)';
-    theCanvas.beginPath();
+    ctx.fillStyle = 'rgba('+colorV+','+colorV+','+colorV+',0.8)';
+    ctx.beginPath();
 
     var l = this.points.length;
     var thePoint;
@@ -89,9 +89,9 @@ function Cloud()
     {
       thePoint = this.points[p];
 
-      theCanvas.lineTo( this.position.x + (thePoint.x * this.scale * this.width),
+      ctx.lineTo( this.position.x + (thePoint.x * this.scale * this.width),
         this.position.y + (thePoint.y * this.scale * this.height) );
     }
-    theCanvas.fill();
+    ctx.fill();
   }
 }
