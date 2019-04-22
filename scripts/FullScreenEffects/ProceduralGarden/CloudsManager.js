@@ -1,12 +1,12 @@
 //Handles spawning clouds
 var CloudsManager = {};
 
-CloudsManager.minClouds           = 3;
-CloudsManager.maxClouds           = 8;
-CloudsManager.clouds              = [];
+CloudsManager.minClouds     = 3;
+CloudsManager.maxClouds     = 8;
+CloudsManager.clouds        = [];
 
-CloudsManager.startY              = 0; //from top to bottom
-CloudsManager.endY                = 0.25;
+CloudsManager.startY        = 0; //from top to bottom
+CloudsManager.endY          = 0.25;
 
 CloudsManager.initClouds = function( theWidth, theHeight )
 {

@@ -88,7 +88,7 @@ function update()
     skyUpdateTimer = skyUpdateFreq;
     effectsUpdateTimer = effectsUpdateFreq;
     plantsUpdateTimer = plantsUpdateFreq;
-
+    
     sky.reset();
     terrain.reset();
   }
@@ -118,14 +118,13 @@ function update()
     tintMidground();
   }
 
-  //update the river
+  //update the effects
   effectsUpdateTimer += GameLoop.deltaTime;
   if (effectsUpdateTimer > effectsUpdateFreq)
   {
     effectsUpdateTimer = 0;
 
     effectsCtx.clearRect(0, 0, effectsCanvas.width, effectsCanvas.height);
-
     terrain.updateAndDrawEffects(tod, effectsCtx, effectsCanvas);
   }
 

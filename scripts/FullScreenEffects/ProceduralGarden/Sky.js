@@ -3,19 +3,19 @@ function Sky()
   this.ctx;
   this.canvas;
 
-  this.brightness          = 0;
+  this.brightness       = 0;
 
-  this.lightenTime         = 0.075;
-  this.darkenTime          = 0.925;
-  this.colorDay            = [183, 231, 255];
-  this.colorNight          = [28, 19, 25];
+  this.lightenTime      = 0.075;
+  this.darkenTime       = 0.925;
+  this.colorDay         = [183, 231, 255];
+  this.colorNight       = [28, 19, 25];
 
-  this.gradientStart       = 0.2;
-  this.gradientEnd         = 0.8;
-  this.gradientHMultip     = 1;
+  this.gradientStart    = 0.2;
+  this.gradientEnd      = 0.8;
+  this.gradientHMultip  = 1;
 
-  this.moon    = new Moon();
-  this.sun     = new Sun();
+  this.moon             = new Moon();
+  this.sun              = new Sun();
 
   this.init = function( starTwinkleSpeedDivider, theCtx, theCanvas )
   {

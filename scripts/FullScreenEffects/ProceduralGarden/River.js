@@ -1,9 +1,9 @@
 function River()
 {
-  this.midPointsUp = [];
-  this.midPointsDown = [];
-  this.edgePointsUp = [];
-  this.edgePointsDown = [];
+  this.midPointsUp      = [];
+  this.midPointsDown    = [];
+  this.edgePointsUp     = [];
+  this.edgePointsDown   = [];
 
   this.reset = function()
   {
