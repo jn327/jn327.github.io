@@ -1,5 +1,8 @@
 function Sky()
 {
+  this.ctx;
+  this.canvas;
+
   this.brightness          = 0;
 
   this.lightenTime         = 0.075;
@@ -14,37 +17,40 @@ function Sky()
   this.moon    = new Moon();
   this.sun     = new Sun();
 
-  this.init = function( starTwinkleSpeedDivider, theCanvas )
+  this.init = function( starTwinkleSpeedDivider, theCtx, theCanvas )
   {
-    CloudsManager.initClouds( theCanvas.width, theCanvas.height );
-    StarsManager.initStars( starTwinkleSpeedDivider, theCanvas.width, theCanvas.height );
+    this.ctx    = theCtx;
+    this.canvas = theCanvas;
+
+    CloudsManager.initClouds( this.canvas.width, this.canvas.height );
+    StarsManager.initStars( starTwinkleSpeedDivider, this.canvas.width, this.canvas.height );
   }
 
-  this.reset = function( theCanvas )
+  this.reset = function()
   {
-    CloudsManager.randomizeClouds( theCanvas.width, theCanvas.height );
-    StarsManager.randomizeStars( theCanvas.width, theCanvas.height );
+    CloudsManager.randomizeClouds( this.canvas.width, this.canvas.height );
+    StarsManager.randomizeStars( this.canvas.width, this.canvas.height );
   }
 
-  this.updateAndDraw = function( t, windStr, ctx, theCanvas )
+  this.updateAndDraw = function( t, windStr )
   {
     this.updateBrightness( t );
-    this.drawBackground( ctx, theCanvas.width, theCanvas.height );
+    this.drawBackground();
 
     //stars
-    StarsManager.drawStars(t, ctx, theCanvas.width, theCanvas.height);
+    StarsManager.drawStars(t, this.ctx, this.canvas.width, this.canvas.height);
 
     //sun and sky gradient
-    this.sun.update( t, theCanvas.width, theCanvas.height );
-    this.drawSkyGradient( ctx, this.sun.color, t, theCanvas.width, theCanvas.height );
-    this.sun.draw( ctx );
+    this.sun.update( t, this.canvas.width, this.canvas.height );
+    this.drawSkyGradient( this.sun.color, t );
+    this.sun.draw( this.ctx );
 
     //moon
-    this.moon.update( t, theCanvas.width, theCanvas.height );
-    this.moon.draw( ctx );
+    this.moon.update( t, this.canvas.width, this.canvas.height );
+    this.moon.draw( this.ctx );
 
     //clouds
-    CloudsManager.updateAndDrawClouds( ctx, windStr, this.brightness, theCanvas.width );
+    CloudsManager.updateAndDrawClouds( this.ctx, windStr, this.brightness, this.canvas.width );
   }
 
   this.updateBrightness = function( t )
@@ -61,14 +67,14 @@ function Sky()
     this.brightness = theBrightness;
   }
 
-  this.drawBackground = function ( ctx, theWidth, theHeight )
+  this.drawBackground = function ()
   {
     var theColor = ColorUtil.rgbToHex(ColorUtil.lerp(this.brightness, this.colorNight, this.colorDay));
-    ctx.fillStyle = theColor;
-    ctx.fillRect(0, 0, theWidth, theHeight);
+    this.ctx.fillStyle = theColor;
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  this.drawSkyGradient = function( ctx, theColor, t, theWidth, theHeight )
+  this.drawSkyGradient = function( theColor, t )
   {
     //This wants to be a M shape, peaking around skyGradientMin and skyGradientMax...
     var gradientTimeNormal = 0;
@@ -94,12 +100,12 @@ function Sky()
     var gradientAlphaLerp = gradientTimeNormal <= gradientTimeMid ? EasingUtil.easeNone(gradientTimeNormal, 1, -1, 0.5)
       : EasingUtil.easeNone(gradientTimeNormal-0.5, 0, 1, 0.5);
 
-    var gradientHeight = gradientHeightLerp * theHeight * this.gradientHMultip;
+    var gradientHeight = gradientHeightLerp * this.canvas.height * this.gradientHMultip;
 
-    var grd = ctx.createLinearGradient(0, theHeight-gradientHeight, 0, theHeight);
+    var grd = this.ctx.createLinearGradient(0, this.canvas.height-gradientHeight, 0, this.canvas.height);
     grd.addColorStop(0, 'rgba('+theColor[0]+', '+theColor[1]+','+theColor[2]+', 0)');
     grd.addColorStop(1, 'rgba('+theColor[0]+', '+theColor[1]+','+theColor[2]+', '+gradientAlphaLerp+')');
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, theWidth, theHeight);
+    this.ctx.fillStyle = grd;
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 }
