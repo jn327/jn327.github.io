@@ -32,9 +32,9 @@ function Terrain()
   this.valleyEdgePointsUp       = [];
   this.valleyEdgePointsDown     = [];
   this.valleyOpacity            = 0.33;
-  this.valleyWMin               = 500;
-  this.valleyWMax               = 750;
-  this.valleyEndW               = 2;
+  this.valleyWMin               = 800;
+  this.valleyWMax               = 1000;
+  this.valleyEndW               = 5;
   this.valleyColorStart         = [73, 153, 103];
   this.valleyColorEnd           = [153, 117, 73];
 
@@ -214,18 +214,43 @@ function Terrain()
             var thresholdScaled = EasingUtil.easeOutSine(yNormal, 0, thesholdMax, 1);
             thresholdScaled = EasingUtil.easeOutSine(thresholdScaled, 0, thesholdMax, 1);
 
-            if (Math.random() >= thresholdScaled)
+            //make less frequent around edges, only for close ones (areas were the threshold approaches 1)
+            if (valleyDistN != undefined)
+            {
+              var yNormMultip = Math.minMaxNormal( yNormal, 0.8, 1 ); //grab only the last bit of y normal
+              yNormMultip = Math.clamp( yNormMultip, 0, 1 );
+              yNormMultip = EasingUtil.easeOutQuad(yNormMultip, 0, 0.33, 1);
+
+              var valleyDistMultip = EasingUtil.easeOutQuad(valleyDistN, 0, 1, 1);
+              valleyDistMultip += (1 - valleyDistMultip) * yNormMultip;
+
+              //add up the difference to 1 as we approach the edge.
+              thresholdScaled += (1 - thresholdScaled) * valleyDistMultip;
+            }
+
+            //For the river, we want less frequently near the center.
+            if (riverDistN != undefined)
+            {
+              var riverDistMultup = EasingUtil.easeNone(riverDistN, 0, 1, 1);
+
+              //add up the difference to 1 as we approach the center.
+              thresholdScaled += (1 - thresholdScaled) * riverDistMultup;
+            }
+
+            if (Math.random() > thresholdScaled)
             {
               if ( thePlants.length <= 0 && valleyDistN != undefined )
               {
-                var shrub = new Shrub();
-                thePlants.push(shrub);
-              }
-
-              if ( thePlants.length <= 0 && valleyDistN != undefined )
-              {
-                var grass = new Grass();
-                thePlants.push(grass);
+                if ( Math.random() > 0.5 )
+                {
+                  var shrub = new Shrub();
+                  thePlants.push(shrub);
+                }
+                else
+                {
+                  var grass = new Grass();
+                  thePlants.push(grass);
+                }
               }
 
               if ( thePlants.length <= 0 && (riverDistN != undefined || valleyDistN != undefined) )
@@ -275,8 +300,8 @@ function Terrain()
       //gradient the color as we go up/down in y!
       var grd = this.ctx.createLinearGradient(0, startY, 0, endY);
       var grdOpacity = EasingUtil.easeOutQuad(opacity, 0, 1, 1);
-      grd.addColorStop(0.1, 'rgba('+grdColor[0]+','+grdColor[1]+','+grdColor[2]+', '+grdOpacity+')');
-      grd.addColorStop(0.66, 'rgba('+color[0]+','+color[1]+','+color[2]+', '+opacity+')');
+      grd.addColorStop(0, 'rgba('+grdColor[0]+','+grdColor[1]+','+grdColor[2]+', '+grdOpacity+')');
+      grd.addColorStop(0.25, 'rgba('+color[0]+','+color[1]+','+color[2]+', '+opacity+')');
 
       this.ctx.fillStyle = grd;
 
