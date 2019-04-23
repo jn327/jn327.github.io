@@ -177,7 +177,7 @@ function Terrain()
       var riverLeftX    = midX - easedRiverW;
       var riverRightX   = midX + easedRiverW;
 
-      if(riverPointsCounter == 0)
+      if( riverPointsCounter == 0 || (y >= this.canvas.height) )
       {
         var pointMid = new Vector2D(midX, y);
         var pointLeft = new Vector2D(-easedRiverW, 0);
@@ -225,7 +225,8 @@ function Terrain()
               yNormMultip = Math.clamp( yNormMultip, 0, 1 );
               yNormMultip = EasingUtil.easeInSine(yNormMultip, 0, 0.33, 1);
 
-              var valleyDistEased = EasingUtil.easeOutSine(valleyDistN, 0, 1, 1); //easeOutSine , easeNone
+              var valleyDistMax = 0.98;
+              var valleyDistEased = EasingUtil.easeOutSine(valleyDistN, 0, valleyDistMax, 1); //easeOutSine , easeNone
 
               //var valleyDistMultip = valleyDistEased + ((1 - valleyDistEased) * yNormMultip);
               var valleyDistMultip = yNormMultip + ((1 - yNormMultip) * valleyDistEased);

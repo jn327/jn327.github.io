@@ -107,8 +107,8 @@ function Palm()
   this.height             = 300;
   this.windBendMultip     = 80;
 
-  this.maxPoints          = 10;
-  this.minPoints          = 5;
+  this.maxPoints          = 16;
+  this.minPoints          = 10;
 
   this.colorYoung         = [165, 128, 74];
   this.colorOld           = [112, 88, 52];
@@ -193,10 +193,10 @@ function PalmHead()
   this.height             = 100;
   this.windBendMultip     = 30;
 
-  this.nSpikesMin         = 12;
-  this.nSpikesMax         = 16;
+  this.nSpikesMin         = 10;
+  this.nSpikesMax         = 14;
   this.pointsMultipMin    = 2;
-  this.pointsMultipMax    = 6;
+  this.pointsMultipMax    = 8;
 
   this.buildPoints = function()
   {
@@ -214,7 +214,7 @@ function PalmHead()
       var t = angleN * Math.PI;
 
       var sizeScale = 0.5 + (-Math.cos(nSpikes*t) * 0.5);
-      sizeScale = EasingUtil.easeOutExpo(sizeScale, 0.2, 0.8, 1);
+      sizeScale = EasingUtil.easeOutQuart(sizeScale, 0.2, 0.8, 1);
       //sizeScale = 1;
 
       var xCos = Math.cos(t);
@@ -222,7 +222,7 @@ function PalmHead()
 
       var xAbs = Math.abs(xCos);
 
-      var x	=	sizeScale * xCos;
+      var x	=	sizeScale * ((xCos * 0.5) + (xCos * 0.5 * EasingUtil.easeInSine(ySin, 0.5, 1, 1)));
       var y	=	(sizeScale * ySin) - EasingUtil.easeInSine((xAbs * sizeScale), 0.15, 0.75, 1);
 
       this.points.push(new Vector2D(x, y));

@@ -5,7 +5,7 @@ var effectsCanvas, effectsCtx;
 var plantsCanvas, plantsCtx;
 var activeCanvas, activeCtx;
 
-var skyUpdateFreq            = 0.05;
+var skyUpdateFreq            = 0.033;
 var skyUpdateTimer           = 0;
 var effectsUpdateFreq        = 0.033;
 var effectsUpdateTimer       = 0;
