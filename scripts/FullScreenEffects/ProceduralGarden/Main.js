@@ -139,7 +139,7 @@ function update()
     plantsUpdateTimer = 0;
 
     activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
-    PlantsManager.updateAndDrawPlants( activeCtx, wind.str );
+    PlantsManager.updateAndDrawPlants( tod, activeCtx, wind.str );
   }
 }
 

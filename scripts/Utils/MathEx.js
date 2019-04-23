@@ -1,13 +1,17 @@
-Math.roundMultip = function(x, multip)
+//Given a value, will round it to the nearest multiple of multip.
+// so (1, 4) will return 0 and (3, 4) will return 4...
+Math.roundMultip = function(val, multip)
 {
-  return Math.round(x / multip) * multip;
+  return Math.round(val / multip) * multip;
 };
 
+//returns a random number between min and max.
 Math.getRnd = function(min, max)
 {
   return (Math.random() * (max - min)) + min;
 }
 
+//clamps a value (val) between min and max, so (2, 0, 1) will return 1 and (-1, 0, 1) will return 0
 Math.clamp = function(val, min, max)
 {
  return Math.min(Math.max(min, val), max);
@@ -38,6 +42,7 @@ Math.scaleNormalSigned = function(val, min, max)
   return scaledVal;
 }
 
+//given 2 vectors (x1, y1) and (x2, y2) will return the angle (in degrees) between.
 Math.angleBetweenPoints = function(x1, y1, x2, y2)
 {
   return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;

@@ -10,13 +10,13 @@ PlantsManager.reset = function()
   this.staticPlants = [];
 }
 
-PlantsManager.updateAndDrawPlants = function( ctx, windStr )
+PlantsManager.updateAndDrawPlants = function( t, ctx, windStr )
 {
   //loop thru the plants, update and draw them
   var l = this.dynamicPlants.length;
   for (var i = 0; i < l; i++)
   {
-    this.dynamicPlants[i].update();
+    this.dynamicPlants[i].update( t );
     this.dynamicPlants[i].draw(ctx, windStr);
   }
 }

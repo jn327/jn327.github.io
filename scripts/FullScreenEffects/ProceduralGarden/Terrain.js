@@ -217,12 +217,14 @@ function Terrain()
             //make less frequent around edges, only for close ones (areas were the threshold approaches 1)
             if (valleyDistN != undefined)
             {
-              var yNormMultip = Math.minMaxNormal( yNormal, 0.8, 1 ); //grab only the last bit of y normal
+              var yNormMultip = Math.minMaxNormal( yNormal, 0.5, 1 ); //grab only the last bit of y normal
               yNormMultip = Math.clamp( yNormMultip, 0, 1 );
-              yNormMultip = EasingUtil.easeOutQuad(yNormMultip, 0, 0.33, 1);
+              yNormMultip = EasingUtil.easeInSine(yNormMultip, 0, 0.33, 1);
 
-              var valleyDistMultip = EasingUtil.easeOutQuad(valleyDistN, 0, 1, 1);
-              valleyDistMultip += (1 - valleyDistMultip) * yNormMultip;
+              var valleyDistEased = EasingUtil.easeOutSine(valleyDistN, 0, 1, 1); //easeOutSine , easeNone
+
+              //var valleyDistMultip = valleyDistEased + ((1 - valleyDistEased) * yNormMultip);
+              var valleyDistMultip = yNormMultip + ((1 - yNormMultip) * valleyDistEased);
 
               //add up the difference to 1 as we approach the edge.
               thresholdScaled += (1 - thresholdScaled) * valleyDistMultip;
@@ -251,6 +253,13 @@ function Terrain()
                   var grass = new Grass();
                   thePlants.push(grass);
                 }
+
+                //TODO: less random
+                /*if ( Math.random() > 0.9 )
+                {
+                  var palm = new Palm();
+                  thePlants.push(palm);
+                }*/
               }
 
               if ( thePlants.length <= 0 && (riverDistN != undefined || valleyDistN != undefined) )
