@@ -135,12 +135,10 @@ function Terrain()
     var xSampleSize = 1;
     var ySampleSize = 1;
 
-    //TODO: points sample size?
+    //river points sample size
+    var riverPointsFreq = 10;
+    var riverPointsCounter = 0;
 
-    //TODO: maybe should scale the freq distances as we go.
-    // at the moment it seems like we get most of the stuff down near close!
-    // to do so would have to get rid of the counters ... and find some other way of doing this.
-    // modulo, worried about missing if the freq and sample size are not multipliers? or ...
     var plantFreqX = 3;
     var xCounter = 0;
     var plantFreqY = 1;
@@ -179,13 +177,19 @@ function Terrain()
       var riverLeftX    = midX - easedRiverW;
       var riverRightX   = midX + easedRiverW;
 
-      var pointMid = new Vector2D(midX, y);
-      var pointLeft = new Vector2D(-easedRiverW, 0);
-      var pointRight = new Vector2D(easedRiverW, 0);
-      this.river.addPoints(pointMid, pointLeft, pointRight);
+      if(riverPointsCounter == 0)
+      {
+        var pointMid = new Vector2D(midX, y);
+        var pointLeft = new Vector2D(-easedRiverW, 0);
+        var pointRight = new Vector2D(easedRiverW, 0);
+        this.river.addPoints(pointMid, pointLeft, pointRight);
 
-      this.valleyEdgePointsUp.push(new Vector2D(-valleyW, 0));
-      this.valleyEdgePointsDown.unshift(new Vector2D(valleyW, 0));
+        this.valleyEdgePointsUp.push(new Vector2D(-valleyW, 0));
+        this.valleyEdgePointsDown.unshift(new Vector2D(valleyW, 0));
+      }
+
+      riverPointsCounter ++;
+      if (riverPointsCounter >= riverPointsFreq) { riverPointsCounter = 0; }
 
       if (yNormal >= 0 && yCounter == 0)
       {
@@ -254,12 +258,12 @@ function Terrain()
                   thePlants.push(grass);
                 }
 
-                //TODO: less random
-                /*if ( Math.random() > 0.9 )
+                //TODO: less random, maybe use a bit of perlin???
+                if ( Math.random() > 0.95 )
                 {
                   var palm = new Palm();
                   thePlants.push(palm);
-                }*/
+                }
               }
 
               if ( thePlants.length <= 0 && (riverDistN != undefined || valleyDistN != undefined) )
@@ -270,7 +274,7 @@ function Terrain()
 
               if (thePlants.length > 0)
               {
-                var staticChanceMin = 0;
+                var staticChanceMin = 0.5;
                 var staticChanceMax = 1;
                 var staticChance = EasingUtil.easeInQuart(yNormal, staticChanceMin, staticChanceMax-staticChanceMin, 1);
 

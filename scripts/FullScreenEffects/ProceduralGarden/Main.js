@@ -9,7 +9,7 @@ var skyUpdateFreq            = 0.05;
 var skyUpdateTimer           = 0;
 var effectsUpdateFreq        = 0.033;
 var effectsUpdateTimer       = 0;
-var plantsUpdateFreq         = 0.075;
+var plantsUpdateFreq         = 0.1;
 var plantsUpdateTimer        = 0;
 
 var dayDur                   = 45;
