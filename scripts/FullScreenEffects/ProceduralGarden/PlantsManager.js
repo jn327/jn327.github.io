@@ -42,7 +42,6 @@ PlantsManager.addPlants = function( thePlants, scale, staticChance, position )
       thePlant = thePlants[p];
       thePlant.init(scale, position);
 
-      //if ((Math.random() >= staticChance && scale < thePlant.staticScaleMax) || scale < thePlant.dynamicScaleMin)
       if ((scale <= thePlant.staticScaleMax && Math.random() < staticChance) && scale >= thePlant.dynamicScaleMin)
       {
         this.dynamicPlants.push(thePlant);

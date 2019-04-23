@@ -6,11 +6,11 @@ var plantsCanvas, plantsCtx;
 var activeCanvas, activeCtx;
 
 var skyUpdateFreq            = 0.033;
-var skyUpdateTimer           = 0;
+var skyUpdateTimer           = skyUpdateFreq;
 var effectsUpdateFreq        = 0.033;
-var effectsUpdateTimer       = 0;
-var plantsUpdateFreq         = 0.1;
-var plantsUpdateTimer        = 0;
+var effectsUpdateTimer       = effectsUpdateFreq;
+var plantsUpdateFreq         = 0.066;
+var plantsUpdateTimer        = plantsUpdateFreq;
 
 var dayDur                   = 45;
 var dayTimer                 = dayDur * 0.5;
@@ -19,6 +19,8 @@ var tod                      = 0; //0-1
 var sky;
 var wind;
 var terrain;
+
+var lastPlantsUpdateWind    = Number.MAX_VALUE;
 
 //------------------------------------------------
 //                    Start
@@ -74,8 +76,8 @@ function initCanvas()
 
 function validateCanvasSize()
 {
-  var maxScale = 1800;
-  var minScaleV = 1800;
+  var maxScale = 600;
+  var minScaleV = 600;
   var minScaleH = 400;
 
   return CanvasScaler.updateCanvasSize( [skyCanvas, terrainCanvas, effectsCanvas, plantsCanvas, activeCanvas],
@@ -133,10 +135,14 @@ function update()
   }
 
   //update the plants
+  var windStrDelta = Math.abs(lastPlantsUpdateWind - wind.str);
+  var bPlantsNeedUpdating = windStrDelta > 0.0066;
+
   plantsUpdateTimer += GameLoop.deltaTime;
-  if (plantsUpdateTimer > plantsUpdateFreq)
+  if (bPlantsNeedUpdating && plantsUpdateTimer > plantsUpdateFreq)
   {
     plantsUpdateTimer = 0;
+    lastPlantsUpdateWind = wind.str;
 
     activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
     PlantsManager.updateAndDrawPlants( tod, activeCtx, wind.str );

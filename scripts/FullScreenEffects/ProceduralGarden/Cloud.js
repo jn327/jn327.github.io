@@ -4,13 +4,13 @@ function Cloud()
   GameObject.call(this);
 
   this.minScale = 0.33;
-  this.maxScale = 1.66;
+  this.maxScale = 1;
   this.moveSpeed;
   this.moveSpeedMax = 2200;
   this.moveSpeedMin = 1600;
 
-  this.width = 150;
-  this.height = 40;
+  this.width = 200;
+  this.height = 60;
 
   this.minNoiseScaleX = 0.33;
   this.minNoiseScaleY = 0.33;
