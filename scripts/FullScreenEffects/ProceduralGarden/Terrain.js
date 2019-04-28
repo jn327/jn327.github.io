@@ -129,6 +129,7 @@ function Terrain()
 
     this.valleyEdgePointsUp    = [];
     this.valleyEdgePointsDown  = [];
+
     PlantsManager.reset();
 
     //draw the river and valley pixel by pixel...
@@ -198,7 +199,7 @@ function Terrain()
 
         for (var x = leftX; x <= rightX; x += xSampleSize)
         {
-          if (xCounter == 0 && x > 0 && x < plantsCanvas.width)
+          if (xCounter == 0 && x > 0 && x < this.canvas.width)
           {
             var riverDistN = undefined; // how close we are to the edge of the river, 0 being the center
             var valleyDistN = undefined; // how close we are to the edge of the valley, 0 being river edge
@@ -260,17 +261,22 @@ function Terrain()
                 }
 
                 //TODO: less random, maybe use a bit of perlin???
-                if ( Math.random() > 0.95 )
+                /*if ( Math.random() > 0.95 )
                 {
                   var palm = new Palm();
                   thePlants.push(palm);
-                }
+                }*/
               }
 
               if ( thePlants.length <= 0 && (riverDistN != undefined || valleyDistN != undefined) )
               {
                 var reed = new Reed();
                 thePlants.push(reed);
+
+                if (riverDistN != undefined)
+                {
+                  this.river.plants.push(reed);
+                }
               }
 
               if (thePlants.length > 0)
@@ -294,7 +300,8 @@ function Terrain()
     }
 
     // build a path and draw the valley & river!
-    this.fillLayeredShape( 4, this.valleyColorStart, this.valleyColorEnd, this.valleyOpacity, this.river.midPointsUp, this.river.midPointsDown, this.valleyEdgePointsUp, this.valleyEdgePointsDown, riverStartY, riverEndY, this.valleyColorStart );
+    var valleyColorPlants = [57, 114, 56]; //[103, 165, 96];
+    this.fillLayeredShape( 4, this.valleyColorStart, this.valleyColorEnd, this.valleyOpacity, this.river.midPointsUp, this.river.midPointsDown, this.valleyEdgePointsUp, this.valleyEdgePointsDown, riverStartY, riverEndY, valleyColorPlants );
     this.fillLayeredShape( 4, this.riverColorEnd, this.riverColorStart, this.riverOpacity, this.river.midPointsUp, this.river.midPointsDown, this.river.edgePointsUp, this.river.edgePointsDown, riverStartY, riverEndY, this.riverColorEnd );
 
     PlantsManager.drawStaticPlants(this.plantsCtx);
@@ -314,8 +321,8 @@ function Terrain()
       //gradient the color as we go up/down in y!
       var grd = this.ctx.createLinearGradient(0, startY, 0, endY);
       var grdOpacity = EasingUtil.easeOutQuad(opacity, 0, 1, 1);
-      grd.addColorStop(0, 'rgba('+grdColor[0]+','+grdColor[1]+','+grdColor[2]+', '+grdOpacity+')');
-      grd.addColorStop(0.25, 'rgba('+color[0]+','+color[1]+','+color[2]+', '+opacity+')');
+      grd.addColorStop(0.11, 'rgba('+grdColor[0]+','+grdColor[1]+','+grdColor[2]+', '+grdOpacity+')');
+      grd.addColorStop(0.33, 'rgba('+color[0]+','+color[1]+','+color[2]+', '+opacity+')');
 
       this.ctx.fillStyle = grd;
 

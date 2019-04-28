@@ -155,7 +155,7 @@ function update()
     fadeOutTimer = 0;
 
     resetBgCanvas();
-    activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+    //activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
 
     initVectorField();
     resetParticles();
@@ -211,7 +211,7 @@ function resetBgCanvas()
 
 function renderCanvas()
 {
-  activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+  //activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
 
   var particleHue = theHue; //(theHue+180) % 360;
   bgCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,98%,0.033)';
@@ -257,9 +257,9 @@ function renderCanvas()
     bgCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
     //bgCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
 
-    activeCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,98%,0.66)';
+    //activeCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,98%,0.66)';
     //activeCtx.fillStyle = 'rgba(255,255,255,1)';
-    activeCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
+    //activeCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
     //activeCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
   }
 
