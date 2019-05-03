@@ -37,6 +37,7 @@ function init()
     'FullScreenEffects/ProceduralGarden/Cloud', 'FullScreenEffects/ProceduralGarden/CloudsManager',
     'FullScreenEffects/ProceduralGarden/Plants', 'FullScreenEffects/ProceduralGarden/PlantsManager',
     'FullScreenEffects/ProceduralGarden/Stars', 'FullScreenEffects/ProceduralGarden/StarsManager',
+    'FullScreenEffects/ProceduralGarden/Creatures', 'FullScreenEffects/ProceduralGarden/CreatureManager',
     'FullScreenEffects/ProceduralGarden/River', 'FullScreenEffects/ProceduralGarden/Wind'
   ];
   CommonElementsCreator.appendScipts(includes);
