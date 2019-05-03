@@ -194,39 +194,63 @@ function PalmHead()
   this.height             = 100;
   this.windBendMultip     = 30;
 
-  this.nSpikesMin         = 10;
-  this.nSpikesMax         = 14;
-  this.pointsMultipMin    = 2;
-  this.pointsMultipMax    = 8;
+  this.nSpikesMin         = 5;
+  this.nSpikesMax         = 8;
+  this.pointsUpMin        = 3;
+  this.pointsUpMax        = 4;
+  this.pointsDownMin      = 3;
+  this.pointsDownMax      = 4;
+
+  this.angleMin = 240;
+  this.angleMax = 260;
 
   this.buildPoints = function()
   {
     var noise = new SimplexNoise();
 
-    var nSpikes = Math.getRnd(this.nSpikesMin, this.nSpikesMax);
-    nSpikes = Math.roundMultip(nSpikes, 2);
+    var nSpikes       = Math.getRnd(this.nSpikesMin, this.nSpikesMax);
+    var totalAngle    = Math.degreesToRad(Math.getRnd(this.angleMin, this.angleMax));
+    var anglePerSpike = totalAngle / nSpikes;
+    var startAngle    = (Math.PI - totalAngle) * 0.66;
 
-    var pointsMultip = Math.round(Math.scaleNormal(this.scale, this.pointsMultipMin, this.pointsMultipMax));
-    var nPoints = nSpikes * pointsMultip;
+    var pointsUp    = Math.round(Math.scaleNormal(this.scale, this.pointsUpMin, this.pointsUpMax));
+    var pointsDown  = Math.round(Math.scaleNormal(this.scale, this.pointsDownMin, this.pointsDownMax));
+    var totalPoints = pointsUp + pointsDown;
 
-    for (var i = 0; i < nPoints; i++)
+    for (var i = 0; i < nSpikes; i++)
     {
-      var angleN = i / (nPoints-1);
-      var t = angleN * Math.PI;
+      var spikeAngle = startAngle + (anglePerSpike * i);
 
-      var sizeScale = 0.5 + (-Math.cos(nSpikes*t) * 0.5);
-      sizeScale = EasingUtil.easeOutQuart(sizeScale, 0.2, 0.8, 1);
-      //sizeScale = 1;
+      var anglePerPoint = anglePerSpike / totalPoints;
 
-      var xCos = Math.cos(t);
-      var ySin = Math.sin(t);
+      for (var n = 0; n < totalPoints + 1; n++)
+      {
+        var t = 0;
+        var pointAngle = spikeAngle + (anglePerPoint * n);
 
-      var xAbs = Math.abs(xCos);
+        if (n < totalPoints)
+        {
+          if (n < pointsUp)
+          {
+            t = n / (pointsUp - 1);
+          }
+          else
+          {
+            //t = 1 - ((n - pointsUp) / (pointsDown - 1)); //This is if you're going down similarly to going up, will have to get rid of the + 1 in the for loop
+            t = ((n - (pointsUp-1)) / (pointsDown - 1));
+          }
+        }
 
-      var x	=	sizeScale * ((xCos * 0.5) + (xCos * 0.5 * EasingUtil.easeInSine(ySin, 0.5, 1, 1)));
-      var y	=	(sizeScale * ySin) - EasingUtil.easeInSine((xAbs * sizeScale), 0.15, 0.75, 1);
+        var sizeScale = Math.scaleNormal(t, 0.33, 1);
 
-      this.points.push(new Vector2D(x, y));
+        var xCos = Math.cos(pointAngle);
+        var ySin = Math.sin(pointAngle);
+
+        var x	=	sizeScale * xCos;
+        var y	=	sizeScale * ySin;
+
+        this.points.push(new Vector2D(x, y));
+      }
     }
   }
 }
@@ -317,34 +341,55 @@ function Grass()
   this.dynamicScaleMin    = 0.33;
 
   this.nSpikesMin         = 6;
-  this.nSpikesMax         = 10;
-  this.pointsMultipMin    = 2;
-  this.pointsMultipMax    = 4;
+  this.nSpikesMax         = 9;
+  this.pointsUpMin        = 3;
+  this.pointsUpMax        = 4;
+  this.pointsDownMin      = 3;
+  this.pointsDownMax      = 4;
 
   this.buildPoints = function()
   {
     var noise = new SimplexNoise();
-    var nSpikes = Math.getRnd(this.nSpikesMin, this.nSpikesMax) * 2;
-    nSpikes = Math.roundMultip(nSpikes, 2);
 
-    var pointsMultip = Math.round(Math.scaleNormal(this.scale, this.pointsMultipMin, this.pointsMultipMax));
-    var nPoints = nSpikes * pointsMultip;
+    var nSpikes       = Math.getRnd(this.nSpikesMin, this.nSpikesMax);
+    var totalAngle    = Math.PI;
+    var anglePerSpike = totalAngle / nSpikes;
+    var startAngle    = 0;
 
-    for (var i = 0; i < nPoints; i++)
+    var pointsUp    = Math.round(Math.scaleNormal(this.scale, this.pointsUpMin, this.pointsUpMax));
+    var pointsDown  = Math.round(Math.scaleNormal(this.scale, this.pointsDownMin, this.pointsDownMax));
+    var totalPoints = pointsUp + pointsDown;
+
+    for (var i = 0; i < nSpikes; i++)
     {
-      var angleN = i / (nPoints-1);
-      var t = angleN * Math.PI;
+      var spikeAngle = startAngle + (anglePerSpike * i);
 
-      var sizeScale = 0.5 + (-Math.cos(nSpikes*t) * 0.5);
-      sizeScale = EasingUtil.easeInSine(sizeScale, 0.25, 0.75, 1);
+      var anglePerPoint = anglePerSpike / totalPoints;
 
-      var xCos = Math.cos(t);
-      var ySin = Math.sin(t);
+      for (var n = 0; n < totalPoints; n++)
+      {
+        var t = 0;
+        var pointAngle = spikeAngle + (anglePerPoint * n);
 
-      var x	=	sizeScale * xCos * EasingUtil.easeOutSine(ySin, 0.5, 0.5, 1);
-      var y	=	sizeScale * ySin;
+        if (n < pointsUp)
+        {
+          t = n / (pointsUp - 1);
+        }
+        else
+        {
+          t = 1 - ((n - pointsUp-1) / (pointsDown - 1));
+        }
 
-      this.points.push(new Vector2D(x, y));
+        var sizeScale = Math.scaleNormal(t, 0.33, 1);
+
+        var xCos = Math.cos(pointAngle);
+        var ySin = Math.sin(pointAngle);
+
+        var x	=	sizeScale * xCos;
+        var y	=	sizeScale * ySin;
+
+        this.points.push(new Vector2D(x, y));
+      }
     }
   }
 }

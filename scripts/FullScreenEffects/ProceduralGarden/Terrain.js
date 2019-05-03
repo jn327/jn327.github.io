@@ -261,11 +261,11 @@ function Terrain()
                 }
 
                 //TODO: less random, maybe use a bit of perlin???
-                /*if ( Math.random() > 0.95 )
+                if ( Math.random() > 0.95 )
                 {
                   var palm = new Palm();
                   thePlants.push(palm);
-                }*/
+                }
               }
 
               if ( thePlants.length <= 0 && (riverDistN != undefined || valleyDistN != undefined) )
