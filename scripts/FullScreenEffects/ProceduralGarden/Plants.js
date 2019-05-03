@@ -211,7 +211,7 @@ function PalmHead()
     var nSpikes       = Math.getRnd(this.nSpikesMin, this.nSpikesMax);
     var totalAngle    = Math.degreesToRad(Math.getRnd(this.angleMin, this.angleMax));
     var anglePerSpike = totalAngle / nSpikes;
-    var startAngle    = (Math.PI - totalAngle) * 0.66;
+    var startAngle    = (Math.PI - totalAngle) * 0.5;
 
     var pointsUp    = Math.round(Math.scaleNormal(this.scale, this.pointsUpMin, this.pointsUpMax));
     var pointsDown  = Math.round(Math.scaleNormal(this.scale, this.pointsDownMin, this.pointsDownMax));
@@ -335,8 +335,8 @@ function Grass()
   //Call our prototype
   PointPlant.call(this);
 
-  this.width              = 50;
-  this.height             = 100;
+  this.width              = 40;
+  this.height             = 50;
   this.windBendMultip     = 30;
   this.dynamicScaleMin    = 0.33;
 
@@ -347,14 +347,17 @@ function Grass()
   this.pointsDownMin      = 3;
   this.pointsDownMax      = 4;
 
+  this.angleMin = 120;
+  this.angleMax = 180;
+
   this.buildPoints = function()
   {
     var noise = new SimplexNoise();
 
     var nSpikes       = Math.getRnd(this.nSpikesMin, this.nSpikesMax);
-    var totalAngle    = Math.PI;
+    var totalAngle    = Math.degreesToRad(Math.getRnd(this.angleMin, this.angleMax));
     var anglePerSpike = totalAngle / nSpikes;
-    var startAngle    = 0;
+    var startAngle    = (Math.PI - totalAngle) * 0.5;
 
     var pointsUp    = Math.round(Math.scaleNormal(this.scale, this.pointsUpMin, this.pointsUpMax));
     var pointsDown  = Math.round(Math.scaleNormal(this.scale, this.pointsDownMin, this.pointsDownMax));
@@ -380,7 +383,7 @@ function Grass()
           t = 1 - ((n - pointsUp-1) / (pointsDown - 1));
         }
 
-        var sizeScale = Math.scaleNormal(t, 0.33, 1);
+        var sizeScale = EasingUtil.easeInQuad(t, 0.33, 0.77, 1);
 
         var xCos = Math.cos(pointAngle);
         var ySin = Math.sin(pointAngle);

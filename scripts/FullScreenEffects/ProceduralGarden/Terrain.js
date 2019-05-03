@@ -20,14 +20,12 @@ function Terrain()
 
   this.river                    = new River();
   this.riverStartPoint;         //used to figure out were to start the river
-  this.riverOpacity             = 0.5;
+  this.riverOpacity             = 0.33;
   this.riverWMin                = 350;
   this.riverWMax                = 500;
   this.riverEndW                = 2;
   this.riverNoiseFreq           = 0.01;
   this.riverOffsetMultip        = 200;
-  this.riverColorStart          = [184, 231, 255];
-  this.riverColorEnd            = [53, 154, 255];
 
   this.valleyEdgePointsUp       = [];
   this.valleyEdgePointsDown     = [];
@@ -302,7 +300,7 @@ function Terrain()
     // build a path and draw the valley & river!
     var valleyColorPlants = [57, 114, 56]; //[103, 165, 96];
     this.fillLayeredShape( 4, this.valleyColorStart, this.valleyColorEnd, this.valleyOpacity, this.river.midPointsUp, this.river.midPointsDown, this.valleyEdgePointsUp, this.valleyEdgePointsDown, riverStartY, riverEndY, valleyColorPlants );
-    this.fillLayeredShape( 4, this.riverColorEnd, this.riverColorStart, this.riverOpacity, this.river.midPointsUp, this.river.midPointsDown, this.river.edgePointsUp, this.river.edgePointsDown, riverStartY, riverEndY, this.riverColorEnd );
+    this.fillLayeredShape( 4, this.river.colorEnd, this.river.colorStart, this.riverOpacity, this.river.midPointsUp, this.river.midPointsDown, this.river.edgePointsUp, this.river.edgePointsDown, riverStartY, riverEndY, this.river.colorEnd );
 
     PlantsManager.drawStaticPlants(this.plantsCtx);
   }

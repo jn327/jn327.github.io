@@ -7,6 +7,9 @@ function River()
 
   this.plants           = [];
 
+  this.colorStart       = [184, 231, 255];
+  this.colorEnd         = [53, 154, 255];
+
   this.reset = function()
   {
     this.midPointsUp     = [];
@@ -54,12 +57,19 @@ function River()
 
       ctx.strokeStyle = grd;
 
+      var fillGrd = ctx.createLinearGradient(0, gradientStart, 0, gradientEnd);
+      fillGrd.addColorStop(0.1, "rgba("+this.colorStart[0] +","+this.colorStart[1] +","+this.colorStart[2] +",0)" );
+      fillGrd.addColorStop(1, "rgba("+this.colorStart[0] +","+this.colorStart[1] +","+this.colorStart[2] +","+ (0.5 * theAlpha)+")" );
+
+      ctx.fillStyle = fillGrd;
+
       //get on to the drawing
       ctx.beginPath();
       var thePath = new Path2D();
       thePath = PathUtil.createPath(this.midPointsUp, thePath, this.edgePointsUp, widthMultip);
       thePath = PathUtil.createPath(this.midPointsDown, thePath, this.edgePointsDown, widthMultip);
 
+      ctx.fill(thePath);
       ctx.stroke(thePath);
     }
   }
