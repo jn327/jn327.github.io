@@ -5,8 +5,8 @@ function Sky()
 
   this.brightness       = 0;
 
-  this.lightenTime      = 0.075;
-  this.darkenTime       = 0.925;
+  this.lightenTime      = 0.1;
+  this.darkenTime       = 0.9;
   this.colorDay         = [183, 231, 255];
   this.colorNight       = [28, 19, 25];
 

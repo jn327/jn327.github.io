@@ -10,7 +10,7 @@ var hueNoiseScale = 0.0005;
 var vectorField;
 var vectorFieldMinStr     = 0.25;
 var vectorFieldMaxStr     = 1;
-var vectorFieldStrMultip  = 330;
+var vectorFieldStrMultip  = 1.5;
 
 var pixelSizeX = 8;
 var pixelSizeY = 8;
@@ -133,6 +133,10 @@ function setupParticle(theParticle)
   theParticle.position.y = Math.random() * lastPixelY;
   theParticle.scale = particleSize;
 
+  // add some random force...
+  var randForce = vectorFieldStrMultip * 0.66;
+  theParticle.addForce(Math.getRnd(-1,1) * randForce, Math.getRnd(-1,1) * randForce);
+
   return theParticle;
 }
 
@@ -214,7 +218,7 @@ function renderCanvas()
   //activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
 
   var particleHue = theHue; //(theHue+180) % 360;
-  bgCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,98%,0.033)';
+  bgCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,98%,0.03)';
 
   var particle;
   var xPos;

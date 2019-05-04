@@ -16,8 +16,7 @@ function Particle()
 
   this.update = function()
   {
-    this.position.x += this.velocity.x * GameLoop.deltaTime;
-    this.position.y += this.velocity.y * GameLoop.deltaTime;
+    this.position = this.position.sum(this.velocity);
 
     var deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
     this.velocity.multiply(1 - deltaFriction);

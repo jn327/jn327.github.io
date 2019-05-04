@@ -3,7 +3,8 @@ var skyCanvas, skyCtx;
 var terrainCanvas, terrainCtx;
 var effectsCanvas, effectsCtx;
 var plantsCanvas, plantsCtx;
-var activeCanvas, activeCtx;
+var activePlantsCanvas, activePlantsCtx;
+var creatureCanvas, creatureCtx;
 
 var skyUpdateFreq            = 0.033;
 var skyUpdateTimer           = skyUpdateFreq;
@@ -11,6 +12,8 @@ var effectsUpdateFreq        = 0.033;
 var effectsUpdateTimer       = effectsUpdateFreq;
 var plantsUpdateFreq         = 0.066;
 var plantsUpdateTimer        = plantsUpdateFreq;
+var creatureUpdateFreq       = 0.04;
+var creatureUpdateTimer      = creatureUpdateFreq;
 
 var dayDur                   = 45;
 var dayTimer                 = dayDur * 0.5;
@@ -53,24 +56,29 @@ function start()
 
   sky.init( dayDur, skyCtx, skyCanvas );
   terrain.init( terrainCtx, terrainCanvas, plantsCtx );
+
+  CreatureManager.init( creatureCanvas, terrain );
 }
 
 function initCanvas()
 {
-  activeCanvas   = CommonElementsCreator.createCanvas();
-  activeCtx      = activeCanvas.getContext('2d');
+  activePlantsCanvas  = CommonElementsCreator.createCanvas();
+  activePlantsCtx     = activePlantsCanvas.getContext('2d');
 
-  plantsCanvas   = CommonElementsCreator.createCanvas();
-  plantsCtx      = plantsCanvas.getContext('2d');
+  plantsCanvas        = CommonElementsCreator.createCanvas();
+  plantsCtx           = plantsCanvas.getContext('2d');
 
-  effectsCanvas  = CommonElementsCreator.createCanvas();
-  effectsCtx     = effectsCanvas.getContext('2d');
+  creatureCanvas      = CommonElementsCreator.createCanvas();
+  creatureCtx         = creatureCanvas.getContext('2d');
 
-  terrainCanvas  = CommonElementsCreator.createCanvas();
-  terrainCtx     = terrainCanvas.getContext('2d');
+  effectsCanvas       = CommonElementsCreator.createCanvas();
+  effectsCtx          = effectsCanvas.getContext('2d');
 
-  skyCanvas      = CommonElementsCreator.createCanvas();
-  skyCtx         = skyCanvas.getContext('2d');
+  terrainCanvas       = CommonElementsCreator.createCanvas();
+  terrainCtx          = terrainCanvas.getContext('2d');
+
+  skyCanvas           = CommonElementsCreator.createCanvas();
+  skyCtx              = skyCanvas.getContext('2d');
 
   validateCanvasSize();
 }
@@ -81,7 +89,7 @@ function validateCanvasSize()
   var minScaleV = 600;
   var minScaleH = 400;
 
-  return CanvasScaler.updateCanvasSize( [skyCanvas, terrainCanvas, effectsCanvas, plantsCanvas, activeCanvas],
+  return CanvasScaler.updateCanvasSize( [skyCanvas, terrainCanvas, effectsCanvas, creatureCanvas, plantsCanvas, activePlantsCanvas],
     maxScale, minScaleV, minScaleH );
 }
 
@@ -98,6 +106,8 @@ function update()
 
     sky.reset();
     terrain.reset();
+
+    CreatureManager.reset( creatureCanvas, terrain );
   }
 
   //update the current time of day.
@@ -135,6 +145,16 @@ function update()
     terrain.updateAndDrawEffects(tod, effectsCtx, effectsCanvas);
   }
 
+  //update the creatures...
+  creatureUpdateTimer += GameLoop.deltaTime;
+  if (creatureUpdateTimer > creatureUpdateFreq)
+  {
+    creatureUpdateTimer = 0;
+
+    creatureCtx.clearRect(0, 0, creatureCanvas.width, creatureCanvas.height);
+    CreatureManager.updateAndDraw( tod, creatureCtx, creatureCanvas, wind.str, sky.brightness, terrain );
+  }
+
   //update the plants
   var windStrDelta = Math.abs(lastPlantsUpdateWind - wind.str);
   var bPlantsNeedUpdating = windStrDelta > 0.0066;
@@ -145,9 +165,10 @@ function update()
     plantsUpdateTimer = 0;
     lastPlantsUpdateWind = wind.str;
 
-    activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
-    PlantsManager.updateAndDrawPlants( tod, activeCtx, wind.str );
+    activePlantsCtx.clearRect(0, 0, activePlantsCanvas.width, activePlantsCanvas.height);
+    PlantsManager.updateAndDrawPlants( tod, activePlantsCtx, wind.str );
   }
+
 }
 
 function tintMidground()
@@ -159,7 +180,7 @@ function tintMidground()
   terrainCanvas.style.filter = theFilter;
   effectsCanvas.style.filter = theFilter;
   plantsCanvas.style.filter = theFilter;
-  activeCanvas.style.filter = theFilter;
+  activePlantsCanvas.style.filter = theFilter;
 }
 
 //------------------------------------------------

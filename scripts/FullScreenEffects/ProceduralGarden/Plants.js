@@ -31,7 +31,7 @@ Plant.prototype.init = function( scale, pos )
 
 Plant.prototype.update = function( t )
 {
-  if (this.lifeTime != 1) { return; }
+  if (this.lifeTime >= 1) { return; }
 
   var tDelta = (t < this.prevUpdateT) ? (t + (1 - this.prevUpdateT)) : t - this.prevUpdateT;
   this.prevUpdateT = t;

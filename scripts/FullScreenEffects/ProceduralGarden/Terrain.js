@@ -27,6 +27,9 @@ function Terrain()
   this.riverNoiseFreq           = 0.01;
   this.riverOffsetMultip        = 200;
 
+  this.riverSampleSizeX         = 1;
+  this.riverSampleSizeY         = 1;
+
   this.valleyEdgePointsUp       = [];
   this.valleyEdgePointsDown     = [];
   this.valleyOpacity            = 0.33;
@@ -35,6 +38,8 @@ function Terrain()
   this.valleyEndW               = 5;
   this.valleyColorStart         = [73, 153, 103];
   this.valleyColorEnd           = [153, 117, 73];
+
+  this.valleyEdgesByY           = [];
 
   this.init = function( theCtx, theCanvas, plantsCtx )
   {
@@ -110,7 +115,7 @@ function Terrain()
           && thePoint.x > 0 && thePoint.x < this.canvas.width)
         {
           this.riverStartPoint.x = thePoint.x;
-          this.riverStartPoint.y = thePoint.y;
+          this.riverStartPoint.y = Math.round(thePoint.y);
         }
 
         this.ctx.lineTo(thePoint.x, thePoint.y);
@@ -127,21 +132,18 @@ function Terrain()
 
     this.valleyEdgePointsUp    = [];
     this.valleyEdgePointsDown  = [];
+    this.valleyEdgesByY        = [];
 
     PlantsManager.reset();
-
-    //draw the river and valley pixel by pixel...
-    var xSampleSize = 1;
-    var ySampleSize = 1;
 
     //river points sample size
     var riverPointsFreq = 10;
     var riverPointsCounter = 0;
 
-    var plantFreqX = 3;
-    var xCounter = 0;
-    var plantFreqY = 1;
-    var yCounter = 0;
+    var plantFreqX  = 3;
+    var xCounter    = 0;
+    var plantFreqY  = 1;
+    var yCounter    = 0;
 
     var riverStartX = this.riverStartPoint.x;
     var edgeOffset  = 0.33;
@@ -149,12 +151,12 @@ function Terrain()
     var riverXDelta = riverEndX - riverStartX;
 
     var riverStartY = this.riverStartPoint.y;
-    var riverEndY   = this.canvas.height + ySampleSize;
+    var riverEndY   = this.canvas.height + this.riverSampleSizeY;
 
     var riverStartW   = Math.getRnd(this.riverWMin, this.riverWMax);
     var valleyStartW  = Math.getRnd(this.valleyWMin, this.valleyWMax);
 
-    for (var y = riverStartY; y <= riverEndY; y += ySampleSize)
+    for (var y = riverStartY; y <= riverEndY; y += this.riverSampleSizeY)
     {
       var yNormal = Math.minMaxNormal(y, riverStartY, riverEndY);
 
@@ -176,11 +178,13 @@ function Terrain()
       var riverLeftX    = midX - easedRiverW;
       var riverRightX   = midX + easedRiverW;
 
+      this.valleyEdgesByY[y] = [leftX, rightX];
+
       if( riverPointsCounter == 0 || (y >= this.canvas.height) )
       {
-        var pointMid = new Vector2D(midX, y);
-        var pointLeft = new Vector2D(-easedRiverW, 0);
-        var pointRight = new Vector2D(easedRiverW, 0);
+        var pointMid    = new Vector2D(midX, y);
+        var pointLeft   = new Vector2D(-easedRiverW, 0);
+        var pointRight  = new Vector2D(easedRiverW, 0);
         this.river.addPoints(pointMid, pointLeft, pointRight);
 
         this.valleyEdgePointsUp.push(new Vector2D(-valleyW, 0));
@@ -195,7 +199,7 @@ function Terrain()
         var minPlantScale = 0.01;
         var scaleN = EasingUtil.easeInQuad(yNormal, minPlantScale, 1-minPlantScale, 1);
 
-        for (var x = leftX; x <= rightX; x += xSampleSize)
+        for (var x = leftX; x <= rightX; x += this.riverSampleSizeX)
         {
           if (xCounter == 0 && x > 0 && x < this.canvas.width)
           {
@@ -303,6 +307,13 @@ function Terrain()
     this.fillLayeredShape( 4, this.river.colorEnd, this.river.colorStart, this.riverOpacity, this.river.midPointsUp, this.river.midPointsDown, this.river.edgePointsUp, this.river.edgePointsDown, riverStartY, riverEndY, this.river.colorEnd );
 
     PlantsManager.drawStaticPlants(this.plantsCtx);
+  }
+
+  this.getValleyEdgesForY = function( yPos )
+  {
+    var yRounded    = Math.roundMultip( yPos, this.riverSampleSizeY );
+    var valleyEdges = this.valleyEdgesByY[yRounded];
+    return valleyEdges;
   }
 
   this.fillLayeredShape = function( nLoops, colorStart, colorEnd, opacity, midUp, midDown, edgeUp, edgeDown, startY, endY, grdColor )
