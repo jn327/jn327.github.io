@@ -1,5 +1,6 @@
 //HTML Elements
 var bgCanvas, bgCtx;
+var fgCanvas, fgCtx;
 
 var todSliderInput;
 var dayDur                   = 45;
@@ -45,11 +46,21 @@ function start()
   animCurves[3].addKeyFrame(0, 0);
   animCurves[3].addKeyFrame(0.5, 1, EasingUtil.easeInSine);
   animCurves[3].addKeyFrame(1, 0, EasingUtil.easeOutSine);
+
+  animCurves[4] = new AnimationCurve();
+  animCurves[4].addKeyFrame(0, 0);
+  animCurves[4].addKeyFrame(0.25, 1, EasingUtil.easeInSine);
+  animCurves[4].addKeyFrame(0.5, 0, EasingUtil.easeOutSine);
+  animCurves[4].addKeyFrame(0.75, 1, EasingUtil.easeInSine);
+  animCurves[4].addKeyFrame(1, 0, EasingUtil.easeOutSine);
   drawCurves();
 }
 
 function initCanvas()
 {
+  fgCanvas  = CommonElementsCreator.createCanvas();
+  fgCtx     = fgCanvas.getContext('2d');
+
   bgCanvas  = CommonElementsCreator.createCanvas();
   bgCtx     = bgCanvas.getContext('2d');
 
@@ -62,7 +73,7 @@ function validateCanvasSize()
   var minScaleV = 600;
   var minScaleH = 400;
 
-  return CanvasScaler.updateCanvasSize( [bgCanvas],
+  return CanvasScaler.updateCanvasSize( [bgCanvas, fgCanvas],
     maxScale, minScaleV, minScaleH );
 }
 
@@ -90,6 +101,23 @@ function update()
   updateTodSlider();
 
   //draw points on anim curve for t.
+  fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
+
+  var l = animCurves.length;
+  var theCurve;
+  var pos;
+  var circleW = 10;
+  for (var i = 0; i < l; i++)
+  {
+    theCurve = animCurves[i];
+    pos = getCurvePos(tod, theCurve);
+
+    fgCtx.fillStyle = "rgba(0, 0, 0, 0.25)";
+    fgCtx.beginPath();
+    fgCtx.arc(pos.x, pos.y, circleW, 0, 2 * Math.PI);
+    fgCtx.fill();
+
+  }
 }
 
 function drawCurves()
@@ -111,30 +139,30 @@ function drawCurves()
 
     bgCtx.beginPath();
 
+    var pos;
     for (var t = 0; t <= 1; t+= curveStep)
     {
-      moveToT(t, theCurve);
+      pos = getCurvePos(t, theCurve);
+      if (t == 0)
+      {
+        bgCtx.moveTo(pos.x,pos.y);
+      }
+      else
+      {
+        bgCtx.lineTo(pos.x,pos.y);
+      }
     }
-    moveToT(1, theCurve);
+
+    pos = getCurvePos(1, theCurve);
+    bgCtx.lineTo(pos.x,pos.y);
 
     bgCtx.stroke();
   }
 }
 
-function moveToT(t, theCurve)
+function getCurvePos(t, theCurve)
 {
-  var x = t * bgCanvas.width;
-  //1-val because canvas starts at top left and we want to draw from bottom left
-  var y = (1 - theCurve.evaluate(t)) * bgCanvas.height;
-
-  if (t == 0)
-  {
-    bgCtx.moveTo(x,y);
-  }
-  else
-  {
-    bgCtx.lineTo(x,y);
-  }
+  return new Vector2D(t * bgCanvas.width, (1 - theCurve.evaluate(t)) * bgCanvas.height);
 }
 
 //------------------------------------------------
