@@ -15,6 +15,7 @@ var plantsUpdateTimer        = plantsUpdateFreq;
 var creatureUpdateFreq       = 0.04;
 var creatureUpdateTimer      = creatureUpdateFreq;
 
+var todSliderInput;
 var dayDur                   = 45;
 var dayTimer                 = dayDur * 0.5;
 var tod                      = 0; //0-1
@@ -49,6 +50,7 @@ function init()
 function start()
 {
   initCanvas();
+  createTodSlider();
 
   sky     = new Sky();
   terrain = new Terrain();
@@ -117,8 +119,10 @@ function update()
     dayTimer = 0;
   }
 
-  var prevTod = tod;
   tod = dayTimer / dayDur;
+
+  //update the slider
+  updateTodSlider();
 
   //update the wind
   wind.update( dayDur );
@@ -184,7 +188,41 @@ function tintMidground()
 }
 
 //------------------------------------------------
-//                    Mouse events
+//                   sliders
+//------------------------------------------------
+function createTodSlider()
+{
+  //Create a slider!
+  /* <div class="slidercontainer">
+    <input type="range" min="0" max="1" value="0" class="slider" id="todSlider">
+  </div> */
+  var parentElement             = document.body;
+  var sliderContainerDiv        = document.createElement('div');
+  sliderContainerDiv.className  = "todSliderContainer";
+  parentElement.appendChild( sliderContainerDiv );
+
+  todSliderInput            = document.createElement('input');
+  todSliderInput.type       = "range";
+  todSliderInput.min        = 0;
+  todSliderInput.max        = 100;
+  todSliderInput.value      = 0;
+  todSliderInput.className  = "todSlider";
+  sliderContainerDiv.appendChild( todSliderInput );
+  todSliderInput.addEventListener('input', onTodSliderChange);
+}
+
+function onTodSliderChange()
+{
+  dayTimer = (todSliderInput.value / 100) * dayDur;
+}
+
+function updateTodSlider()
+{
+  todSliderInput.value = tod * 100;
+}
+
+//------------------------------------------------
+//                  Mouse events
 //------------------------------------------------
 function onMouseDown()
 {
