@@ -10,7 +10,7 @@ function Creature()
   this.colorDay   = [103, 104, 96];
   this.colorNight = [215, 244, 66];
 
-  this.size = 3;
+  this.size = 4;
   this.scaleMultip = 1;
 
   this.lifeTime           = 0;
@@ -60,6 +60,12 @@ function Firefly()
 
   this.friction = 1; //loose this percentage * 100 every second.
   //this.velocityNoise = new SimplexNoise(); // TODO: for velocity changes...
+
+  this.sizeChangeCurve = new AnimationCurve();
+  this.sizeChangeCurve.addKeyFrame(0, 1);
+  this.sizeChangeCurve.addKeyFrame(1, 0);
+  this.sizeChangeMin = 0.5;
+  this.sizeChangeMax = 1;
 
   this.init = function( theCanvas, terrain )
   {
@@ -146,16 +152,19 @@ function Firefly()
   {
     this.color = ColorUtil.lerp(skyBrightness, this.colorNight, this.colorDay);
 
+    var brightnessScaleMultip = this.sizeChangeCurve.evaluate(skyBrightness);
+    brightnessScaleMultip = Math.scaleNormal(brightnessScaleMultip, this.sizeChangeMin, this.sizeChangeMax);
+
     Creature.prototype.draw.call( this, ctx );
 
     ctx.fillStyle = "rgba( "+this.color[0] +", "+this.color[1] +", "+this.color[2] +", 0.66)";
 
-    var sizeMultip = this.scale * this.scaleMultip;
+    var sizeMultip = this.scale * this.scaleMultip * brightnessScaleMultip;
     var theSize = sizeMultip * this.size;
     var halfSize = theSize * 0.5;
 
     ctx.beginPath();
-    if (sizeMultip > 0.8)
+    if (sizeMultip > 0.75)
     {
       ctx.arc(this.position.x, this.position.y, halfSize, 0, 2 * Math.PI);
     }

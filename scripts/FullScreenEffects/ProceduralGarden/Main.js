@@ -195,7 +195,7 @@ function createTodSlider()
   //Create a slider!
   // <input type="range" min="0" max="1" value="0" class="slider" id="todSlider">
   var parentElement         = document.body;
-  
+
   todSliderInput            = document.createElement('input');
   todSliderInput.type       = "range";
   todSliderInput.min        = 0;

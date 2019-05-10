@@ -2,8 +2,8 @@
 var CreatureManager = {};
 
 CreatureManager.bugs     = [];
-CreatureManager.nBugsMin = 90;
-CreatureManager.nBugsMax = 130;
+CreatureManager.nBugsMin = 70;
+CreatureManager.nBugsMax = 100;
 
 CreatureManager.init = function( theCanvas, terrain )
 {
