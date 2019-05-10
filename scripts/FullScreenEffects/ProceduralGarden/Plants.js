@@ -190,19 +190,17 @@ function PalmHead()
   //Call our prototype
   PointPlant.call(this);
 
-  this.width              = 100;
-  this.height             = 100;
-  this.windBendMultip     = 30;
+  this.width          = 100;
+  this.height         = 100;
+  this.windBendMultip = 30;
 
-  this.nSpikesMin         = 5;
-  this.nSpikesMax         = 8;
-  this.pointsUpMin        = 3;
-  this.pointsUpMax        = 4;
-  this.pointsDownMin      = 3;
-  this.pointsDownMax      = 4;
+  this.nSpikesMin      = 5;
+  this.nSpikesMax      = 8;
+  this.pointsMin       = 6;
+  this.pointsMax       = 8;
 
-  this.angleMin = 240;
-  this.angleMax = 260;
+  this.angleMin        = 240;
+  this.angleMax        = 260;
 
   this.buildPoints = function()
   {
@@ -213,33 +211,30 @@ function PalmHead()
     var anglePerSpike = totalAngle / nSpikes;
     var startAngle    = (Math.PI - totalAngle) * 0.5;
 
-    var pointsUp    = Math.round(Math.scaleNormal(this.scale, this.pointsUpMin, this.pointsUpMax));
-    var pointsDown  = Math.round(Math.scaleNormal(this.scale, this.pointsDownMin, this.pointsDownMax));
-    var totalPoints = pointsUp + pointsDown;
+    var totalPoints = Math.round(Math.scaleNormal(this.scale, this.pointsMin, this.pointsMax));;
+
+    var pointsCurve = new AnimationCurve();
+    pointsCurve.addKeyFrame(0, 0);
+    pointsCurve.addKeyFrame(0.45, 1);
+    pointsCurve.addKeyFrame(0.5, 0.2);
+    pointsCurve.addKeyFrame(1, 0.8);
+
+    var lastPointsCurve = new AnimationCurve();
+    lastPointsCurve.addKeyFrame(0, 0);
+    lastPointsCurve.addKeyFrame(0.5, 1);
+    lastPointsCurve.addKeyFrame(1, 0);
 
     for (var i = 0; i < nSpikes; i++)
     {
-      var spikeAngle = startAngle + (anglePerSpike * i);
-
+      var spikeAngle    = startAngle + (anglePerSpike * i);
       var anglePerPoint = anglePerSpike / totalPoints;
 
-      for (var n = 0; n < totalPoints + 1; n++)
+      for (var n = 0; n < totalPoints; n++)
       {
-        var t = 0;
         var pointAngle = spikeAngle + (anglePerPoint * n);
 
-        if (n < totalPoints)
-        {
-          if (n < pointsUp)
-          {
-            t = n / (pointsUp - 1);
-          }
-          else
-          {
-            //t = 1 - ((n - pointsUp) / (pointsDown - 1)); //This is if you're going down similarly to going up, will have to get rid of the + 1 in the for loop
-            t = ((n - (pointsUp-1)) / (pointsDown - 1));
-          }
-        }
+        var t = n / (totalPoints-1);
+        t = n != (totalPoints-1) ? pointsCurve.evaluate(t) : lastPointsCurve.evaluate(t);
 
         var sizeScale = Math.scaleNormal(t, 0.33, 1);
 
@@ -342,10 +337,8 @@ function Grass()
 
   this.nSpikesMin         = 6;
   this.nSpikesMax         = 9;
-  this.pointsUpMin        = 3;
-  this.pointsUpMax        = 4;
-  this.pointsDownMin      = 3;
-  this.pointsDownMax      = 4;
+  this.pointsMin          = 6;
+  this.pointsMax          = 8;
 
   this.angleMin = 120;
   this.angleMax = 180;
@@ -359,9 +352,12 @@ function Grass()
     var anglePerSpike = totalAngle / nSpikes;
     var startAngle    = (Math.PI - totalAngle) * 0.5;
 
-    var pointsUp    = Math.round(Math.scaleNormal(this.scale, this.pointsUpMin, this.pointsUpMax));
-    var pointsDown  = Math.round(Math.scaleNormal(this.scale, this.pointsDownMin, this.pointsDownMax));
-    var totalPoints = pointsUp + pointsDown;
+    var totalPoints = Math.round(Math.scaleNormal(this.scale, this.pointsMin, this.pointsMax));;
+
+    var pointsCurve = new AnimationCurve();
+    pointsCurve.addKeyFrame(0, 0);
+    pointsCurve.addKeyFrame(0.5, 1, EasingUtil.easeInQuad);
+    pointsCurve.addKeyFrame(1, 0, EasingUtil.easeOutQuad);
 
     for (var i = 0; i < nSpikes; i++)
     {
@@ -371,19 +367,11 @@ function Grass()
 
       for (var n = 0; n < totalPoints; n++)
       {
-        var t = 0;
         var pointAngle = spikeAngle + (anglePerPoint * n);
+        var t = n / (totalPoints-1);
+        t = pointsCurve.evaluate(t);
 
-        if (n < pointsUp)
-        {
-          t = n / (pointsUp - 1);
-        }
-        else
-        {
-          t = 1 - ((n - pointsUp-1) / (pointsDown - 1));
-        }
-
-        var sizeScale = EasingUtil.easeInQuad(t, 0.33, 0.77, 1);
+        var sizeScale = Math.scaleNormal(t, 0.33, 1);
 
         var xCos = Math.cos(pointAngle);
         var ySin = Math.sin(pointAngle);

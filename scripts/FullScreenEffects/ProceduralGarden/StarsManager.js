@@ -21,10 +21,17 @@ StarsManager.currShootingStar;
 StarsManager.startY                   = 0; //from top to bottom
 StarsManager.endY                     = 0.75;
 
+StarsManager.alphaChangeCurve;
+
 StarsManager.initStars = function( twinkleSpeedDivider, theWidth, theHeight )
 {
   this.stars = [];
   this.currShootingStar = new ShootingStar();
+
+  this.alphaChangeCurve = new AnimationCurve()
+  this.alphaChangeCurve.addKeyFrame(0, 0);
+  this.alphaChangeCurve.addKeyFrame(0.5, 1, EasingUtil.easeOutCubic);
+  this.alphaChangeCurve.addKeyFrame(1, 0, EasingUtil.easeInCubic);
 
   var spawnNoise = new SimplexNoise();
 
@@ -36,8 +43,8 @@ StarsManager.initStars = function( twinkleSpeedDivider, theWidth, theHeight )
     var starSize = (spawnNoise.noise(newStar.position.x * this.spawnNoiseScale
       ,newStar.position.y * this.spawnNoiseScale) + 1) * 0.5;
 
-    newStar.size = Math.scaleNormal(starSize, this.minStarSize, this.maxStarSize);
-    newStar.alphaOffset = Math.random() * this.alphaOffsetMultip;
+    newStar.size            = Math.scaleNormal(starSize, this.minStarSize, this.maxStarSize);
+    newStar.alphaOffset     = Math.random() * this.alphaOffsetMultip;
     newStar.alphaTimeMultip = (Math.random() * this.twinkleMultip) / twinkleSpeedDivider;
 
     this.stars[i] = newStar;
@@ -63,13 +70,11 @@ StarsManager.drawStars = function( t, ctx, theWidth, theHeight )
 {
   if (t < this.starsHideTime || t > this.starsShowTime)
   {
-    var timeMid = 0.5;
-    var totalStarsTime = this.starsHideTime + (1-this.starsShowTime);
-    var starsTime = (t < this.starsHideTime) ? this.starsHideTime - t : t - this.starsShowTime;
-    var nightTimeNormal = 1 - (starsTime / totalStarsTime);
+    var totalStarsTime  = this.starsHideTime + (1-this.starsShowTime);
+    var starsTime       = (t < this.starsHideTime) ? this.starsHideTime - t : t - this.starsShowTime;
+    var nightTimeNormal = (starsTime / totalStarsTime);
 
-    var nightTimeLerp = nightTimeNormal <= timeMid ? EasingUtil.easeOutCubic(nightTimeNormal, 0, 1, 0.5)
-      : EasingUtil.easeInCubic(nightTimeNormal-0.5, 1, -1, 0.5);
+    var nightTimeLerp = this.alphaChangeCurve.evaluate(nightTimeNormal);
 
     //draw some stars!!!
     var l = this.stars.length;

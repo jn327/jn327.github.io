@@ -10,27 +10,36 @@ function Moon()
   this.sizeMin    = 30;
   this.sizeMax    = 60;
 
+  this.sizeChangeCurve = new AnimationCurve();
+    this.sizeChangeCurve.addKeyFrame(0, 1);
+    this.sizeChangeCurve.addKeyFrame(0.5, 0, EasingUtil.easeOutCubic);
+    this.sizeChangeCurve.addKeyFrame(1, 1, EasingUtil.easeInCubic);
+
+  this.posChangeCurve = new AnimationCurve();
+    this.posChangeCurve.addKeyFrame(0, 1);
+    this.posChangeCurve.addKeyFrame(0.5, 0, EasingUtil.easeOutCubic);
+    this.posChangeCurve.addKeyFrame(1, 1, EasingUtil.easeInCubic);
+
   this.update = function( t, avblW, avblH )
   {
     this.visible = ( t >= this.riseTime || t <= this.setTime );
 
     if (this.visible)
     {
-      var moonTimeMid = 0.5;
       var totalMoonTime = this.setTime + (1-this.riseTime);
       var moonTime = (t < this.setTime) ? (1-this.riseTime) + t : t - this.riseTime;
       var moonTimeNormal = moonTime / totalMoonTime;
 
-      var moonTimeLerp = moonTimeNormal <= moonTimeMid ? EasingUtil.easeOutCubic(moonTimeNormal, 1, -1, 0.5)
-        : EasingUtil.easeInCubic(moonTimeNormal-0.5, 0, 1, 0.5);
+      var sizeN = this.sizeChangeCurve.evaluate(moonTimeNormal);
+      var posN = this.posChangeCurve.evaluate(moonTimeNormal);
 
-      this.size = Math.scaleNormal(moonTimeLerp, this.sizeMin, this.sizeMax);
+      this.size = Math.scaleNormal(sizeN, this.sizeMin, this.sizeMax);
 
       var heightOffsetTop = 0.1;
       var heightOffsetBottom = 0.2;
 
       this.position.x = moonTimeNormal * avblW;
-      this.position.y = (heightOffsetTop * avblH) + this.size + (moonTimeLerp * ((1-heightOffsetBottom) * avblH));
+      this.position.y = (heightOffsetTop * avblH) + this.size + (posN * ((1-heightOffsetBottom) * avblH));
     }
   }
 

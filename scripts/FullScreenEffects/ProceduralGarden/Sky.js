@@ -4,6 +4,7 @@ function Sky()
   this.canvas;
 
   this.brightness       = 0;
+  this.skyBrightnessCurve;
 
   this.lightenTime      = 0.1;
   this.darkenTime       = 0.9;
@@ -13,6 +14,8 @@ function Sky()
   this.gradientStart    = 0.2;
   this.gradientEnd      = 0.8;
   this.gradientHMultip  = 1;
+  this.gradientHCurve;
+  this.gradientAlphaCurve;
 
   this.moon             = new Moon();
   this.sun              = new Sun();
@@ -24,6 +27,26 @@ function Sky()
 
     CloudsManager.initClouds( this.canvas.width, this.canvas.height );
     StarsManager.initStars( starTwinkleSpeedDivider, this.canvas.width, this.canvas.height );
+
+    this.initCurves();
+  }
+
+  this.initCurves = function()
+  {
+    this.skyBrightnessCurve = new AnimationCurve();
+    this.skyBrightnessCurve.addKeyFrame(0, 0);
+    this.skyBrightnessCurve.addKeyFrame(0.5, 1, EasingUtil.easeOutCubic);
+    this.skyBrightnessCurve.addKeyFrame(1, 0, EasingUtil.easeInCubic);
+
+    this.gradientHCurve = new AnimationCurve();
+    this.gradientHCurve.addKeyFrame(0, 1);
+    this.gradientHCurve.addKeyFrame(0.5, 0, EasingUtil.easeNone);
+    this.gradientHCurve.addKeyFrame(1, 1, EasingUtil.easeNone);
+
+    this.gradientAlphaCurve = new AnimationCurve();
+    this.gradientAlphaCurve.addKeyFrame(0, 1);
+    this.gradientAlphaCurve.addKeyFrame(0.5, 0, EasingUtil.easeNone);
+    this.gradientAlphaCurve.addKeyFrame(1, 1, EasingUtil.easeNone);
   }
 
   this.reset = function()
@@ -59,9 +82,7 @@ function Sky()
     if (t > this.lightenTime && t < this.darkenTime)
     {
       var skyChangeNormal = Math.minMaxNormal(t, this.lightenTime, this.darkenTime);
-      var skyMid = Math.scaleNormal(0.5, this.lightenTime, this.darkenTime);
-      theBrightness = skyChangeNormal <= skyMid ? EasingUtil.easeOutCubic(skyChangeNormal, 0, 1, 0.5)
-        : EasingUtil.easeInCubic(skyChangeNormal-0.5, 1, -1, 0.5);
+      theBrightness = this.skyBrightnessCurve.evaluate(skyChangeNormal);
     }
 
     this.brightness = theBrightness;
@@ -78,27 +99,22 @@ function Sky()
   {
     //This wants to be a M shape, peaking around skyGradientMin and skyGradientMax...
     var gradientTimeNormal = 0;
-    var gradientTimeMid = 0.5;
 
     if (t > this.gradientStart && t < this.gradientEnd)
     {
       //from 0 to 1.
       gradientTimeNormal = Math.minMaxNormal(t, this.gradientStart, this.gradientEnd);
-      gradientTimeMid = Math.scaleNormal(0.5, this.gradientStart, this.gradientEnd);
     }
     else
     {
       //from 1 back down to 0.
-      var totalRemaining = this.gradientStart + (1-this.gradientEnd);
-      var gradientTime = (t < this.gradientStart) ? this.gradientStart - t : t - this.gradientEnd;
-      gradientTimeNormal = 1 - (gradientTime / totalRemaining);
+      var totalRemaining  = this.gradientStart + (1-this.gradientEnd);
+      var gradientTime    = (t < this.gradientStart) ? this.gradientStart - t : t - this.gradientEnd;
+      gradientTimeNormal  = 1 - (gradientTime / totalRemaining);
     }
 
-    var gradientHeightLerp = gradientTimeNormal <= gradientTimeMid ? EasingUtil.easeNone(gradientTimeNormal, 1, -1, 0.5)
-      : EasingUtil.easeNone(gradientTimeNormal-0.5, 0, 1, 0.5);
-
-    var gradientAlphaLerp = gradientTimeNormal <= gradientTimeMid ? EasingUtil.easeNone(gradientTimeNormal, 1, -1, 0.5)
-      : EasingUtil.easeNone(gradientTimeNormal-0.5, 0, 1, 0.5);
+    var gradientHeightLerp  = this.gradientHCurve.evaluate(gradientTimeNormal);
+    var gradientAlphaLerp   = this.gradientAlphaCurve.evaluate(gradientTimeNormal);
 
     var gradientHeight = gradientHeightLerp * this.canvas.height * this.gradientHMultip;
 
