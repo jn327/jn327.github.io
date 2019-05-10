@@ -43,9 +43,8 @@ CommonElementsCreator.createHeaderElement = function( selectedIndex, parentEleme
   imgList.id = 'linksList';
   container.appendChild(imgList);
 
-  var imgTitles = [ "Email me", "Have a look at my Linkedin", "I'm on Twitter, sometimes",
-    "My BitBucket page", "You can also find me on GitHub",
-    "I've some games on GameJolt", "I've got games on Itch.io" ];
+  var imgTitles = [ "Email me", "Linkedin", "Twitter",
+    "BitBucket", "GitHub", "GameJolt", "ItchIo" ];
   var imgLinks = [ "mailto:joshuanewland33@gmail.com", "https://www.linkedin.com/in/jn327/", "https://twitter.com/JoshuaNewland",
     "https://bitbucket.org/Jn327/", "https://github.com/jn327",
     "https://gamejolt.com/@Jn327/games", "https://jn327.itch.io/" ];
@@ -58,11 +57,17 @@ CommonElementsCreator.createHeaderElement = function( selectedIndex, parentEleme
     linkItem.href = imgLinks[j];
     linkItem.target = '_blank';
 
+    //<span class="tooltiptext">Tooltip text</span>
+    var toolTipItem = document.createElement('span');
+    toolTipItem.className = 'toolTip';
+    toolTipItem.textContent = imgTitles[j];
+
     var imgItem = document.createElement('img');
     imgItem.className = 'imageLinkIcon';
     imgItem.src = (rootLocation+"images/"+imgSources[j]+".png");
 
     linkItem.appendChild(imgItem);
+    linkItem.appendChild(toolTipItem);
     imgList.appendChild(linkItem);
   }
 }

@@ -8,7 +8,7 @@
   position          : fixed;
 
   border-style      : solid;
-  border-color      : rgba(255, 255, 255, 0.5);
+  border-color      : rgba(255, 255, 255, 1);
   border-width      : 0px 0px 1px 0px;
   border-radius     : 0px;
   background-color  : rgba(0, 0, 0, 0.66);
@@ -27,20 +27,23 @@
 .headerLink,
 .headerLink-active
 {
-  text-decoration : none;
-  font-style      : normal;
-  font-size       : 14px;
+  text-decoration     : none;
+  font-style          : normal;
+  font-size           : 14px;
 
-  color           : rgba(255, 255, 255, 1);
-  font-family     : Verdana, Geneva, sans-serif;
+  color               : rgba(255, 255, 255, 1);
+  font-family         : Verdana, Geneva, sans-serif;
 
-  margin          : 0px 10px 0px 10px;
-  width           : auto;
-  height          : auto;
-  border-style    : solid;
-  border-color    : rgba(255, 255, 255, 0);
-  border-width    : 0px 0px 1px 0px;
-  padding         : 5px 0px 1px 0px;
+  margin              : 0px 10px 0px 10px;
+  width               : auto;
+  height              : auto;
+  border-style        : solid;
+  border-color        : rgba(255, 255, 255, 0);
+  border-width        : 0px 0px 1px 0px;
+  padding             : 5px 0px 1px 0px;
+
+  -webkit-transition  : border-color 0.15s linear 0s;
+  transition          : border-color 0.15s linear 0s;
 }
 
 .headerLink:hover
@@ -65,15 +68,66 @@
 
 .imageLink
 {
-  margin  : 0px 10px;
-  width   : auto;
-  height  : auto;
+  margin    : 0px 10px;
+  width     : auto;
+  height    : auto;
+
+  position  : relative;
+  display   : inline-block;
 }
 
 .imageLinkIcon
 {
   width   : 20px;
   height  : 20px;
+}
+
+.toolTip
+{
+  width             : auto;
+  top               : 100%;
+  left              : 50%;
+  transform         : translateX(-50%);
+  margin-top        : 24px;
+  display           : inline-block;
+  padding           : 6px;
+
+  text-decoration   : none;
+  font-style        : normal;
+  font-size         : 14px;
+  font-family       : Verdana, Geneva, sans-serif;
+  color             : rgba(255, 255, 255, 1);
+  text-align        : center;
+
+  background-color  : rgba(0, 0, 0, 0.66);
+
+  /* Position the tooltip */
+  position          : absolute;
+  z-index           : 1;
+
+  /* Alpha */
+  visibility        : visible;
+  opacity           : 0;
+  -webkit-transition: opacity 0.1s linear 0.05s, margin-top 0.2s ease-out 0s;
+  transition        : opacity 0.1s linear 0.05s, margin-top 0.2s ease-out 0s;
+}
+
+.toolTip::after {
+  content: " ";
+  position: absolute;
+  bottom: 100%;  /* At the top of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent rgba(0, 0, 0, 0.66) transparent;
+}
+
+.imageLink:hover .toolTip
+{
+  visibility      : visible;
+  opacity         : 1;
+  margin-top      : 6px;
 }
 
 /*-------------------------------------------------------------
@@ -86,7 +140,7 @@
     flex-direction  : column;
     align-items     : center;
   }
-  
+
   #headerList
   {
     padding-bottom   : 12px;
