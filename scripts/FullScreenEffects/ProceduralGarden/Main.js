@@ -193,21 +193,16 @@ function tintMidground()
 function createTodSlider()
 {
   //Create a slider!
-  /* <div class="slidercontainer">
-    <input type="range" min="0" max="1" value="0" class="slider" id="todSlider">
-  </div> */
-  var parentElement             = document.body;
-  var sliderContainerDiv        = document.createElement('div');
-  sliderContainerDiv.className  = "todSliderContainer";
-  parentElement.appendChild( sliderContainerDiv );
-
+  // <input type="range" min="0" max="1" value="0" class="slider" id="todSlider">
+  var parentElement         = document.body;
+  
   todSliderInput            = document.createElement('input');
   todSliderInput.type       = "range";
   todSliderInput.min        = 0;
   todSliderInput.max        = 100;
   todSliderInput.value      = 0;
   todSliderInput.className  = "todSlider";
-  sliderContainerDiv.appendChild( todSliderInput );
+  parentElement.appendChild( todSliderInput );
   todSliderInput.addEventListener('input', onTodSliderChange);
 }
 
