@@ -228,8 +228,9 @@ function Terrain()
               yNormMultip = Math.clamp( yNormMultip, 0, 1 );
               yNormMultip = EasingUtil.easeInSine(yNormMultip, 0, 0.33, 1);
 
-              var valleyDistMax = 0.98;
-              var valleyDistEased = EasingUtil.easeOutSine(valleyDistN, 0, valleyDistMax, 1); //easeOutSine , easeNone
+              var valleyDistMax = 1;
+              var valleyDistMin = 0.1;
+              var valleyDistEased = EasingUtil.easeOutSine(valleyDistN, valleyDistMin, valleyDistMax-valleyDistMin, 1); //easeOutSine , easeNone
 
               //var valleyDistMultip = valleyDistEased + ((1 - valleyDistEased) * yNormMultip);
               var valleyDistMultip = yNormMultip + ((1 - yNormMultip) * valleyDistEased);
@@ -241,7 +242,9 @@ function Terrain()
             //For the river, we want less frequently near the center.
             if (riverDistN != undefined)
             {
-              var riverDistMultup = EasingUtil.easeNone(riverDistN, 0, 1, 1);
+              var riverDistMax = 1;
+              var riverDistMin = 0.1;
+              var riverDistMultup = EasingUtil.easeNone(riverDistN, riverDistMin, riverDistMax-riverDistMin, 1);
 
               //add up the difference to 1 as we approach the center.
               thresholdScaled += (1 - thresholdScaled) * riverDistMultup;
@@ -263,7 +266,7 @@ function Terrain()
                 }
 
                 //TODO: less random, maybe use a bit of perlin???
-                if ( Math.random() > 0.95 )
+                if ( Math.random() > 0.96 )
                 {
                   var palm = new Palm();
                   thePlants.push(palm);

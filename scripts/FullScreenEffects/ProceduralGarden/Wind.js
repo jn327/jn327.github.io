@@ -2,7 +2,7 @@ function Wind()
 {
   this.noise  = new SimplexNoise();
   this.str    = 0; //-1 to 1 scale
-  this.freq   = [0.0005, 0.002];
+  this.freq   = [0.0005, 0.005];
 
   this.update = function( speedDivider )
   {
@@ -14,5 +14,7 @@ function Wind()
       var theFreq = this.freq[i];
       theNoise += this.noise.noise((GameLoop.currentTime / speedDivider) * theFreq, theFreq) * nScale;
     }
+
+    this.str = theNoise;
   }
 }

@@ -19,7 +19,7 @@ function Creature()
   this.minLifeTimeScale   = 0.1;
 
   this.velocity = new Vector2D(0,0);
-  this.moveSpeed = 0.1;
+  this.moveSpeed = 1;
   this.speedMultip = 1;
 }
 
@@ -58,6 +58,7 @@ function Firefly()
 
   this.minY = 0.15;
 
+  this.moveSpeed = 0.25;
   this.friction = 1; //loose this percentage * 100 every second.
   //this.velocityNoise = new SimplexNoise(); // TODO: for velocity changes...
 

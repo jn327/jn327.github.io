@@ -14,7 +14,7 @@ function Plant()
   this.height             = 1;
 
   this.lifeTime           = 0;
-  this.ageSpeed           = 0.5;
+  this.ageSpeed           = 0.1;
   this.prevUpdateT        = 0;
   this.minLifeTimeScale   = 0.1;
   this.windBendMultip     = 1;
