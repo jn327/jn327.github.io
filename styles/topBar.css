@@ -27,6 +27,7 @@
 .headerLink,
 .headerLink-active
 {
+  display             : inline-block;
   text-decoration     : none;
   font-style          : normal;
   font-size           : 14px;
@@ -40,20 +41,27 @@
   border-style        : solid;
   border-color        : rgba(255, 255, 255, 0);
   border-width        : 0px 0px 1px 0px;
-  padding             : 5px 0px 1px 0px;
+  padding             : 0px 0px 1px 0px;
 
-  -webkit-transition  : border-color 0.15s linear 0s;
-  transition          : border-color 0.15s linear 0s;
+  -webkit-transition  : border-color 0.25s linear 0s, padding 0.25s linear 0s, margin 0.25s linear 0s;
+  transition          : border-color 0.25s linear 0s, padding 0.25s linear 0s, margin 0.25s linear 0s;
 }
 
 .headerLink:hover
 {
-  border-color  : rgba(255, 255, 255, 0.5);
+  border-color        : rgba(255, 255, 255, 1);
+  padding             : 0px 5px 1px 5px;
+  margin              : 0px 5px 0px 5px;
+
+  -webkit-transition  : border-color 0.15s linear 0s, padding 0.15s linear 0s, margin 0.15s linear 0s;
+  transition          : border-color 0.15s linear 0s, padding 0.15s linear 0s, margin 0.15s linear 0s;
 }
 
 .headerLink-active
 {
-  border-color  : rgba(255, 255, 255, 0.5);
+  border-color        : rgba(255, 255, 255, 1);
+  padding             : 0px 5px 1px 5px;
+  margin              : 0px 5px 0px 5px;
 }
 
 #linksList
@@ -68,22 +76,48 @@
 
 .imageLink
 {
-  margin    : 0px 10px;
-  width     : auto;
-  height    : auto;
+  margin        : 0px 10px;
+  padding-top   : 4px;
+  width         : auto;
+  height        : auto;
 
-  position  : relative;
-  display   : inline-block;
+  position      : relative;
+  display       : inline-block;
+
+  -webkit-transition  : padding-top 0.3s ease-out 0.1s, margin 0.3s ease-out 0.1s;
+  transition          : padding-top 0.3s ease-out 0.1s, margin 0.3s ease-out 0.1s;
+}
+
+.imageLink:hover
+{
+  padding-top   : 0px;
+  margin        : 0px 8px;
+
+  webkit-transition  : padding-top 0.1s ease-out 0s, margin 0.1s ease-out 0s;
+  transition         : padding-top 0.1s ease-out 0s, margin 0.1s ease-out 0s;
 }
 
 .imageLinkIcon
 {
   width   : 20px;
   height  : 20px;
+
+  -webkit-transition  : width 0.3s ease-out 0.1s, height 0.3s ease-out 0.1s;
+  transition          : width 0.3s ease-out 0.1s, height 0.3s ease-out 0.1s;
+}
+
+.imageLink:hover .imageLinkIcon
+{
+  width   : 24px;
+  height  : 24px;
+
+  -webkit-transition  : width 0.1s ease-out 0s, height 0.1s ease-out 0s;
+  transition          : width 0.1s ease-out 0s, height 0.1s ease-out 0s;
 }
 
 .toolTip
 {
+  pointer-events    : none;
   width             : auto;
   top               : 100%;
   left              : 50%;
@@ -108,8 +142,8 @@
   /* Alpha */
   visibility        : visible;
   opacity           : 0;
-  -webkit-transition: opacity 0.1s linear 0.05s, margin-top 0.2s ease-out 0s;
-  transition        : opacity 0.1s linear 0.05s, margin-top 0.2s ease-out 0s;
+  -webkit-transition: opacity 0.2s linear 0.05s, margin-top 0.3s ease-out 0s;
+  transition        : opacity 0.2s linear 0.05s, margin-top 0.3s ease-out 0s;
 }
 
 .toolTip::after {
@@ -128,6 +162,9 @@
   visibility      : visible;
   opacity         : 1;
   margin-top      : 6px;
+
+  -webkit-transition: opacity 0.1s linear 0.05s, margin-top 0.2s ease-out 0s;
+  transition        : opacity 0.1s linear 0.05s, margin-top 0.2s ease-out 0s;
 }
 
 /*-------------------------------------------------------------
