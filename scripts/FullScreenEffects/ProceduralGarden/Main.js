@@ -6,13 +6,13 @@ var plantsCanvas, plantsCtx;
 var activePlantsCanvas, activePlantsCtx;
 var creatureCanvas, creatureCtx;
 
-var skyUpdateFreq            = 0.033;
+var skyUpdateFreq            = 0.04;
 var skyUpdateTimer           = skyUpdateFreq;
-var effectsUpdateFreq        = 0.033;
+var effectsUpdateFreq        = 0.04;
 var effectsUpdateTimer       = effectsUpdateFreq;
 var plantsUpdateFreq         = 0.066;
 var plantsUpdateTimer        = plantsUpdateFreq;
-var creatureUpdateFreq       = 0.04;
+var creatureUpdateFreq       = 0.05;
 var creatureUpdateTimer      = creatureUpdateFreq;
 
 var todSliderInput;
@@ -25,6 +25,9 @@ var wind;
 var terrain;
 
 var lastPlantsUpdateWind    = Number.MAX_VALUE;
+
+var darkenAmount = 85;
+var lastUpdateBrightnessVal = Number.MAX_VALUE;
 
 //------------------------------------------------
 //                    Start
@@ -178,13 +181,20 @@ function update()
 function tintMidground()
 {
   //TODO: wanna be able to tint it a bit with the sky gradient too!!!
-  var darkenAmount = 85;
-  var theFilter = 'brightness('+((100-darkenAmount) + (sky.brightness*darkenAmount))+'%)';
+  var brightnessVal = ((100-darkenAmount) + (sky.brightness*darkenAmount));
 
-  terrainCanvas.style.filter = theFilter;
-  effectsCanvas.style.filter = theFilter;
-  plantsCanvas.style.filter = theFilter;
-  activePlantsCanvas.style.filter = theFilter;
+  var brightnessDiff = Math.abs(lastUpdateBrightnessVal - brightnessVal);
+  if(brightnessDiff > 0.05)
+  {
+    var theFilter = 'brightness('+brightnessVal+'%)';
+
+    terrainCanvas.style.filter = theFilter;
+    effectsCanvas.style.filter = theFilter;
+    plantsCanvas.style.filter = theFilter;
+    activePlantsCanvas.style.filter = theFilter;
+  }
+
+  lastUpdateBrightnessVal = brightnessVal;
 }
 
 //------------------------------------------------
@@ -213,7 +223,11 @@ function onTodSliderChange()
 
 function updateTodSlider()
 {
-  todSliderInput.value = tod * 100;
+  var currTod = tod * 100;
+  if ( Math.abs(todSliderInput.value - currTod) > 0.05 )
+  {
+    todSliderInput.value = tod * 100;
+  }
 }
 
 //------------------------------------------------

@@ -13,7 +13,15 @@ function Star()
 
     ctx.fillStyle = 'rgba(255,255,255,'+theAlpha+')';
     ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
+    if ( this.size > 1.2)
+    {
+      ctx.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
+    }
+    else
+    {
+      var doubleSize = this.size*2;
+      ctx.rect(this.position.x - this.size, this.position.y - this.size, doubleSize, doubleSize);
+    }
     ctx.fill();
 
   }
@@ -91,7 +99,15 @@ function ShootingStar()
 
     ctx.fillStyle = 'rgba(255,255,255,'+alphaMultip+')';
     ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
+    if ( this.size > 1.2)
+    {
+      ctx.arc(this.position.x, this.position.y, this.size, 0, 2 * Math.PI);
+    }
+    else
+    {
+      var doubleSize = this.size*2;
+      ctx.rect(this.position.x - this.size, this.position.y - this.size, doubleSize, doubleSize);
+    }
     ctx.fill();
 
     //line behind it!

@@ -113,15 +113,18 @@ function Sky()
       gradientTimeNormal  = 1 - (gradientTime / totalRemaining);
     }
 
-    var gradientHeightLerp  = this.gradientHCurve.evaluate(gradientTimeNormal);
     var gradientAlphaLerp   = this.gradientAlphaCurve.evaluate(gradientTimeNormal);
+    if (gradientAlphaLerp > 0)
+    {
+      var gradientHeightLerp  = this.gradientHCurve.evaluate(gradientTimeNormal);
 
-    var gradientHeight = gradientHeightLerp * this.canvas.height * this.gradientHMultip;
+      var gradientHeight = gradientHeightLerp * this.canvas.height * this.gradientHMultip;
 
-    var grd = this.ctx.createLinearGradient(0, this.canvas.height-gradientHeight, 0, this.canvas.height);
-    grd.addColorStop(0, 'rgba('+theColor[0]+', '+theColor[1]+','+theColor[2]+', 0)');
-    grd.addColorStop(1, 'rgba('+theColor[0]+', '+theColor[1]+','+theColor[2]+', '+gradientAlphaLerp+')');
-    this.ctx.fillStyle = grd;
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      var grd = this.ctx.createLinearGradient(0, this.canvas.height-gradientHeight, 0, this.canvas.height);
+      grd.addColorStop(0, 'rgba('+theColor[0]+', '+theColor[1]+','+theColor[2]+', 0)');
+      grd.addColorStop(1, 'rgba('+theColor[0]+', '+theColor[1]+','+theColor[2]+', '+gradientAlphaLerp+')');
+      this.ctx.fillStyle = grd;
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
   }
 }
