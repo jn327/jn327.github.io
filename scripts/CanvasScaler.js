@@ -18,14 +18,17 @@ CanvasScaler.updateCanvasSize = function( canvases, maxScale, minScaleV, minScal
   var haveResized = false;
 
   var l = canvases.length;
+  var theCanvas;
+
+  var wDivider;
+  var smallestAxis;
+  var _minScale;
+  var _maxScale = maxScale;
+
   for (var i = 0; i < l; i++)
   {
-    var theCanvas = canvases[i];
-    
-    var wDivider;
-    var smallestAxis;
-    var _minScale;
-    var _maxScale = maxScale;
+    theCanvas = canvases[i];
+
     if (theCanvas.clientWidth < theCanvas.clientHeight)
     {
       wDivider = theCanvas.clientHeight/theCanvas.clientWidth;

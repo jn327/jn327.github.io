@@ -3,15 +3,9 @@ function Star()
   //Call our prototype
   GameObject.call(this);
 
-  this.alphaOffset = 0;
-  this.alphaTimeMultip = 1;
-
-  this.draw = function(ctx, alphaMultip)
+  this.draw = function(ctx)
   {
-    var theAlpha = 0.5 + (0.5*Math.cos(this.alphaTimeMultip * (this.alphaOffset+GameLoop.currentTime)));
-    theAlpha *= alphaMultip;
-
-    ctx.fillStyle = 'rgba(255,255,255,'+theAlpha+')';
+    ctx.fillStyle = 'rgba(255,255,255,1)';
     ctx.beginPath();
     if ( this.size > 1.2)
     {

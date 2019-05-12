@@ -4,14 +4,14 @@ var StarsManager = {};
 StarsManager.starsHideTime             = 0.2;
 StarsManager.starsShowTime             = 0.8;
 StarsManager.stars                     = [];
-StarsManager.minStars                  = 500;
-StarsManager.maxStars                  = 600;
+StarsManager.minStars                  = 1000;
+StarsManager.maxStars                  = 1200;
 StarsManager.minStarSize               = 0.1;
 StarsManager.maxStarSize               = 1.2;
 StarsManager.spawnNoiseScale           = 0.003;
 
-StarsManager.twinkleMultip            = 0.25;
-StarsManager.alphaOffsetMultip        = 25;
+StarsManager.twinkleMultip            = 0.015;
+StarsManager.twinkleSpeed;
 
 StarsManager.shootingStarFreqMin       = 0.005;
 StarsManager.shootingStarFreqMax       = 0.05;
@@ -33,6 +33,8 @@ StarsManager.initStars = function( twinkleSpeedDivider, theWidth, theHeight )
   this.alphaChangeCurve.addKeyFrame(0.5, 1, EasingUtil.easeOutCubic);
   this.alphaChangeCurve.addKeyFrame(1, 0, EasingUtil.easeInCubic);
 
+  this.twinkleSpeed = this.twinkleMultip / twinkleSpeedDivider;
+
   var spawnNoise = new SimplexNoise();
 
   var nStars = Math.getRnd(this.minStars, this.maxStars);
@@ -43,9 +45,7 @@ StarsManager.initStars = function( twinkleSpeedDivider, theWidth, theHeight )
     var starSize = (spawnNoise.noise(newStar.position.x * this.spawnNoiseScale
       ,newStar.position.y * this.spawnNoiseScale) + 1) * 0.5;
 
-    newStar.size            = Math.scaleNormal(starSize, this.minStarSize, this.maxStarSize);
-    newStar.alphaOffset     = Math.random() * this.alphaOffsetMultip;
-    newStar.alphaTimeMultip = (Math.random() * this.twinkleMultip) / twinkleSpeedDivider;
+    newStar.size = Math.scaleNormal(starSize, this.minStarSize, this.maxStarSize);
 
     this.stars[i] = newStar;
   }
@@ -66,7 +66,32 @@ StarsManager.randomizeStars = function( theWidth, theHeight )
   }
 }
 
-StarsManager.drawStars = function( t, ctx, theWidth, theHeight )
+StarsManager.drawStars = function( ctxs, cavases, theWidth, theHeight )
+{
+  var cL = ctxs.length;
+  var ctx;
+  var theCanvas;
+  for (var j = 0; j < cL; j++)
+  {
+    ctx = ctxs[j];
+    theCanvas = cavases[j];
+    theCanvas.style.opacity = 0;
+    ctx.clearRect(0, 0, theWidth, theHeight);
+  }
+
+  //draw some stars!!!
+  var ctxIndex = 0;
+  var l = this.stars.length;
+  for (var i = 0; i < l; i++)
+  {
+    ctxIndex = Math.round(Math.random() * (ctxs.length -1));
+    ctx = ctxs[ctxIndex];
+
+    this.stars[i].draw(ctx);
+  }
+}
+
+StarsManager.update = function( t, cavases, shootingStarCtx, theWidth, theHeight )
 {
   if (t < this.starsHideTime || t > this.starsShowTime)
   {
@@ -76,11 +101,17 @@ StarsManager.drawStars = function( t, ctx, theWidth, theHeight )
 
     var nightTimeLerp = this.alphaChangeCurve.evaluate(nightTimeNormal);
 
-    //draw some stars!!!
-    var l = this.stars.length;
+    //stars
+    var l = cavases.length;
+    var starCanvas;
     for (var i = 0; i < l; i++)
     {
-      this.stars[i].draw(ctx, nightTimeLerp);
+      var iNormal = ((i / (l-1)) / this.twinkleSpeed);
+
+      var theAlpha = 0.5 + (0.5*Math.cos( this.twinkleSpeed * 2 * Math.PI * (iNormal+GameLoop.currentTime)));
+
+      starCanvas = cavases[i];
+      starCanvas.style.opacity = nightTimeLerp * theAlpha;
     }
 
     //Shooting stars
@@ -94,7 +125,7 @@ StarsManager.drawStars = function( t, ctx, theWidth, theHeight )
       currProgress = (t - (this.currShootingStar.startTime+this.currShootingStar.duration)) / this.shootingStarWaitDur;
     }
 
-    var bStarAlive = this.currShootingStar.updateLifeTime( ctx, theWidth, theHeight, t, nightTimeLerp, currProgress >= 1 );
+    var bStarAlive = this.currShootingStar.updateLifeTime( shootingStarCtx, theWidth, theHeight, t, nightTimeLerp, currProgress >= 1 );
     if (!bStarAlive && this.currShootingStar.bSetup)
     {
       this.currShootingStar.bSetup = false;

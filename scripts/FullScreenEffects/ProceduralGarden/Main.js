@@ -1,5 +1,8 @@
 //HTML Elements
 var skyCanvas, skyCtx;
+var starsCanvases = [];
+var starsCtxs = [];
+var cloudsCanvas, cloudsCtx;
 var terrainCanvas, terrainCtx;
 var effectsCanvas, effectsCtx;
 var plantsCanvas, plantsCtx;
@@ -38,7 +41,7 @@ function init()
   var includes =
   [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise', 'Utils/AnimationCurve',
-    'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
+    'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
     'FullScreenEffects/ProceduralGarden/Sun', 'FullScreenEffects/ProceduralGarden/Moon',
     'FullScreenEffects/ProceduralGarden/Sky', 'FullScreenEffects/ProceduralGarden/Terrain',
     'FullScreenEffects/ProceduralGarden/Cloud', 'FullScreenEffects/ProceduralGarden/CloudsManager',
@@ -59,7 +62,7 @@ function start()
   terrain = new Terrain();
   wind    = new Wind();
 
-  sky.init( dayDur, skyCtx, skyCanvas );
+  sky.init( dayDur, skyCtx, skyCanvas, starsCanvases, starsCtxs, cloudsCanvas, cloudsCtx );
   terrain.init( terrainCtx, terrainCanvas, plantsCtx );
 
   CreatureManager.init( creatureCanvas, terrain );
@@ -82,10 +85,23 @@ function initCanvas()
   terrainCanvas       = CommonElementsCreator.createCanvas();
   terrainCtx          = terrainCanvas.getContext('2d');
 
+  cloudsCanvas        = CommonElementsCreator.createCanvas();
+  cloudsCtx           = cloudsCanvas.getContext('2d');
+
+  var nStarCanvases = 4;
+  var newCanvas;
+  for (var i = 0; i < nStarCanvases; i++)
+  {
+    newCanvas = CommonElementsCreator.createCanvas();
+    starsCanvases.push( newCanvas );
+    starsCtxs.push( newCanvas.getContext('2d') );
+  }
+
   skyCanvas           = CommonElementsCreator.createCanvas();
-  skyCtx              = skyCanvas.getContext('2d');
+  skyCtx              = skyCanvas.getContext('2d', { alpha: false });
 
   validateCanvasSize();
+  window.addEventListener( "resize", TimingUtil.debounce(onWindowResize, 250) );
 }
 
 function validateCanvasSize()
@@ -94,14 +110,16 @@ function validateCanvasSize()
   var minScaleV = 600;
   var minScaleH = 400;
 
-  return CanvasScaler.updateCanvasSize( [skyCanvas, terrainCanvas, effectsCanvas, creatureCanvas, plantsCanvas, activePlantsCanvas],
-    maxScale, minScaleV, minScaleH );
+  var theCanvases = [skyCanvas, cloudsCanvas, terrainCanvas, effectsCanvas, creatureCanvas, plantsCanvas, activePlantsCanvas];
+  for (var i = 0; i < starsCanvases.length; i++)
+  {
+    theCanvases.push(starsCanvases[i]);
+  }
+
+  return CanvasScaler.updateCanvasSize( theCanvases, maxScale, minScaleV, minScaleH );
 }
 
-//------------------------------------------------
-//                    Update
-//------------------------------------------------
-function update()
+function onWindowResize()
 {
   if (validateCanvasSize())
   {
@@ -114,7 +132,14 @@ function update()
 
     CreatureManager.reset( creatureCanvas, terrain );
   }
+}
 
+
+//------------------------------------------------
+//                    Update
+//------------------------------------------------
+function update()
+{
   //update the current time of day.
   dayTimer += GameLoop.deltaTime;
   if (dayTimer > dayDur)
@@ -184,7 +209,7 @@ function tintMidground()
   var brightnessVal = ((100-darkenAmount) + (sky.brightness*darkenAmount));
 
   var brightnessDiff = Math.abs(lastUpdateBrightnessVal - brightnessVal);
-  if(brightnessDiff > 0.05)
+  if ( brightnessDiff >= 1 )
   {
     var theFilter = 'brightness('+brightnessVal+'%)';
 
@@ -192,9 +217,9 @@ function tintMidground()
     effectsCanvas.style.filter = theFilter;
     plantsCanvas.style.filter = theFilter;
     activePlantsCanvas.style.filter = theFilter;
-  }
 
-  lastUpdateBrightnessVal = brightnessVal;
+    lastUpdateBrightnessVal = brightnessVal;
+  }
 }
 
 //------------------------------------------------
@@ -224,9 +249,10 @@ function onTodSliderChange()
 function updateTodSlider()
 {
   var currTod = tod * 100;
-  if ( Math.abs(todSliderInput.value - currTod) > 0.05 )
+  var todDiff = Math.abs(todSliderInput.value - currTod);
+  if ( todDiff >= 1 )
   {
-    todSliderInput.value = tod * 100;
+    todSliderInput.value = currTod;
   }
 }
 

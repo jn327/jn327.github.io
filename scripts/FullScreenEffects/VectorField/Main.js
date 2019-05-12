@@ -43,7 +43,7 @@ var fadeInTimer       = 0;
 init();
 function init()
 {
-  var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil',
+  var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/TimingUtil',
     'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'FullScreenEffects/VectorField/Particle' ];
   CommonElementsCreator.appendScipts(includes);
 }
@@ -68,14 +68,30 @@ function initCanvas()
   activeCtx    = activeCanvas.getContext('2d');
 
   bgCanvas  = CommonElementsCreator.createCanvas();
-  bgCtx     = bgCanvas.getContext('2d');
+  bgCtx     = bgCanvas.getContext('2d', { alpha: false });
 
   validateCanvasSize();
+  window.addEventListener( "resize", TimingUtil.debounce(onWindowResize, 250) );
 }
 
 function validateCanvasSize()
 {
   return CanvasScaler.updateCanvasSize( [bgCanvas, activeCanvas] );
+}
+
+function onWindowResize()
+{
+  if (validateCanvasSize() == true)
+  {
+    changeTimer = 0;
+    fadeOutTimer = 0;
+
+    resetBgCanvas();
+    //activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+
+    initVectorField();
+    resetParticles();
+  }
 }
 
 function initVectorField()
@@ -112,7 +128,6 @@ function initVectorField()
     }
   }
 }
-
 
 function initParticles()
 {
@@ -153,53 +168,39 @@ function resetParticles()
 //------------------------------------------------
 function update()
 {
-  if (validateCanvasSize() == true)
+  changeTimer += GameLoop.deltaTime;
+  if (changeTimer > changeFrequency)
   {
-    changeTimer = 0;
-    fadeOutTimer = 0;
-
-    resetBgCanvas();
-    //activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
-
-    initVectorField();
-    resetParticles();
-  }
-  else
-  {
-    changeTimer += GameLoop.deltaTime;
-    if (changeTimer > changeFrequency)
+    if (fadeOutTimer < fadeOutDur)
     {
-      if (fadeOutTimer < fadeOutDur)
-      {
-        fadeOutTimer += GameLoop.deltaTime;
+      fadeOutTimer += GameLoop.deltaTime;
 
-        var endOpacity = EasingUtil.easeInQuad(fadeOutTimer, 1, -1, fadeOutDur);
-        bgCanvas.style.opacity = endOpacity;
-        activeCanvas.style.opacity = endOpacity;
-      }
-      else
-      {
-        changeTimer = 0;
-        fadeOutTimer   = 0;
-
-        setRandomHue();
-        resetBgCanvas();
-
-        //reset of the vector field after a while, keeps things interesting...
-        initVectorField();
-        resetParticles();
-      }
-    }
-
-    if (fadeInTimer < fadeInDur)
-    {
-      fadeInTimer += GameLoop.deltaTime;
-
-      var endOpacity = EasingUtil.easeInQuad(fadeInTimer, 0, 1, fadeInDur);
-      endOpacity = Math.clamp(endOpacity, 0, 1);
+      var endOpacity = EasingUtil.easeInQuad(fadeOutTimer, 1, -1, fadeOutDur);
       bgCanvas.style.opacity = endOpacity;
       activeCanvas.style.opacity = endOpacity;
     }
+    else
+    {
+      changeTimer = 0;
+      fadeOutTimer   = 0;
+
+      setRandomHue();
+      resetBgCanvas();
+
+      //reset of the vector field after a while, keeps things interesting...
+      initVectorField();
+      resetParticles();
+    }
+  }
+
+  if (fadeInTimer < fadeInDur)
+  {
+    fadeInTimer += GameLoop.deltaTime;
+
+    var endOpacity = EasingUtil.easeInQuad(fadeInTimer, 0, 1, fadeInDur);
+    endOpacity = Math.clamp(endOpacity, 0, 1);
+    bgCanvas.style.opacity = endOpacity;
+    activeCanvas.style.opacity = endOpacity;
   }
 
   renderCanvas();

@@ -19,7 +19,8 @@ function init()
   var includes =
   [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise', 'Utils/AnimationCurve',
-    'Utils/EasingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject'
+    'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler',
+    'GameObject'
   ];
   CommonElementsCreator.appendScipts(includes);
 }
@@ -65,16 +66,21 @@ function initCanvas()
   bgCtx     = bgCanvas.getContext('2d');
 
   validateCanvasSize();
+  window.addEventListener( "resize", TimingUtil.debounce(onWindowResize, 250) );
 }
 
 function validateCanvasSize()
 {
-  var maxScale = 600;
-  var minScaleV = 600;
-  var minScaleH = 400;
+  return CanvasScaler.updateCanvasSize( [bgCanvas, fgCanvas] );
+}
 
-  return CanvasScaler.updateCanvasSize( [bgCanvas, fgCanvas],
-    maxScale, minScaleV, minScaleH );
+function onWindowResize()
+{
+    if (validateCanvasSize())
+    {
+      //anything canvas size change related..
+      drawCurves();
+    }
 }
 
 //------------------------------------------------
@@ -82,12 +88,6 @@ function validateCanvasSize()
 //------------------------------------------------
 function update()
 {
-  if (validateCanvasSize())
-  {
-    //anything canvas size change related..
-    drawCurves();
-  }
-
   //update the current time of day.
   dayTimer += GameLoop.deltaTime;
   if (dayTimer > dayDur)

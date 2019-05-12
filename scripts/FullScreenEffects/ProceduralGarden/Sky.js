@@ -1,7 +1,11 @@
 function Sky()
 {
-  this.ctx;
   this.canvas;
+  this.ctx;
+  this.starsCanvases;
+  this.starsCtxs;
+  this.cloudsCanvas;
+  this.cloudsCtx;
 
   this.brightness       = 0;
   this.skyBrightnessCurve;
@@ -20,13 +24,19 @@ function Sky()
   this.moon             = new Moon();
   this.sun              = new Sun();
 
-  this.init = function( starTwinkleSpeedDivider, theCtx, theCanvas )
+  this.init = function( starTwinkleSpeedDivider, theCtx, theCanvas, starsCanvases, starsCtxs, cloudsCanvas, cloudsCtx )
   {
-    this.ctx    = theCtx;
-    this.canvas = theCanvas;
+    this.ctx            = theCtx;
+    this.canvas         = theCanvas;
+    this.starsCanvases  = starsCanvases;
+    this.starsCtxs      = starsCtxs;
+    this.cloudsCanvas   = cloudsCanvas;
+    this.cloudsCtx      = cloudsCtx;
 
-    CloudsManager.initClouds( this.canvas.width, this.canvas.height );
-    StarsManager.initStars( starTwinkleSpeedDivider, this.canvas.width, this.canvas.height );
+    CloudsManager.initClouds( this.cloudsCanvas.width, this.cloudsCanvas.height );
+
+    StarsManager.initStars( starTwinkleSpeedDivider, this.starsCanvases[0].width, this.starsCanvases[0].height );
+    StarsManager.drawStars(this.starsCtxs, this.starsCanvases, this.starsCanvases[0].width, this.starsCanvases[0].height);
 
     this.initCurves();
   }
@@ -51,29 +61,33 @@ function Sky()
 
   this.reset = function()
   {
-    CloudsManager.randomizeClouds( this.canvas.width, this.canvas.height );
-    StarsManager.randomizeStars( this.canvas.width, this.canvas.height );
+    CloudsManager.randomizeClouds( this.cloudsCanvas.width, this.cloudsCanvas.height );
+
+    StarsManager.randomizeStars( this.starsCanvases[0].width, this.starsCanvases[0].height );
+    StarsManager.drawStars(this.starsCtxs, this.starsCanvases, this.starsCanvases[0].width, this.starsCanvases[0].height);
   }
 
   this.updateAndDraw = function( t, windStr )
   {
+    this.cloudsCtx.clearRect(0, 0, this.cloudsCanvas.width, this.cloudsCanvas.height);
+
     this.updateBrightness( t );
     this.drawBackground();
 
     //stars
-    StarsManager.drawStars(t, this.ctx, this.canvas.width, this.canvas.height);
+    StarsManager.update(t, this.starsCanvases, this.cloudsCtx, this.cloudsCanvas.width, this.cloudsCanvas.height);
 
     //sun and sky gradient
-    this.sun.update( t, this.canvas.width, this.canvas.height );
+    this.sun.update( t, this.cloudsCanvas.width, this.cloudsCanvas.height );
     this.drawSkyGradient( this.sun.color, t );
-    this.sun.draw( this.ctx );
+    this.sun.draw( this.cloudsCtx );
 
     //moon
-    this.moon.update( t, this.canvas.width, this.canvas.height );
-    this.moon.draw( this.ctx );
+    this.moon.update( t, this.cloudsCanvas.width, this.cloudsCanvas.height );
+    this.moon.draw( this.cloudsCtx );
 
     //clouds
-    CloudsManager.updateAndDrawClouds( this.ctx, windStr, this.brightness, this.canvas.width );
+    CloudsManager.updateAndDrawClouds( this.cloudsCtx, windStr, this.brightness, this.cloudsCanvas.width );
   }
 
   this.updateBrightness = function( t )
