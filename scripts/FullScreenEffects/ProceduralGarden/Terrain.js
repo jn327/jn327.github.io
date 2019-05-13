@@ -146,8 +146,8 @@ function Terrain()
     var yCounter    = 0;
 
     var riverStartX = this.riverStartPoint.x;
-    var edgeOffset  = 0.33;
-    var riverEndX   = (this.canvas.width * edgeOffset) + (this.canvas.width * (1-(edgeOffset * 2)));
+    var edgeOffset  = -0.5;
+    var riverEndX   = (this.canvas.width * edgeOffset) + (Math.random() * (this.canvas.width - (this.canvas.width * edgeOffset * 2)));
     var riverXDelta = riverEndX - riverStartX;
 
     var riverStartY = this.riverStartPoint.y;
@@ -266,11 +266,11 @@ function Terrain()
                 }
 
                 //TODO: less random, maybe use a bit of perlin???
-                if ( Math.random() > 0.96 )
+                /*if ( Math.random() > 0.96 )
                 {
                   var palm = new Palm();
                   thePlants.push(palm);
-                }
+                }*/
               }
 
               if ( thePlants.length <= 0 && (riverDistN != undefined || valleyDistN != undefined) )

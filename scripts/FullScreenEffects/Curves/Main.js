@@ -10,6 +10,8 @@ var tod                      = 0; //0-1
 var animCurves              = [];
 var curveStep               = 0.001;
 
+var bgGradient;
+
 //------------------------------------------------
 //                    Start
 //------------------------------------------------
@@ -19,8 +21,8 @@ function init()
   var includes =
   [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise', 'Utils/AnimationCurve',
-    'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler',
-    'GameObject'
+    'Utils/Gradient', 'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil',
+    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject'
   ];
   CommonElementsCreator.appendScipts(includes);
 }
@@ -29,6 +31,12 @@ function start()
 {
   initCanvas();
   createTodSlider();
+
+  //gradient
+  bgGradient = new Gradient();
+  bgGradient.addKeyFrame(0, [198, 0, 0]);
+  bgGradient.addKeyFrame(0.5, [0, 52, 198], EasingUtil.easeInExpo);
+  bgGradient.addKeyFrame(1, [0, 198, 122]);
 
   //init curves
   animCurves[0] = new AnimationCurve();
@@ -112,7 +120,9 @@ function update()
     theCurve = animCurves[i];
     pos = getCurvePos(tod, theCurve);
 
-    fgCtx.fillStyle = "rgba(0, 0, 0, 0.25)";
+    var theColor = bgGradient.evaluate(1 - (pos.y / fgCanvas.height));
+    fgCtx.fillStyle = "rgba(" +theColor[0] +"," +theColor[1] +"," +theColor[2] +", 0.5)";
+
     fgCtx.beginPath();
     fgCtx.arc(pos.x, pos.y, circleW, 0, 2 * Math.PI);
     fgCtx.fill();
@@ -134,7 +144,7 @@ function drawCurves()
 
     iN = i/l;
 
-    bgCtx.strokeStyle = "hsl("+ (iN * 360) +",80%,50%)";
+    bgCtx.strokeStyle = "hsl("+ (iN * 360) +", 100%, 40%)";
     bgCtx.lineWidth = 2;
 
     bgCtx.beginPath();

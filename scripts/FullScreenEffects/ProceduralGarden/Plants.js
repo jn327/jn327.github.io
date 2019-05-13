@@ -202,6 +202,22 @@ function PalmHead()
   this.angleMin        = 240;
   this.angleMax        = 260;
 
+  var pointsCurve = new AnimationCurve();
+    pointsCurve.addKeyFrame(0, 0);
+    pointsCurve.addKeyFrame(0.45, 1);
+    pointsCurve.addKeyFrame(0.5, 0.2);
+    pointsCurve.addKeyFrame(1, 0.8);
+
+  var lastPointsCurve = new AnimationCurve();
+    lastPointsCurve.addKeyFrame(0, 0);
+    lastPointsCurve.addKeyFrame(0.5, 1);
+    lastPointsCurve.addKeyFrame(1, 0);
+
+  var minScaleCurve = new AnimationCurve();
+      minScaleCurve.addKeyFrame(0, 0);
+      minScaleCurve.addKeyFrame(0.5, 0.33);
+      minScaleCurve.addKeyFrame(1, 0);
+
   this.buildPoints = function()
   {
     var noise = new SimplexNoise();
@@ -212,17 +228,6 @@ function PalmHead()
     var startAngle    = (Math.PI - totalAngle) * 0.5;
 
     var totalPoints = Math.round(Math.scaleNormal(this.scale, this.pointsMin, this.pointsMax));;
-
-    var pointsCurve = new AnimationCurve();
-    pointsCurve.addKeyFrame(0, 0);
-    pointsCurve.addKeyFrame(0.45, 1);
-    pointsCurve.addKeyFrame(0.5, 0.2);
-    pointsCurve.addKeyFrame(1, 0.8);
-
-    var lastPointsCurve = new AnimationCurve();
-    lastPointsCurve.addKeyFrame(0, 0);
-    lastPointsCurve.addKeyFrame(0.5, 1);
-    lastPointsCurve.addKeyFrame(1, 0);
 
     for (var i = 0; i < nSpikes; i++)
     {
@@ -236,7 +241,8 @@ function PalmHead()
         var t = n / (totalPoints-1);
         t = n != (totalPoints-1) ? pointsCurve.evaluate(t) : lastPointsCurve.evaluate(t);
 
-        var sizeScale = Math.scaleNormal(t, 0.33, 1);
+        var minScale = minScaleCurve.evaluate(pointAngle/totalAngle);
+        var sizeScale = Math.scaleNormal(t, minScale, 1);
 
         var xCos = Math.cos(pointAngle);
         var ySin = Math.sin(pointAngle);
