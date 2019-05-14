@@ -23,9 +23,8 @@
       <a class="standardButton-close" id="close-about" target="_blank" >x</a>
 
       <p id="headerLabel" >Hi, I'm Josh Newland</p>
-      <p id="descriptionLabel" >I'm a software programmer from the UK, with an interest in games and web development, procedural generation & good stories</p>
-      <div id="linksSpacer">
-      </div>
+      <p id="descriptionLabel" style="padding-bottom:12px;" >I'm a software programmer from the UK, with an interest in games and web development, procedural generation & good stories</p>
+
       <a class="standardButton" href="https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing" target="_blank" >Check out my CV</a>
     </div>
 
@@ -76,6 +75,8 @@
 
     function bindClickToIndex(i)
     {
+      // have to wrap it in a closure as when adding event listeners javascript will
+      //put them to one side then add them later on once the for loop is done and the value of of i has changed.
       //see https://stackoverflow.com/questions/750486/javascript-closure-inside-loops-simple-practical-example
       return function() { setSelectedHeaderItem(i); };
     }

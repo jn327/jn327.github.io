@@ -13,11 +13,11 @@
 
 .blurred
 {
-  -webkit-filter  : blur(4px) brightness(0.8);
-  -ms-filter      : blur(4px) brightness(0.8);
-  -moz-filter     : blur(4px) brightness(0.8);
-  -o-filter       : blur(4px) brightness(0.8);
-  filter          : blur(4px) brightness(0.8);
+  -webkit-filter  : blur(4px) brightness(0.75);
+  -ms-filter      : blur(4px) brightness(0.75);
+  -moz-filter     : blur(4px) brightness(0.75);
+  -o-filter       : blur(4px) brightness(0.75);
+  filter          : blur(4px) brightness(0.75);
 }
 
 #contentContainer
@@ -34,34 +34,39 @@
 
 .labelsContainer, .labelsContainer-active
 {
-  visibility        : hidden;
+  pointer-events    : none;
   display           : none;
   position          : absolute;
   opacity           : 0;
 
   border-radius     : 0px;
-  background-color  : rgba(0, 0, 0, 0.5);
+  background-color  : rgba(0, 0, 0, 0.33);
 
   height            : auto;
   width             : 75%;
 
   padding           : 38px 38px 38px 38px;
-  margin            : 0px 0px 0px 0px;
+  margin            : 100px 0px 0px 0px;
   display           : flex;
   flex-direction    : column;
   align-items       : center;
   justify-content   : center;
 
-  -webkit-transition  : opacity 0.2s linear 0s;
-  transition          : opacity 0.2s linear 0s;
+  -webkit-transition  : opacity 0.1s linear 0.05s, margin 0.1s linear 0.0s;
+  transition          : opacity 0.1s linear 0.05s, margin 0.1s linear 0.0s;
 }
 
 .labelsContainer-active
 {
-  visibility        : visible;
+  pointer-events    : auto;
   display           : inline-block;
   position          : relative;
   opacity           : 1;
+
+  margin            : 0px 0px 0px 0px;
+
+  -webkit-transition  : opacity 0.15s linear 0.25s, margin 0.15s ease-out 0.2s;
+  transition          : opacity 0.15s linear 0.25s, margin 0.15s ease-out 0.2s;
 }
 
 #headerLabel
