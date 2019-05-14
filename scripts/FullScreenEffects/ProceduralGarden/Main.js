@@ -50,7 +50,7 @@ function init()
     'FullScreenEffects/ProceduralGarden/Creatures', 'FullScreenEffects/ProceduralGarden/CreatureManager',
     'FullScreenEffects/ProceduralGarden/River', 'FullScreenEffects/ProceduralGarden/Wind'
   ];
-  CommonElementsCreator.appendScipts(includes);
+  CommonElementsCreator.appendScripts(includes);
 }
 
 function start()

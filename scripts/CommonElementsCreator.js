@@ -2,7 +2,7 @@ var CommonElementsCreator = {};
 CommonElementsCreator.defaultHeaderParent = document.body;
 CommonElementsCreator.defaultCanvasParent = document.body;
 
-CommonElementsCreator.createHeaderElement = function( parentElement, rootLocation )
+CommonElementsCreator.createHeaderElement = function( rootLocation, parentElement )
 {
   if (parentElement == undefined)
   {
@@ -13,8 +13,8 @@ CommonElementsCreator.createHeaderElement = function( parentElement, rootLocatio
     rootLocation = '';
   }
 
-  console.log(window.location.pathname);
-  var bIndex = window.location.pathname == "index.html";
+  var pathName = window.location.pathname;
+  var bIndex = pathName == "/index.html" || pathName == "/" || pathName == "";
 
   //start creating some elements
   var container = document.createElement('div');
@@ -29,7 +29,7 @@ CommonElementsCreator.createHeaderElement = function( parentElement, rootLocatio
   {
     var headerItem = document.createElement('a');
     headerItem.className = 'headerLink';
-    headerItem.href = "index.html";
+    headerItem.href = "../index.html";
     headerItem.textContent = "Home";
     list.appendChild(headerItem);
   }
@@ -90,14 +90,19 @@ CommonElementsCreator.addLinksToHeader = function( labels, selectedIndex )
   return headerItems
 }
 
-CommonElementsCreator.appendScipts = function( includes )
+CommonElementsCreator.appendScripts = function( includes, rootLocation )
 {
+  if (rootLocation == undefined)
+  {
+    rootLocation = '';
+  }
+
   var l = includes.length;
   var theScript;
   for (var i = 0; i < l; i++ )
   {
     theScript = document.createElement('script');
-    theScript.src = 'scripts/'+includes[i]+'.js';
+    theScript.src = rootLocation+'scripts/'+includes[i]+'.js';
     document.head.appendChild(theScript);
   }
 }
