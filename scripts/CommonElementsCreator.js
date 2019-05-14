@@ -2,20 +2,18 @@ var CommonElementsCreator = {};
 CommonElementsCreator.defaultHeaderParent = document.body;
 CommonElementsCreator.defaultCanvasParent = document.body;
 
-CommonElementsCreator.createHeaderElement = function( bIndex, parentElement, rootLocation )
+CommonElementsCreator.createHeaderElement = function( parentElement, rootLocation )
 {
   if (parentElement == undefined)
   {
     parentElement = this.defaultHeaderParent;
   }
-  if (bIndex == undefined)
-  {
-    bIndex = false;
-  }
   if (rootLocation == undefined)
   {
     rootLocation = '';
   }
+
+  var bIndex = window.location.pathname == "index.html";
 
   //start creating some elements
   var container = document.createElement('div');
