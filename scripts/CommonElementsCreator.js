@@ -1,14 +1,16 @@
 var CommonElementsCreator = {};
+CommonElementsCreator.defaultHeaderParent = document.body;
+CommonElementsCreator.defaultCanvasParent = document.body;
 
-CommonElementsCreator.createHeaderElement = function( selectedIndex, parentElement, rootLocation )
+CommonElementsCreator.createHeaderElement = function( bIndex, parentElement, rootLocation )
 {
   if (parentElement == undefined)
   {
-    parentElement = document.body;
+    parentElement = this.defaultHeaderParent;
   }
-  if (selectedIndex == undefined)
+  if (bIndex == undefined)
   {
-    selectedIndex = -1;
+    bIndex = false;
   }
   if (rootLocation == undefined)
   {
@@ -24,18 +26,12 @@ CommonElementsCreator.createHeaderElement = function( selectedIndex, parentEleme
   list.id = 'headerList';
   container.appendChild(list);
 
-  var headerLabels = [ "About me", "Projects" ];
-  var headerLinks = [ "index", "projects" ];
-  for (var i = 0; i < headerLabels.length; i++)
+  if (!bIndex)
   {
     var headerItem = document.createElement('a');
-    headerItem.className = i != selectedIndex ? 'headerLink' : 'headerLink-active';
-    if (i != selectedIndex)
-    {
-      headerItem.href = rootLocation+headerLinks[i]+".html";
-    }
-    headerItem.textContent = headerLabels[i];
-
+    headerItem.className = 'headerLink';
+    headerItem.href = "index.html";
+    headerItem.textContent = "Home";
     list.appendChild(headerItem);
   }
 
@@ -72,6 +68,29 @@ CommonElementsCreator.createHeaderElement = function( selectedIndex, parentEleme
   }
 }
 
+CommonElementsCreator.addLinksToHeader = function( labels, selectedIndex )
+{
+  if (selectedIndex == undefined)
+  {
+    selectedIndex = -1;
+  }
+
+  var list = document.getElementById("headerList");
+  var headerItem;
+  var headerItems = [];
+  for (var i = 0; i < labels.length; i++)
+  {
+    headerItem = document.createElement('a');
+    headerItem.className = i != selectedIndex ? 'headerLink' : 'headerLink-active';
+    headerItem.textContent = labels[i];
+
+    list.appendChild(headerItem);
+    headerItems.push(headerItem);
+  }
+
+  return headerItems
+}
+
 CommonElementsCreator.appendScipts = function( includes )
 {
   var l = includes.length;
@@ -88,17 +107,17 @@ CommonElementsCreator.createCanvas = function( parentElement, className )
 {
   if (parentElement == undefined)
   {
-    parentElement = document.body;
+    parentElement = this.defaultCanvasParent;
   }
 
   if (className == undefined)
   {
-    className = "fullFixed";
+    className = "defaultCanvas";
   }
 
   var canvas = document.createElement("canvas");
   canvas.className = className;
-  document.body.insertBefore(canvas, parentElement.firstChild);
+  parentElement.insertBefore(canvas, parentElement.firstChild);
 
   return canvas;
 }

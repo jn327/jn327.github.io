@@ -15,20 +15,80 @@
 </head>
 <body>
 
+  <div id="canvasContainer" class="toBlur" >
+  </div>
+
   <div id="contentContainer">
-    <div id="labelsContainer">
+    <div id="about" class="labelsContainer">
       <p id="headerLabel" >Hi, I'm Josh Newland</p>
-      <p id="descriptionLabel" >I'm a software programmer from the UK, with an interest in games development, procedural generation & good stories</p>
+      <p id="descriptionLabel" >I'm a software programmer from the UK, with an interest in games and web development, procedural generation & good stories</p>
+      <div id="linksSpacer">
+      </div>
       <a class="standardButton" href="https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing" target="_blank" >Check out my CV</a>
+    </div>
+
+    <div id="projects" class="labelsContainer">
+      <p id="headerLabel" >Projects</p>
+      <p id="descriptionLabel" >
+        Most of my small game projects can be found on
+        <a href="https://gamejolt.com/@Jn327/games" target="_blank" >Game Jolt</a>
+        &
+        <a href="https://jn327.itch.io/" target="_blank" >Itch.io</a>
+        <br>
+        <br>I've also some AAA video game experience and have been known to mess around with Arduinos and Raspberry Pi's
+        <br>More info coming soon.
+      </p>
     </div>
   </div>
 
   <!-- scripts -->
   <script src="scripts/CommonElementsCreator.js"></script>
-  <script> CommonElementsCreator.createHeaderElement(0); </script>
+  <script>
+    //set canvas container.
+    CommonElementsCreator.defaultCanvasParent = document.getElementById("canvasContainer");
+
+    var headerElements = [document.getElementById("about"), document.getElementById("projects")];
+
+    //creating the header
+    CommonElementsCreator.createHeaderElement(true);
+    var headerBtns = CommonElementsCreator.addLinksToHeader( [ "About me", "Projects" ] );
+    var visHeaderItemIndex = -1;
+    setSelectedHeaderItem(0);
+
+    //listeners for header buttons
+    for (var i = 0; i < headerBtns.length; i++)
+    {
+      headerBtns[i].addEventListener( "click", bindClickToIndex(i) );
+    }
+
+    function bindClickToIndex(i)
+    {
+      //see https://stackoverflow.com/questions/750486/javascript-closure-inside-loops-simple-practical-example
+      return function() { setSelectedHeaderItem(i); };
+    }
+
+    function setSelectedHeaderItem( index )
+    {
+      if (index == visHeaderItemIndex)
+      {
+        index = -1;
+        //return;
+      }
+
+      canvasContainer.className = index >= 0 ? "blurred" : "toBlur";
+
+      visHeaderItemIndex = index;
+      for (var j = 0; j < headerElements.length; j++)
+      {
+        headerElements[j].className = (j == index) ? 'labelsContainer-active' : 'labelsContainer';
+        headerBtns[j].className = (j == index) ? "headerLink-active" : "headerLink";
+        console.log(" className for index "+j +" is "+headerBtns[j].className)
+      }
+    }
+
+  </script>
 
   <script src="scripts/FullScreenEffects/ProceduralGarden/Main.js"></script>
-  <!-- <script src="scripts/FullScreenEffects/VectorField/Main.js"></script> -->
 
 </body>
 </html>

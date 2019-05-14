@@ -1,19 +1,20 @@
 .todSlider
 {
-  position:absolute;
-  bottom:10px;
-  right:10px;
+  position          : absolute;
+  bottom            : 10px;
+  right             : 10px;
 
   -webkit-appearance: none;
-  appearance: none;
-  width: 200px;
-  height: 15px;
-  border-radius: 5px;
-  background: #d3d3d3;
+  appearance        : none;
+  width             : 200px;
+  height            : 6px;
+  border            : 1px solid #fff;
+  border-radius     : 3px;
+  background-color  : rgba(66, 66, 66, 0.25);
   outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
+  opacity           : 0.75;
+  -webkit-transition: opacity 0.2s;
+  transition        : opacity 0.2s;
 }
 
 .todSlider:hover
@@ -23,20 +24,24 @@
 
 .todSlider::-webkit-slider-thumb
 {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #424242;
-  cursor: pointer;
+  -webkit-appearance    : none;
+  appearance            : none;
+  width                 : 20px;
+  height                : 20px;
+  cursor                : pointer;
+
+  border                : 1px solid #fff;
+  border-radius         : 50%;
+  background-color      : rgba(66, 66, 66, 1);
 }
 
 .todSlider::-moz-range-thumb
 {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #424242;
-  cursor: pointer;
+  width               : 25px;
+  height              : 25px;
+  cursor              : pointer;
+
+  border              : 1px solid #fff;
+  border-radius       : 50%;
+  background-color    : rgba(66, 66, 66, 1);
 }
