@@ -14,7 +14,8 @@ CommonElementsCreator.createHeaderElement = function( rootLocation, parentElemen
   }
 
   var pathName = window.location.pathname;
-  var bIndex = pathName == "/index.html" || pathName == "/" || pathName == "";
+  var bIndex = pathName == "/index.html" || pathName == "/" || pathName == "" || pathName == "index.html"
+    || (pathName.length > 11 && pathName.substr(pathName.length - 11) == "/index.html");
 
   //start creating some elements
   var container = document.createElement('div');

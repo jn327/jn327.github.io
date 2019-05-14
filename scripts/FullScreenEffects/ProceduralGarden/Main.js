@@ -1,5 +1,6 @@
 //HTML Elements
 var skyCanvas, skyCtx;
+var nebulaCanvas, nebulaCtx;
 var starsCanvases = [];
 var starsCtxs = [];
 var cloudsCanvas, cloudsCtx;
@@ -62,7 +63,7 @@ function start()
   terrain = new Terrain();
   wind    = new Wind();
 
-  sky.init( dayDur, skyCtx, skyCanvas, starsCanvases, starsCtxs, cloudsCanvas, cloudsCtx );
+  sky.init( dayDur, skyCtx, skyCanvas, nebulaCanvas, nebulaCtx, starsCanvases, starsCtxs, cloudsCanvas, cloudsCtx );
   terrain.init( terrainCtx, terrainCanvas, plantsCtx );
 
   CreatureManager.init( creatureCanvas, terrain );
@@ -97,6 +98,9 @@ function initCanvas()
     starsCtxs.push( newCanvas.getContext('2d') );
   }
 
+  nebulaCanvas        = CommonElementsCreator.createCanvas();
+  nebulaCtx           = nebulaCanvas.getContext('2d');
+
   skyCanvas           = CommonElementsCreator.createCanvas();
   skyCtx              = skyCanvas.getContext('2d', { alpha: false });
 
@@ -110,7 +114,7 @@ function validateCanvasSize()
   var minScaleV = 600;
   var minScaleH = 400;
 
-  var theCanvases = [skyCanvas, cloudsCanvas, terrainCanvas, effectsCanvas, creatureCanvas, plantsCanvas, activePlantsCanvas];
+  var theCanvases = [skyCanvas, nebulaCanvas, cloudsCanvas, terrainCanvas, effectsCanvas, creatureCanvas, plantsCanvas, activePlantsCanvas];
   for (var i = 0; i < starsCanvases.length; i++)
   {
     theCanvases.push(starsCanvases[i]);

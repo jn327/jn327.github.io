@@ -2,6 +2,8 @@ function Sky()
 {
   this.canvas;
   this.ctx;
+  this.nebulaCanvas;
+  this.nebulaCtx;
   this.starsCanvases;
   this.starsCtxs;
   this.cloudsCanvas;
@@ -24,10 +26,12 @@ function Sky()
   this.moon             = new Moon();
   this.sun              = new Sun();
 
-  this.init = function( starTwinkleSpeedDivider, theCtx, theCanvas, starsCanvases, starsCtxs, cloudsCanvas, cloudsCtx )
+  this.init = function( starTwinkleSpeedDivider, theCtx, theCanvas, nebulaCanvas, nebulaCtx, starsCanvases, starsCtxs, cloudsCanvas, cloudsCtx )
   {
     this.ctx            = theCtx;
     this.canvas         = theCanvas;
+    this.nebulaCtx      = nebulaCtx;
+    this.nebulaCanvas   = nebulaCanvas;
     this.starsCanvases  = starsCanvases;
     this.starsCtxs      = starsCtxs;
     this.cloudsCanvas   = cloudsCanvas;
@@ -36,6 +40,7 @@ function Sky()
     CloudsManager.initClouds( this.cloudsCanvas.width, this.cloudsCanvas.height );
 
     StarsManager.initStars( starTwinkleSpeedDivider, this.starsCanvases[0].width, this.starsCanvases[0].height );
+    StarsManager.drawNebula( this.nebulaCtx, this.nebulaCanvas, this.nebulaCanvas.width, this.nebulaCanvas.height );
     StarsManager.drawStars(this.starsCtxs, this.starsCanvases, this.starsCanvases[0].width, this.starsCanvases[0].height);
 
     this.initCurves();
@@ -64,6 +69,7 @@ function Sky()
     CloudsManager.randomizeClouds( this.cloudsCanvas.width, this.cloudsCanvas.height );
 
     StarsManager.randomizeStars( this.starsCanvases[0].width, this.starsCanvases[0].height );
+    StarsManager.drawNebula( this.nebulaCtx, this.nebulaCanvas, this.nebulaCanvas.width, this.nebulaCanvas.height );
     StarsManager.drawStars(this.starsCtxs, this.starsCanvases, this.starsCanvases[0].width, this.starsCanvases[0].height);
   }
 
@@ -75,7 +81,7 @@ function Sky()
     this.drawBackground();
 
     //stars
-    StarsManager.update(t, this.starsCanvases, this.cloudsCtx, this.cloudsCanvas.width, this.cloudsCanvas.height);
+    StarsManager.update(t, this.starsCanvases, this.cloudsCtx, this.nebulaCanvas, this.cloudsCanvas.width, this.cloudsCanvas.height);
 
     //sun and sky gradient
     this.sun.update( t, this.cloudsCanvas.width, this.cloudsCanvas.height );

@@ -9,6 +9,7 @@ StarsManager.maxStars                  = 1200;
 StarsManager.minStarSize               = 0.1;
 StarsManager.maxStarSize               = 1.2;
 StarsManager.spawnNoiseScale           = 0.003;
+StarsManager.spawnNoise;
 
 StarsManager.twinkleMultip            = 0.015;
 StarsManager.twinkleSpeed;
@@ -35,20 +36,25 @@ StarsManager.initStars = function( twinkleSpeedDivider, theWidth, theHeight )
 
   this.twinkleSpeed = this.twinkleMultip / twinkleSpeedDivider;
 
-  var spawnNoise = new SimplexNoise();
+  this.spawnNoise = new SimplexNoise();
 
   var nStars = Math.getRnd(this.minStars, this.maxStars);
   for (var i = 0; i < nStars; i++)
   {
     var newStar = new Star();
     this.setRandomStarPos(newStar, theWidth, theHeight);
-    var starSize = (spawnNoise.noise(newStar.position.x * this.spawnNoiseScale
-      ,newStar.position.y * this.spawnNoiseScale) + 1) * 0.5;
-
-    newStar.size = Math.scaleNormal(starSize, this.minStarSize, this.maxStarSize);
+    this.setStarSize(newStar);
 
     this.stars[i] = newStar;
   }
+}
+
+StarsManager.setStarSize = function(theStar)
+{
+  var starSize = (this.spawnNoise.noise(theStar.position.x * this.spawnNoiseScale
+    ,theStar.position.y * this.spawnNoiseScale) + 1) * 0.5;
+
+  theStar.size = Math.scaleNormal(starSize, this.minStarSize, this.maxStarSize);
 }
 
 StarsManager.setRandomStarPos = function(theStar, theWidth, theHeight )
@@ -59,10 +65,33 @@ StarsManager.setRandomStarPos = function(theStar, theWidth, theHeight )
 
 StarsManager.randomizeStars = function( theWidth, theHeight )
 {
+  this.spawnNoise = new SimplexNoise();
+
   var l = this.stars.length;
+  var theStar;
   for (var i = 0; i < l; i++)
   {
-    this.setRandomStarPos(this.stars[i], theWidth, theHeight );
+    theStar = this.stars[i];
+    this.setRandomStarPos(theStar, theWidth, theHeight );
+    this.setStarSize(theStar);
+  }
+}
+
+StarsManager.drawNebula = function( ctx, canvas, theWidth, theHeight )
+{
+  canvas.style.opacity = 0;
+
+  var xStep = 2;
+  var yStep = 2;
+  for (var x = 0; x < theWidth; x += xStep)
+  {
+    for (var y = 0; y < theHeight; y += yStep)
+    {
+      var noiseVal = (this.spawnNoise.noise(x * this.spawnNoiseScale, y * this.spawnNoiseScale) + 1) * 0.5;
+      var whiteness = 255 * noiseVal;
+      ctx.fillStyle = "rgba( "+whiteness +", "+whiteness +", "+whiteness +", 0.1)";
+      ctx.fillRect(x, y, xStep, yStep);
+    }
   }
 }
 
@@ -91,7 +120,7 @@ StarsManager.drawStars = function( ctxs, cavases, theWidth, theHeight )
   }
 }
 
-StarsManager.update = function( t, cavases, shootingStarCtx, theWidth, theHeight )
+StarsManager.update = function( t, cavases, shootingStarCtx, nebulaCanvas, theWidth, theHeight )
 {
   if (t < this.starsHideTime || t > this.starsShowTime)
   {
@@ -100,6 +129,8 @@ StarsManager.update = function( t, cavases, shootingStarCtx, theWidth, theHeight
     var nightTimeNormal = (starsTime / totalStarsTime);
 
     var nightTimeLerp = this.alphaChangeCurve.evaluate(nightTimeNormal);
+
+    nebulaCanvas.style.opacity = nightTimeLerp;
 
     //stars
     var l = cavases.length;
