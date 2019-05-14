@@ -53,19 +53,35 @@
     var headerIds = ["about", "projects"];
     var headerElements = [];
     var closeBtn;
+
+    var visHeaderItemIndex = -1;
+    var noHeaderHash = "#clear";
+    var currUrlHash = window.location.hash;
+    var urlHeaderIndex = (currUrlHash == noHeaderHash) ? -1 : 0;
+
     for (var k = 0; k < headerIds.length; k++)
     {
       headerElements.push ( document.getElementById(headerIds[k]) );
 
       var closeBtn = document.getElementById("close-"+headerIds[k]);
       closeBtn.addEventListener( "click", function() { onHeaderCloseButton() } );
+
+      if ( currUrlHash != "" )
+      {
+        var hashedId = "#"+headerIds[k];
+        if (hashedId == currUrlHash)
+        {
+          urlHeaderIndex = k;
+        }
+      }
     }
 
     //creating the header
     CommonElementsCreator.createHeaderElement();
     var headerBtns = CommonElementsCreator.addLinksToHeader( [ "About me", "Projects" ] );
-    var visHeaderItemIndex = -1;
-    setSelectedHeaderItem(0);
+
+    //set the selected item.
+    setSelectedHeaderItem(urlHeaderIndex);
 
     //listeners for header buttons
     for (var i = 0; i < headerBtns.length; i++)
@@ -93,6 +109,7 @@
         index = -1;
         //return;
       }
+      window.location.hash = index >= 0 ? "#"+headerIds[index] : noHeaderHash
 
       canvasContainer.className = index >= 0 ? "blurred" : "toBlur";
 
