@@ -20,6 +20,8 @@
 
   <div id="contentContainer">
     <div id="about" class="labelsContainer">
+      <a class="standardButton-close" id="close-about" target="_blank" >x</a>
+
       <p id="headerLabel" >Hi, I'm Josh Newland</p>
       <p id="descriptionLabel" >I'm a software programmer from the UK, with an interest in games and web development, procedural generation & good stories</p>
       <div id="linksSpacer">
@@ -28,6 +30,8 @@
     </div>
 
     <div id="projects" class="labelsContainer">
+      <a class="standardButton-close" id="close-projects" target="_blank" >x</a>
+
       <p id="headerLabel" >Projects</p>
       <p id="descriptionLabel" >
         Most of my small game projects can be found on
@@ -47,7 +51,16 @@
     //set canvas container.
     CommonElementsCreator.defaultCanvasParent = document.getElementById("canvasContainer");
 
-    var headerElements = [document.getElementById("about"), document.getElementById("projects")];
+    var headerIds = ["about", "projects"];
+    var headerElements = [];
+    var closeBtn;
+    for (var k = 0; k < headerIds.length; k++)
+    {
+      headerElements.push ( document.getElementById(headerIds[k]) );
+
+      var closeBtn = document.getElementById("close-"+headerIds[k]);
+      closeBtn.addEventListener( "click", function() { onHeaderCloseButton() } );
+    }
 
     //creating the header
     CommonElementsCreator.createHeaderElement(true);
@@ -67,6 +80,11 @@
       return function() { setSelectedHeaderItem(i); };
     }
 
+    function onHeaderCloseButton()
+    {
+      setSelectedHeaderItem(-1);
+    }
+
     function setSelectedHeaderItem( index )
     {
       if (index == visHeaderItemIndex)
@@ -82,7 +100,6 @@
       {
         headerElements[j].className = (j == index) ? 'labelsContainer-active' : 'labelsContainer';
         headerBtns[j].className = (j == index) ? "headerLink-active" : "headerLink";
-        console.log(" className for index "+j +" is "+headerBtns[j].className)
       }
     }
 
