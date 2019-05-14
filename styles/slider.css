@@ -1,4 +1,4 @@
-.todSlider
+.slider
 {
   position          : absolute;
   bottom            : 10px;
@@ -17,12 +17,12 @@
   transition        : opacity 0.2s;
 }
 
-.todSlider:hover
+.slider:hover
 {
   opacity: 1;
 }
 
-.todSlider::-webkit-slider-thumb
+.slider::-webkit-slider-thumb
 {
   -webkit-appearance    : none;
   appearance            : none;
@@ -35,7 +35,7 @@
   background-color      : rgba(66, 66, 66, 1);
 }
 
-.todSlider::-moz-range-thumb
+.slider::-moz-range-thumb
 {
   width               : 25px;
   height              : 25px;
