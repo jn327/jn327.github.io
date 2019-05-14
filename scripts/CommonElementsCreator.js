@@ -13,6 +13,7 @@ CommonElementsCreator.createHeaderElement = function( parentElement, rootLocatio
     rootLocation = '';
   }
 
+  console.log(window.location.pathname);
   var bIndex = window.location.pathname == "index.html";
 
   //start creating some elements
