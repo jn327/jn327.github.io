@@ -131,19 +131,16 @@
     aaaProjectsData.push( {
       title       : "Planet Coaster",
       image       : "images/projects/PlanCo.gif",
-      imgFit      : "cover",
       description : "UI developer"
     } );
     aaaProjectsData.push( {
       title       : "Jurassic World Evolution",
       image       : "images/projects/Jwe.gif",
-      imgFit      : "cover",
       description : "UI developer"
     } );
     aaaProjectsData.push( {
       title       : "Planet Zoo",
       image       : "images/projects/PlanZoo.gif",
-      imgFit      : "cover",
       description : "UI developer"
     } );
 
@@ -157,19 +154,23 @@
     otherProjectsData.push( {
       title       : "LED curtain",
       image       : "images/projects/Leds.gif",
-      imgFit      : "cover",
       description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."
     } );
     otherProjectsData.push( {
+      title       : "HTML 5 Canvas",
+      image       : "images/projects/HTMLCanvas.gif",
+      description : "Procedural scene with HTML Canvas",
+      link        : "pages/proceduralGarden.html"
+    } );
+
+    otherProjectsData.push( {
       title       : "2000 origami cranes",
       image       : "images/projects/Origami.png",
-      imgFit      : "cover",
       description : "Lots of origami cranes"
     } );
     otherProjectsData.push( {
       title       : "Fiber optic constellations",
       image       : "images/projects/Constellations.png",
-      imgFit      : "cover",
       description : "Fiber optic constellations"
     } );
 
@@ -194,12 +195,19 @@
         img = document.createElement('img');
         img.src = theData.image;
         img.alt = "Image file not found: " +theData.image;
-        img.style.objectFit = theData.imgFit;
+        img.style.objectFit = theData.imgFit || "cover";
         container.appendChild(img);
 
         label = document.createElement('p');
         label.textContent = theData.title;
         container.appendChild(label);
+
+        if (theData.link)
+        {
+          var linkItem = document.createElement('a');
+          linkItem.href = theData.link;
+          container.appendChild(linkItem);
+        }
 
         grid.appendChild(container);
       }

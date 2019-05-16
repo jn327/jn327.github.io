@@ -115,7 +115,6 @@ CommonElementsCreator.getRootLocation = function()
 CommonElementsCreator.appendScripts = function( includes )
 {
   var rootLocation = this.getRootLocation();
-  console.log(rootLocation);
 
   var l = includes.length;
   var theScript;
