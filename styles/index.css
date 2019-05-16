@@ -90,17 +90,11 @@
 #gridHeaderLabel
 {
   font-style      : bold;
-  font-size       : 24px;
+  font-size       : 22px;
   text-align      : center;
 
   margin          : 0px 0px 0px 0px;
   padding         : 0px;
-}
-
-#linksSpacer
-{
-  width       : 100%;
-  margin-top  : 28px;
 }
 
 .standardButton, .standardButton-close
@@ -109,9 +103,6 @@
   text-decoration   : none;
 
   color             : #fff;
-  font-family       : Verdana, Geneva, sans-serif;
-  font-style        : normal;
-  font-size         : 14px;
   padding           : 8px;
 
   border            : 1px solid #fff;
@@ -155,7 +146,7 @@
   border        : 2px solid #E2E2E2;
   border-radius : .5rem;
   overflow      : hidden;
-
+  position:relative;
 }
 
 .projects-grid > li > img
@@ -164,4 +155,30 @@
   width             : 100%;
   height            : 100%;
   object-fit        : contain;
+}
+
+.projects-grid > li > p
+{
+  position        : absolute;
+  left            : 0px;
+  bottom          : 0px;
+  width           : 100%;
+  height          : auto;
+  margin          : 0px;
+  padding         : 6px 0px 6px 0px;
+  background-color: rgba(0, 0, 0, 0.33);
+
+  font-style      : bold;
+  font-size       : 20px;
+
+  -webkit-transition  : background-color 0.075s linear 0s, padding 0.075s linear 0s, font-size 0.075s linear 0s;
+  transition          : background-color 0.075s linear 0s, padding 0.075s linear 0s, font-size 0.075s linear 0s;
+}
+
+.projects-grid > li:hover > p
+{
+  padding         : 12px 0px 12px 0px;
+  background-color: rgba(0, 0, 0, 0.66);
+
+  font-size       : 24px;
 }

@@ -107,8 +107,6 @@ CommonElementsCreator.getRootLocation = function()
     {
       rootLocation += "../";
     }
-
-    console.log(pathname +", forward slashes: "+res +", length: "+currDepth +", rootLocation: "+rootLocation);
   }
 
   return rootLocation;

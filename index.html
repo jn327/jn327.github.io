@@ -156,7 +156,7 @@
     } );
     otherProjectsData.push( {
       title       : "LED curtain",
-      image       : "images/projects/leds.gif",
+      image       : "images/projects/Leds.gif",
       imgFit      : "cover",
       description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."
     } );
@@ -183,6 +183,7 @@
       var theData;
       var container;
       var img;
+      var label;
       for (var j = 0; j < itemsData.length; j++)
       {
         theData = itemsData[j];
@@ -195,6 +196,10 @@
         img.alt = "Image file not found: " +theData.image;
         img.style.objectFit = theData.imgFit;
         container.appendChild(img);
+
+        label = document.createElement('p');
+        label.textContent = theData.title;
+        container.appendChild(label);
 
         grid.appendChild(container);
       }
