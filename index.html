@@ -10,7 +10,6 @@
   <link rel= "stylesheet" href ="styles/topBar.css">
 
   <link rel= "stylesheet" href ="styles/index.css">
-  <link rel= "stylesheet" href ="styles/slider.css">
 
 </head>
 <body>
@@ -32,15 +31,21 @@
       <a class="standardButton-close" id="close-projects" target="_blank" >x</a>
 
       <p id="headerLabel" >Projects</p>
-      <p id="descriptionLabel" >
-        Most of my small game projects can be found on
-        <a href="https://gamejolt.com/@Jn327/games" target="_blank" >Game Jolt</a>
-        &
-        <a href="https://jn327.itch.io/" target="_blank" >Itch.io</a>
-        <br>
-        <br>I've also some AAA video game experience and have been known to mess around with Arduinos and Raspberry Pi's
-        <br>More info coming soon.
-      </p>
+
+      <div class="scrollContainer" style="padding-right:24px; padding-top:24px;">
+        <p id="gridHeaderLabel" >AAA Games</p>
+        <ul class="projects-grid" id="aaaProjectsGrid"> </ul>
+
+        <p id="gridHeaderLabel" style="padding-top:32px;" >Indie Games</p>
+        <p id="descriptionLabel" >
+          Most of my smaller game projects can be found on
+          <a href="https://gamejolt.com/@Jn327/games" target="_blank" >Game Jolt</a>
+          & <a href="https://jn327.itch.io/" target="_blank" >Itch.io</a>
+        </p>
+
+        <p id="gridHeaderLabel" style="padding-top:32px;" >Other experiments</p>
+        <ul class="projects-grid" id="otherProjectsGrid"> </ul>
+      </div>
     </div>
   </div>
 
@@ -121,9 +126,84 @@
       }
     }
 
+    //Creating project elements
+    var aaaProjectsData = [];
+    aaaProjectsData.push( {
+      title       : "Planet Coaster",
+      image       : "images/projects/PlanCo.gif",
+      imgFit      : "cover",
+      description : "UI developer"
+    } );
+    aaaProjectsData.push( {
+      title       : "Jurassic World Evolution",
+      image       : "images/projects/Jwe.gif",
+      imgFit      : "cover",
+      description : "UI developer"
+    } );
+    aaaProjectsData.push( {
+      title       : "Planet Zoo",
+      image       : "images/projects/PlanZoo.gif",
+      imgFit      : "cover",
+      description : "UI developer"
+    } );
+
+    var otherProjectsData = [];
+    otherProjectsData.push( {
+      title       : "RichRap 3dr delta printer",
+      image       : "images/projects/3dPrinter.gif",
+      imgFit      : "contain",
+      description : "Assembled 3D printer and setup Marlin on an Arduino."
+    } );
+    otherProjectsData.push( {
+      title       : "LED curtain",
+      image       : "images/projects/leds.gif",
+      imgFit      : "cover",
+      description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."
+    } );
+    otherProjectsData.push( {
+      title       : "2000 origami cranes",
+      image       : "images/projects/Origami.png",
+      imgFit      : "cover",
+      description : "Lots of origami cranes"
+    } );
+    otherProjectsData.push( {
+      title       : "Fiber optic constellations",
+      image       : "images/projects/Constellations.png",
+      imgFit      : "cover",
+      description : "Fiber optic constellations"
+    } );
+
+    createProjectElements( "otherProjectsGrid", otherProjectsData );
+    createProjectElements( "aaaProjectsGrid", aaaProjectsData );
+
+    function createProjectElements( gridId, itemsData )
+    {
+      var grid = document.getElementById(gridId);
+
+      var theData;
+      var container;
+      var img;
+      for (var j = 0; j < itemsData.length; j++)
+      {
+        theData = itemsData[j];
+
+        container = document.createElement('li');
+        //container.textContent = theData.title;
+
+        img = document.createElement('img');
+        img.src = theData.image;
+        img.alt = "Image file not found: " +theData.image;
+        img.style.objectFit = theData.imgFit;
+        container.appendChild(img);
+
+        grid.appendChild(container);
+      }
+    }
+
+
   </script>
 
-  <script src="scripts/FullScreenEffects/ProceduralGarden/Main.js"></script>
+  <script src="scripts/FullScreenEffects/VectorField/Main.js"></script>
 
 </body>
 </html>

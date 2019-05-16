@@ -5,7 +5,7 @@
   margin            : 0px 0px 0px 0px;
   padding           : 0px 0px 12px 0px;
 
-  position          : absolute;
+  position          : fixed;
 
   border-radius     : 0px;
   background-color  : rgba(0, 0, 0, 0.33);
@@ -107,7 +107,7 @@
   transition          : width 0.3s ease-out 0.1s, height 0.3s ease-out 0.1s;
 }
 
-.imageLink:hover .imageLinkIcon
+.imageLink:hover > .imageLinkIcon
 {
   width   : 24px;
   height  : 24px;
@@ -158,7 +158,7 @@
   border-color: transparent transparent rgba(0, 0, 0, 0.33) transparent;
 }
 
-.imageLink:hover .toolTip
+.imageLink:hover > .toolTip
 {
   visibility      : visible;
   opacity         : 1;

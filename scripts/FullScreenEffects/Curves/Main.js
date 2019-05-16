@@ -24,7 +24,7 @@ function init()
     'Utils/Gradient', 'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil',
     'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject'
   ];
-  CommonElementsCreator.appendScripts(includes, "../");
+  CommonElementsCreator.appendScripts(includes);
 }
 
 function start()

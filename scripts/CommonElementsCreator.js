@@ -2,16 +2,14 @@ var CommonElementsCreator = {};
 CommonElementsCreator.defaultHeaderParent = document.body;
 CommonElementsCreator.defaultCanvasParent = document.body;
 
-CommonElementsCreator.createHeaderElement = function( rootLocation, parentElement )
+CommonElementsCreator.createHeaderElement = function( parentElement )
 {
   if (parentElement == undefined)
   {
     parentElement = this.defaultHeaderParent;
   }
-  if (rootLocation == undefined)
-  {
-    rootLocation = '';
-  }
+
+  var rootLocation = this.getRootLocation();
 
   var pathName = window.location.pathname;
   var bIndex = pathName == "/index.html" || pathName == "/" || pathName == "" || pathName == "index.html"
@@ -91,12 +89,35 @@ CommonElementsCreator.addLinksToHeader = function( labels, selectedIndex )
   return headerItems
 }
 
-CommonElementsCreator.appendScripts = function( includes, rootLocation )
+CommonElementsCreator.getRootLocation = function()
 {
-  if (rootLocation == undefined)
+  var rootLocation = "";
+
+  if (window.location.protocol == "file:")
   {
-    rootLocation = '';
+    rootLocation = "/Users/joshnewland/Documents/GitHub/jn327.github.io/";
   }
+  else
+  {
+    var pathname = window.location.pathname;
+    var res = pathname.match(new RegExp("/", "gi")) || [];
+    var currDepth = res.length;
+
+    for (var i = 1; i < currDepth; i++)
+    {
+      rootLocation += "../";
+    }
+
+    console.log(pathname +", forward slashes: "+res +", length: "+currDepth +", rootLocation: "+rootLocation);
+  }
+
+  return rootLocation;
+}
+
+CommonElementsCreator.appendScripts = function( includes )
+{
+  var rootLocation = this.getRootLocation();
+  console.log(rootLocation);
 
   var l = includes.length;
   var theScript;
