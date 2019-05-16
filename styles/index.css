@@ -42,7 +42,7 @@
   background-color  : rgba(0, 0, 0, 0.33);
 
   height            : auto;
-  width             : calc(100% - 200px);
+  width             : calc(100% - 120px);
   max-height        : calc(100% - 300px);
 
   padding           : 38px 38px 38px 38px;
@@ -58,6 +58,7 @@
 
 .labelsContainer-active
 {
+  visibility          : visible;
   pointer-events      : auto;
   display             : inline-block;
   position            : relative;
