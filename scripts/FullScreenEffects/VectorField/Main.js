@@ -12,30 +12,35 @@ var vectorFieldMinStr     = 0.25;
 var vectorFieldMaxStr     = 1;
 var vectorFieldStrMultip  = 1.5;
 
-var pixelSizeX = 8;
-var pixelSizeY = 8;
+var pixelSizeX = 6;
+var pixelSizeY = 6;
 var lastPixelX;
 var lastPixelY;
 
-var nParticles    = 1750;
-var particleSize  = 2;
+var nParticles    = 1500;
+var particleSize  = 3;
 var particles;
 
-var particleMouseAvoidanceDist  = 50;
-var particleMouseAvoidanceStr   = 200;
+var particleMouseAvoidanceDist  = 100;
+var particleMouseAvoidanceStr   = 1;
 
 var minHue        = 180;
 var maxHue        = 360;
 var theHue        = 0;
 var hueVariation  = 60;
-var theSaturation = 90; //0-100 (percent)
+var theSaturation = 60; //0-100 (percent)
+var backgroundBrightness = 25;
+var particleBrightness = 80;
+var linesBrightness = 80;
 
-var changeFrequency   = 20;
+var changeFrequency   = 10;
 var changeTimer       = 0;
-var fadeOutDur        = 1.25;
+var fadeOutDur        = 1;
 var fadeOutTimer      = 0;
-var fadeInDur         = 0.75;
+var fadeInDur         = 0.5;
 var fadeInTimer       = 0;
+var renderFrequency   = 0.03;
+var renderTimer       = 0;
 
 //------------------------------------------------
 //                Initialization
@@ -87,7 +92,6 @@ function onWindowResize()
     fadeOutTimer = 0;
 
     resetBgCanvas();
-    //activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
 
     initVectorField();
     resetParticles();
@@ -122,7 +126,7 @@ function initVectorField()
 
       // Background canvas
       var hueWithVar = theHue + (hueValue * hueVariation);
-      bgCtx.fillStyle = 'hsla('+hueWithVar+','+theSaturation+'%,85%,1)';
+      bgCtx.fillStyle = 'hsla('+hueWithVar+','+theSaturation+'%,' +backgroundBrightness +'%,1)';
       bgCtx.fillRect(x,y,pixelSizeX,pixelSizeY);
 
     }
@@ -149,10 +153,15 @@ function setupParticle(theParticle)
   theParticle.scale = particleSize;
 
   // add some random force...
-  var randForce = vectorFieldStrMultip * 0.66;
-  theParticle.addForce(Math.getRnd(-1,1) * randForce, Math.getRnd(-1,1) * randForce);
+  addRandomForceToParticle(theParticle);
 
   return theParticle;
+}
+
+function addRandomForceToParticle(theParticle)
+{
+  var randForce = vectorFieldStrMultip * 2;
+  theParticle.addForce(Math.getRnd(-1,1) * randForce, Math.getRnd(-1,1) * randForce);
 }
 
 function resetParticles()
@@ -177,7 +186,7 @@ function update()
 
       var endOpacity = EasingUtil.easeInQuad(fadeOutTimer, 1, -1, fadeOutDur);
       bgCanvas.style.opacity = endOpacity;
-      activeCanvas.style.opacity = endOpacity;
+      //activeCanvas.style.opacity = endOpacity;
     }
     else
     {
@@ -189,7 +198,11 @@ function update()
 
       //reset of the vector field after a while, keeps things interesting...
       initVectorField();
-      resetParticles();
+
+      for ( var n = 0; n < particles.length; n++ )
+      {
+        addRandomForceToParticle(particles[n]);
+      }
     }
   }
 
@@ -200,26 +213,37 @@ function update()
     var endOpacity = EasingUtil.easeInQuad(fadeInTimer, 0, 1, fadeInDur);
     endOpacity = Math.clamp(endOpacity, 0, 1);
     bgCanvas.style.opacity = endOpacity;
-    activeCanvas.style.opacity = endOpacity;
+    //activeCanvas.style.opacity = endOpacity;
   }
 
-  renderCanvas();
+  renderTimer += GameLoop.deltaTime;
+  var bDraw = false;
+  if (renderTimer > renderFrequency)
+  {
+    renderTimer = 0;
+    bDraw = true;
+  }
+
+  updateAndDrawParticles( bDraw );
 }
 
 function resetBgCanvas()
 {
   bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
   bgCanvas.style.opacity = 0;
-  activeCanvas.style.opacity = 0;
+  //activeCanvas.style.opacity = 0;
   fadeInTimer = 0;
 }
 
-function renderCanvas()
+function updateAndDrawParticles( bDraw )
 {
-  //activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+  if (bDraw)
+  {
+    activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
 
-  var particleHue = theHue; //(theHue+180) % 360;
-  bgCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,98%,0.03)';
+    var particleHue = theHue; //(theHue+180) % 360;
+    //bgCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,' +linesBrightness +'%,0.005)';
+  }
 
   var particle;
   var xPos;
@@ -236,14 +260,16 @@ function renderCanvas()
       && xPos <= lastPixelX && yPos <= lastPixelY)
     {
       //avoid the mouse!!!
-      if (MouseTracker.bMouseDown && MouseTracker.mousePos != undefined)
+      if (/*MouseTracker.bMouseDown &&*/ MouseTracker.mousePos != undefined)
       {
-        var mouseDist = particle.position.distance( MouseTracker.mousePos );
+        var mousePos = new Vector2D(MouseTracker.mousePos.x * activeCanvas.width, MouseTracker.mousePos.y * activeCanvas.height);
+
+        var mouseDist = particle.position.distance( mousePos );
         if (mouseDist < particleMouseAvoidanceDist)
         {
           var mouseStr = (particleMouseAvoidanceDist-mouseDist)/particleMouseAvoidanceDist;
 
-          var mouseDir = particle.position.direction(MouseTracker.mousePos);
+          var mouseDir = particle.position.direction( mousePos );
           mouseDir.multiply( mouseStr * particleMouseAvoidanceStr * GameLoop.deltaTime );
           particle.addForce( mouseDir.x, mouseDir.y );
         }
@@ -259,13 +285,16 @@ function renderCanvas()
     particle.wrapPosition(0,0, activeCanvas.width, activeCanvas.height);
 
     //draw the particles
-    bgCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
-    //bgCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
+    if (bDraw)
+    {
+      //bgCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
+      //bgCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
 
-    //activeCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,98%,0.66)';
-    //activeCtx.fillStyle = 'rgba(255,255,255,1)';
-    //activeCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
-    //activeCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
+      activeCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,' +particleBrightness +'%,0.66)';
+      //activeCtx.fillStyle = 'rgba(255,255,255,1)';
+      //activeCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
+      activeCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
+    }
   }
 
 }
