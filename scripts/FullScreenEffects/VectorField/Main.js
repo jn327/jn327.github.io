@@ -17,29 +17,28 @@ var pixelSizeY = 6;
 var lastPixelX;
 var lastPixelY;
 
-var nParticles    = 1500;
+var nParticles    = 1000;
 var particleSize  = 3;
 var particles;
 
 var particleMouseAvoidanceDist  = 100;
 var particleMouseAvoidanceStr   = 1;
 
-var minHue        = 180;
-var maxHue        = 360;
-var theHue        = 0;
-var hueVariation  = 60;
-var theSaturation = 60; //0-100 (percent)
-var backgroundBrightness = 25;
-var particleBrightness = 80;
-var linesBrightness = 80;
+var minHue                = 180;
+var maxHue                = 360;
+var theHue                = 0;
+var hueVariation          = 60;
+var theSaturation         = 60; //0-100 (percent)
+var backgroundBrightness  = 25;
+var particleBrightness    = 80;
 
-var changeFrequency   = 10;
+var changeFrequency   = 12;
 var changeTimer       = 0;
-var fadeOutDur        = 1;
+var fadeOutDur        = 0.2;
 var fadeOutTimer      = 0;
-var fadeInDur         = 0.5;
+var fadeInDur         = 0.2;
 var fadeInTimer       = 0;
-var renderFrequency   = 0.03;
+var renderFrequency   = 0.033;
 var renderTimer       = 0;
 
 //------------------------------------------------
@@ -100,9 +99,12 @@ function onWindowResize()
 
 function initVectorField()
 {
-  var strNoise = new SimplexNoise();
-  var dirNoise = new SimplexNoise();
-  var hueNoise = new SimplexNoise();
+  var simplexNoise = new SimplexNoise();
+  var vectorStr;
+  var vectorDir;
+  var hueValue;
+  var theVector;
+  var hueWithVar;
 
   vectorField = [];
 
@@ -115,20 +117,20 @@ function initVectorField()
     {
       lastPixelY = y;
 
-      var vectorStr = (strNoise.noise(x * strNoiseScale, y * strNoiseScale) + 1) * 0.5; //0-1
+      vectorStr = (simplexNoise.noise(x * strNoiseScale, y * strNoiseScale) + 1) * 0.5; //0-1
       vectorStr = Math.scaleNormal(vectorStr, vectorFieldMinStr, vectorFieldMaxStr);
-      var vectorDir = (dirNoise.noise(x * dirNoiseScale, y * dirNoiseScale) + 1) * Math.PI;
-      var hueValue = strNoise.noise(x * hueNoiseScale, y * hueNoiseScale); //-1 to 1
 
-      var theVector = new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
+      vectorDir = (simplexNoise.noise(x * dirNoiseScale, y * dirNoiseScale) + 1) * Math.PI;
+      hueValue = simplexNoise.noise(x * hueNoiseScale, y * hueNoiseScale); //-1 to 1
+
+      theVector = new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
       theVector.multiply(vectorStr * vectorFieldStrMultip);
       vectorField[x][y] = theVector;
 
       // Background canvas
-      var hueWithVar = theHue + (hueValue * hueVariation);
+      hueWithVar = theHue + (hueValue * hueVariation);
       bgCtx.fillStyle = 'hsla('+hueWithVar+','+theSaturation+'%,' +backgroundBrightness +'%,1)';
       bgCtx.fillRect(x,y,pixelSizeX,pixelSizeY);
-
     }
   }
 }
@@ -160,13 +162,14 @@ function setupParticle(theParticle)
 
 function addRandomForceToParticle(theParticle)
 {
-  var randForce = vectorFieldStrMultip * 2;
+  var randForce = vectorFieldStrMultip * 3;
   theParticle.addForce(Math.getRnd(-1,1) * randForce, Math.getRnd(-1,1) * randForce);
 }
 
 function resetParticles()
 {
-  for ( var n = 0; n < particles.length; n++ )
+  var l = particles.length;
+  for ( var n = 0; n < l; n++ )
   {
     setupParticle(particles[n]);
   }
@@ -184,14 +187,13 @@ function update()
     {
       fadeOutTimer += GameLoop.deltaTime;
 
-      var endOpacity = EasingUtil.easeInQuad(fadeOutTimer, 1, -1, fadeOutDur);
+      var endOpacity = EasingUtil.easeNone(fadeOutTimer, 1, -1, fadeOutDur);
       bgCanvas.style.opacity = endOpacity;
-      //activeCanvas.style.opacity = endOpacity;
     }
     else
     {
-      changeTimer = 0;
-      fadeOutTimer   = 0;
+      changeTimer   = 0;
+      fadeOutTimer  = 0;
 
       setRandomHue();
       resetBgCanvas();
@@ -199,7 +201,8 @@ function update()
       //reset of the vector field after a while, keeps things interesting...
       initVectorField();
 
-      for ( var n = 0; n < particles.length; n++ )
+      var l = particles.length;
+      for ( var n = 0; n < l; n++ )
       {
         addRandomForceToParticle(particles[n]);
       }
@@ -210,10 +213,8 @@ function update()
   {
     fadeInTimer += GameLoop.deltaTime;
 
-    var endOpacity = EasingUtil.easeInQuad(fadeInTimer, 0, 1, fadeInDur);
-    endOpacity = Math.clamp(endOpacity, 0, 1);
+    var endOpacity = EasingUtil.easeNone(fadeInTimer, 0, 1, fadeInDur);
     bgCanvas.style.opacity = endOpacity;
-    //activeCanvas.style.opacity = endOpacity;
   }
 
   renderTimer += GameLoop.deltaTime;
@@ -231,7 +232,6 @@ function resetBgCanvas()
 {
   bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
   bgCanvas.style.opacity = 0;
-  //activeCanvas.style.opacity = 0;
   fadeInTimer = 0;
 }
 
@@ -240,15 +240,24 @@ function updateAndDrawParticles( bDraw )
   if (bDraw)
   {
     activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
-
-    var particleHue = theHue; //(theHue+180) % 360;
-    //bgCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,' +linesBrightness +'%,0.005)';
+    activeCtx.fillStyle = 'hsla('+theHue+','+theSaturation+'%,' +particleBrightness +'%,0.6)';
   }
 
   var particle;
   var xPos;
   var yPos;
-  for ( var n = 0; n < particles.length; n++ )
+  var l = particles.length;
+  var velocityVector;
+
+  var mousePos;
+  var mouseDist;
+  var bAvoidMouse = /*MouseTracker.bMouseDown &&*/ MouseTracker.mousePos != undefined;
+  if (bAvoidMouse)
+  {
+    mousePos = new Vector2D(MouseTracker.mousePos.x * activeCanvas.width, MouseTracker.mousePos.y * activeCanvas.height);
+  }
+
+  for ( var n = 0; n < l; n++ )
   {
     particle = particles[n];
 
@@ -260,23 +269,21 @@ function updateAndDrawParticles( bDraw )
       && xPos <= lastPixelX && yPos <= lastPixelY)
     {
       //avoid the mouse!!!
-      if (/*MouseTracker.bMouseDown &&*/ MouseTracker.mousePos != undefined)
+      if (bAvoidMouse)
       {
-        var mousePos = new Vector2D(MouseTracker.mousePos.x * activeCanvas.width, MouseTracker.mousePos.y * activeCanvas.height);
-
-        var mouseDist = particle.position.distance( mousePos );
+        mouseDist = particle.position.distance( mousePos );
         if (mouseDist < particleMouseAvoidanceDist)
         {
           var mouseStr = (particleMouseAvoidanceDist-mouseDist)/particleMouseAvoidanceDist;
-
           var mouseDir = particle.position.direction( mousePos );
+
           mouseDir.multiply( mouseStr * particleMouseAvoidanceStr * GameLoop.deltaTime );
           particle.addForce( mouseDir.x, mouseDir.y );
         }
       }
 
       // accelerate the particle
-      var velocityVector = vectorField[xPos][yPos];
+      velocityVector = vectorField[xPos][yPos];
       particle.addForce( velocityVector.x * GameLoop.deltaTime, velocityVector.y * GameLoop.deltaTime );
     }
 
@@ -287,12 +294,6 @@ function updateAndDrawParticles( bDraw )
     //draw the particles
     if (bDraw)
     {
-      //bgCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
-      //bgCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
-
-      activeCtx.fillStyle = 'hsla('+particleHue+','+theSaturation+'%,' +particleBrightness +'%,0.66)';
-      //activeCtx.fillStyle = 'rgba(255,255,255,1)';
-      //activeCtx.fillRect(particle.position.x, particle.position.y, particle.scale, particle.scale);
       activeCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
     }
   }

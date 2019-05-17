@@ -4,19 +4,21 @@ function Particle()
   GameObject.call(this);
 
   this.velocity = new Vector2D(0,0);
-  this.friction = 1; //loose this percentage * 100 every second.
+  this.speedMultip = Math.scaleNormal(Math.random(), 0.9, 1.1);
+  this.friction = Math.scaleNormal(Math.random(), 0.9, 1.2); //loose this percentage * 100 every second.
 
   this.addForce = function(x, y)
   {
-    this.velocity.x += x;
-    this.velocity.y += y;
+    this.velocity.x += x * this.speedMultip;
+    this.velocity.y += y * this.speedMultip;
 
     return this;
   }
 
   this.update = function()
   {
-    this.position = this.position.sum(this.velocity);
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
 
     var deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
     this.velocity.multiply(1 - deltaFriction);
