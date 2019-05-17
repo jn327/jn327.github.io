@@ -8,7 +8,7 @@
   position          : fixed;
 
   border-radius     : 0px;
-  background-color  : rgba(0, 0, 0, 0.33);
+  background-color  : rgba(0, 0, 0, 0);
 }
 
 #headerList
@@ -41,7 +41,7 @@
   border-style        : solid;
   border-color        : rgba(255, 255, 255, 0);
   border-width        : 0px 0px 1px 0px;
-  padding             : 0px 0px 1px 0px;
+  padding             : 0px 0px 5px 0px;
 
   -webkit-transition  : border-color 0.25s linear 0s, padding 0.25s linear 0s, margin 0.25s linear 0s;
   transition          : border-color 0.25s linear 0s, padding 0.25s linear 0s, margin 0.25s linear 0s;
@@ -50,7 +50,7 @@
 .headerLink:hover
 {
   border-color        : rgba(255, 255, 255, 1);
-  padding             : 0px 5px 1px 5px;
+  padding             : 0px 5px 5px 5px;
   margin              : 0px 5px 0px 5px;
 
   -webkit-transition  : border-color 0.15s linear 0s, padding 0.15s linear 0s, margin 0.15s linear 0s;
@@ -60,7 +60,7 @@
 .headerLink-active
 {
   border-color        : rgba(255, 255, 255, 1);
-  padding             : 0px 5px 1px 5px;
+  padding             : 0px 5px 5px 5px;
   margin              : 0px 5px 0px 5px;
 }
 
@@ -130,7 +130,7 @@
   color             : rgba(255, 255, 255, 1);
   text-align        : center;
 
-  background-color  : rgba(0, 0, 0, 0.33);
+  background-color  : rgba(0, 0, 0, 0);
 
   /* Position the tooltip */
   position          : absolute;
@@ -143,7 +143,7 @@
   transition        : opacity 0.2s linear 0.05s, margin-top 0.25s ease-out 0s;
 }
 
-.toolTip::after {
+/*.toolTip::after {
   content: " ";
   position: absolute;
   bottom: 100%;
@@ -152,7 +152,7 @@
   border-width: 5px;
   border-style: solid;
   border-color: transparent transparent rgba(0, 0, 0, 0.33) transparent;
-}
+}*/
 
 .imageLink:hover > .toolTip
 {
