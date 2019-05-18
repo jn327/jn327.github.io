@@ -139,16 +139,19 @@
         {
           title       : "Planet Coaster",
           image       : "images/projects/PlanCo.gif",
+          bgImage     : "images/projects/PlanCo.jpeg",
           description : "UI developer"
         },
         {
           title       : "Jurassic World Evolution",
           image       : "images/projects/Jwe.gif",
+          bgImage     : "images/projects/Jwe.jpeg",
           description : "UI developer"
         },
         {
           title       : "Planet Zoo",
           image       : "images/projects/PlanZoo.gif",
+          bgImage     : "images/projects/PlanZoo.jpeg",
           description : "UI developer"
         }
       ];
@@ -158,18 +161,21 @@
         {
           title       : "Duel",
           image       : "images/projects/Duel.gif",
+          bgImage     : "images/projects/Duel.jpeg",
           description : "Programmer for a small game made with some friends",
           link        : "https://gamejolt.com/games/duel/305917"
         },
         {
           title       : "Abandoned Earth",
           image       : "images/projects/AE.gif",
+          bgImage     : "images/projects/AE.jpeg",
           description : "Programmer for a game made while a student",
           link        : "https://gamejolt.com/games/abandoned-earth/81441"
         },
         {
           title       : "Space Hole Initiation Training",
           image       : "images/projects/SpaceHole.gif",
+          bgImage     : "images/projects/SpaceHole.jpeg",
           description : "Programmer for the Brains Eden 2014 winning game",
           link        : "https://gamejolt.com/games/space-hole-initiation-training/81466"
         }
@@ -180,17 +186,20 @@
         {
           title       : "RichRap 3dr delta printer",
           image       : "images/projects/3dPrinter.gif",
+          bgImage     : "images/projects/3dPrinter.jpeg",
           imgFit      : "contain",
           description : "Assembled 3D printer and setup Marlin on an Arduino."
         },
         {
           title       : "LED curtain",
           image       : "images/projects/Leds.gif",
+          bgImage     : "images/projects/Leds.jpeg",
           description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."
         },
         {
           title       : "HTML 5 Canvas",
           image       : "images/projects/HTMLCanvas.gif",
+          bgImage     : "images/projects/HTMLCanvas.jpeg",
           description : "Procedural scene with HTML Canvas",
           link        : "pages/proceduralGarden.html"
         },
@@ -234,7 +243,7 @@
 
         img = document.createElement('img');
         img.src = theData.image;
-        img.alt = "Image file not found: " +theData.image;
+        //img.alt = "Image file not found: " +theData.image;
         img.style.objectFit = theData.imgFit || "cover";
         container.appendChild(img);
 
@@ -249,15 +258,24 @@
           container.appendChild(linkItem);
         }
 
+        if (theData.bgImage)
+        {
+          img.style.backgroundImage = "url('"+theData.bgImage+"')";
+          img.style.backgroundSize = theData.imgFit || "cover";
+        }
+
         grid.appendChild(container);
       }
     }
 
+    //we want to load in the projects after the javascript has loaded,
+    // otherwise the main javascript has to sit around and wait for the images
+    // before it gets its init() call from window.onload
     CommonElementsCreator.addLoadEvent(initProjects);
 
   </script>
 
   <script src="scripts/FullScreenEffects/VectorField/Main.js"></script>
-  
+
 </body>
 </html>
