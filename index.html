@@ -131,88 +131,91 @@
       }
     }
 
-    //Creating project elements
-    var aaaProjectsData =
-    [
-      {
-        title       : "Planet Coaster",
-        image       : "images/projects/PlanCo.gif",
-        description : "UI developer"
-      },
-      {
-        title       : "Jurassic World Evolution",
-        image       : "images/projects/Jwe.gif",
-        description : "UI developer"
-      },
-      {
-        title       : "Planet Zoo",
-        image       : "images/projects/PlanZoo.gif",
-        description : "UI developer"
-      }
-    ];
+    function initProjects()
+    {
+      //Creating project elements
+      var aaaProjectsData =
+      [
+        {
+          title       : "Planet Coaster",
+          image       : "images/projects/PlanCo.gif",
+          description : "UI developer"
+        },
+        {
+          title       : "Jurassic World Evolution",
+          image       : "images/projects/Jwe.gif",
+          description : "UI developer"
+        },
+        {
+          title       : "Planet Zoo",
+          image       : "images/projects/PlanZoo.gif",
+          description : "UI developer"
+        }
+      ];
 
-    var gamesProjectsData =
-    [
-      {
-        title       : "Duel",
-        image       : "images/projects/Duel.gif",
-        description : "Programmer for a small game made with some friends",
-        link        : "https://gamejolt.com/games/duel/305917"
-      },
-      {
-        title       : "Abandoned Earth",
-        image       : "images/projects/AE.gif",
-        description : "Programmer for a game made while a student",
-        link        : "https://gamejolt.com/games/abandoned-earth/81441"
-      },
-      {
-        title       : "Space Hole Initiation Training",
-        image       : "images/projects/SpaceHole.gif",
-        description : "Programmer for the Brains Eden 2014 winning game",
-        link        : "https://gamejolt.com/games/space-hole-initiation-training/81466"
-      }
-    ];
+      var gamesProjectsData =
+      [
+        {
+          title       : "Duel",
+          image       : "images/projects/Duel.gif",
+          description : "Programmer for a small game made with some friends",
+          link        : "https://gamejolt.com/games/duel/305917"
+        },
+        {
+          title       : "Abandoned Earth",
+          image       : "images/projects/AE.gif",
+          description : "Programmer for a game made while a student",
+          link        : "https://gamejolt.com/games/abandoned-earth/81441"
+        },
+        {
+          title       : "Space Hole Initiation Training",
+          image       : "images/projects/SpaceHole.gif",
+          description : "Programmer for the Brains Eden 2014 winning game",
+          link        : "https://gamejolt.com/games/space-hole-initiation-training/81466"
+        }
+      ];
 
-    var otherProjectsData =
-    [
-      {
-        title       : "RichRap 3dr delta printer",
-        image       : "images/projects/3dPrinter.gif",
-        imgFit      : "contain",
-        description : "Assembled 3D printer and setup Marlin on an Arduino."
-      },
-      {
-        title       : "LED curtain",
-        image       : "images/projects/Leds.gif",
-        description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."
-      },
-      {
-        title       : "HTML 5 Canvas",
-        image       : "images/projects/HTMLCanvas.gif",
-        description : "Procedural scene with HTML Canvas",
-        link        : "pages/proceduralGarden.html"
-      },
-      {
-        title       : "2000 origami cranes",
-        image       : "images/projects/Origami.png",
-        description : "Lots of origami cranes"
-      },
-      {
-        title       : "Fiber optic constellations",
-        image       : "images/projects/Constellations.png",
-        description : "Fiber optic constellations"
-      },
-      {
-        title       : "2d world map creator",
-        image       : "images/projects/ProceduralMap.png",
-        description : "Procedural map creator",
-        link        : "https://jn327.itch.io/2d-procedural-world"
-      }
-    ];
+      var otherProjectsData =
+      [
+        {
+          title       : "RichRap 3dr delta printer",
+          image       : "images/projects/3dPrinter.gif",
+          imgFit      : "contain",
+          description : "Assembled 3D printer and setup Marlin on an Arduino."
+        },
+        {
+          title       : "LED curtain",
+          image       : "images/projects/Leds.gif",
+          description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."
+        },
+        {
+          title       : "HTML 5 Canvas",
+          image       : "images/projects/HTMLCanvas.gif",
+          description : "Procedural scene with HTML Canvas",
+          link        : "pages/proceduralGarden.html"
+        },
+        {
+          title       : "2000 origami cranes",
+          image       : "images/projects/Origami.png",
+          description : "Lots of origami cranes"
+        },
+        {
+          title       : "Fiber optic constellations",
+          image       : "images/projects/Constellations.png",
+          description : "Fiber optic constellations"
+        },
+        {
+          title       : "2d world map creator",
+          image       : "images/projects/ProceduralMap.png",
+          description : "Procedural map creator",
+          link        : "https://jn327.itch.io/2d-procedural-world"
+        }
+      ];
 
-    createProjectElements( "otherProjectsGrid", otherProjectsData );
-    createProjectElements( "gamesProjectsGrid", gamesProjectsData )
-    createProjectElements( "aaaProjectsGrid", aaaProjectsData );
+      createProjectElements( "otherProjectsGrid", otherProjectsData );
+      createProjectElements( "gamesProjectsGrid", gamesProjectsData )
+      createProjectElements( "aaaProjectsGrid", aaaProjectsData );
+    }
 
     function createProjectElements( gridId, itemsData )
     {
@@ -250,10 +253,11 @@
       }
     }
 
+    CommonElementsCreator.addLoadEvent(initProjects);
 
   </script>
 
   <script src="scripts/FullScreenEffects/VectorField/Main.js"></script>
-
+  
 </body>
 </html>

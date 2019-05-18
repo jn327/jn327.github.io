@@ -10,6 +10,11 @@ GameLoop.stopMainLoop = function()
 
 function main( tFrame )
 {
+  if (tFrame == undefined)
+  {
+    tFrame = 0;
+  }
+
   GameLoop.stopMain = window.requestAnimationFrame( main );
 
   GameLoop.deltaTime = (tFrame - GameLoop.currentTime)/1000;
@@ -19,8 +24,5 @@ function main( tFrame )
   update();
 }
 
-window.onload = function ()
-{
-  start(); // call our start function
-  main(0); // Start the cycle
-}
+CommonElementsCreator.addLoadEvent(start);
+CommonElementsCreator.addLoadEvent(main);

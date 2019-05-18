@@ -2,6 +2,26 @@ var CommonElementsCreator = {};
 CommonElementsCreator.defaultHeaderParent = document.body;
 CommonElementsCreator.defaultCanvasParent = document.body;
 
+CommonElementsCreator.addLoadEvent = function(func)
+{
+  var oldonload = window.onload;
+  if (typeof window.onload != 'function')
+  {
+    window.onload = func;
+  }
+  else
+  {
+    window.onload = function()
+    {
+      if (oldonload)
+      {
+        oldonload();
+      }
+      func();
+    }
+  }
+}
+
 CommonElementsCreator.createHeaderElement = function( parentElement )
 {
   if (parentElement == undefined)

@@ -16,11 +16,11 @@
 
 .blurred
 {
-  -webkit-filter  : blur(3px) brightness(0.66);
-  -ms-filter      : blur(3px) brightness(0.66);
-  -moz-filter     : blur(3px) brightness(0.66);
-  -o-filter       : blur(3px) brightness(0.66);
-  filter          : blur(3px) brightness(0.66);
+  -webkit-filter  : blur(2px) brightness(0.66);
+  -ms-filter      : blur(2px) brightness(0.66);
+  -moz-filter     : blur(2px) brightness(0.66);
+  -o-filter       : blur(2px) brightness(0.66);
+  filter          : blur(2px) brightness(0.66);
 }
 
 #contentContainer
@@ -49,14 +49,17 @@
 
   background-color    : rgba(255, 255, 255, 0.1);
 
-  border-style        : solid;
-  border-color        : rgba(255, 255, 255, 0.05);
-  border-width        : 1px;
-  border-radius       : 4px;
+  -webkit-backdrop-filter : blur(4px);
+  backdrop-filter         : blur(4px);
 
-  -webkit-box-shadow  : 4px 4px 8px 8px rgba(0,0,0,0.2);
-  -moz-box-shadow     : 4px 4px 8px 8px rgba(0,0,0,0.2);
-  box-shadow          : 4px 4px 8px 8px rgba(0,0,0,0.2);
+  border-style        : solid;
+  border-color        : rgba(255, 255, 255, 0.025);
+  border-width        : 1px;
+  border-radius       : 6px;
+
+  -webkit-box-shadow  : 3px 3px 6px 6px rgba(0,0,0,0.05);
+  -moz-box-shadow     : 3px 3px 6px 6px rgba(0,0,0,0.05);
+  box-shadow          : 3px 3px 6px 6px rgba(0,0,0,0.05);
 
   height              : auto;
   width               : calc(100% - 70px);
@@ -91,7 +94,7 @@
   padding             : 12px;
   background-color    : rgba(0, 0, 0, 0.33);
   border-style        : solid;
-  border-radius       : 0px 0px 2px 2px;
+  border-radius       : 0px 0px 6px 6px;
   border-color        : rgba(255, 255, 255, 0.33);
   border-width        : 1px 0px 0px 0px;
 }
@@ -131,7 +134,7 @@
   height              : auto;
   padding             : 0px;
   background-color    : rgba(0, 0, 0, 0.33);
-  border-radius       : 4px 4px 2px 2px;
+  border-radius       : 4px 4px 4px 4px;
 
   /*border-style        : solid;
   border-color        : rgba(255, 255, 255, 0.1);
