@@ -177,7 +177,7 @@
 {
   display               : grid;
   align-items           : center;
-  grid-template-columns : repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns : repeat(auto-fit, minmax(320px, 1fr));
   grid-template-rows    : auto;
   grid-gap              : 16px;
   grid-auto-flow        : dense;
@@ -269,4 +269,9 @@
   .labelsContainer-active
   {
     margin-top          : 47px;
+  }
+  
+  .projects-grid
+  {
+    grid-template-columns : repeat(auto-fit, minmax(200px, 1fr));
   }
