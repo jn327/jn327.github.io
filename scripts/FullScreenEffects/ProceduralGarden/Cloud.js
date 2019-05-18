@@ -67,7 +67,7 @@ function Cloud()
 
     // change the scale on a noise function
     var scaleChangeFreq = 0.00001;
-    var sizeScale = (this.simpleNoise.noise(GameLoop.currentTime * scaleChangeFreq, 0) + 1) * 0.5;
+    var sizeScale = (this.simpleNoise.noise(GameLoop.currentFrame * scaleChangeFreq, 0) + 1) * 0.5;
     sizeScale = EasingUtil.easeOutQuad(sizeScale, 0, 1, 1);
     sizeScale = Math.scaleNormal(sizeScale, this.minScale, this.maxScale);
     this.scale = sizeScale;

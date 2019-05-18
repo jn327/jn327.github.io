@@ -12,7 +12,7 @@ function Wind()
     for (var i = 0; i < nFreq; i++)
     {
       var theFreq = this.freq[i];
-      theNoise += this.noise.noise((GameLoop.currentTime / speedDivider) * theFreq, theFreq) * nScale;
+      theNoise += this.noise.noise((GameLoop.currentFrame / speedDivider) * theFreq, theFreq) * nScale;
     }
 
     this.str = theNoise;

@@ -17,6 +17,12 @@ Math.clamp = function(val, min, max)
  return Math.min(Math.max(min, val), max);
 }
 
+//Wraping value between min and max, so wrap(1.1, 0, 1) would return 0.1 and wrap(-0.2, 0, 0.5) would return 0.3
+Math.wrap = function(val, min, max)
+{
+  return (((val - min) % (max - min)) + (max - min)) % (max - min) + min;
+}
+
 //min-max normalization function, returns a value between 0 and 1 mapped in between min and max
 // for example minMaxNormal(20, 20, 50) would return 0 and minMaxNormal(30, 20, 40) would return 0.5
 // values below range, like (10, 20, 50) would return negatives like -0.33, values over range would return over 1.

@@ -5,7 +5,6 @@ var activeCanvas, activeCtx;
 //noise
 var strNoiseScale = 0.002;
 var dirNoiseScale = 0.004;
-var hueNoiseScale = 0.0005;
 
 var vectorField;
 var vectorFieldMinStr     = 0.25;
@@ -17,27 +16,27 @@ var pixelSizeY = 6;
 var lastPixelX;
 var lastPixelY;
 
-var nParticles    = 1000;
+var nParticles    = 900;
 var particleSize  = 3;
 var particles;
 
 var particleMouseAvoidanceDist  = 100;
 var particleMouseAvoidanceStr   = 1;
 
-var minHue                = 80;
+var currHue;
+var minHue                = 160;
 var maxHue                = 360;
-var theHue                = 0;
-var hueVariation          = 80;
+var hueVariance           = 40;
+var hueChangeSpeed        = 50;
+var hueChangeCurve;
+
 var theSaturation         = 60; //0-100 (percent)
 var backgroundBrightness  = 25;
-var particleBrightness    = 80;
 
 var changeFrequency   = 12;
 var changeTimer       = 0;
-var fadeOutDur        = 0.2;
-var fadeOutTimer      = 0;
-var fadeInDur         = 0.2;
-var fadeInTimer       = 0;
+var bgUpdateFreq      = 0.2;
+var bgUpdateTimer     = 0;
 var renderFrequency   = 0.033;
 var renderTimer       = 0;
 
@@ -47,23 +46,26 @@ var renderTimer       = 0;
 init();
 function init()
 {
-  var includes = ['Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/TimingUtil',
-    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'FullScreenEffects/VectorField/Particle' ];
+  var includes = [
+    'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve', 'Utils/TimingUtil',
+    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'FullScreenEffects/VectorField/Particle'
+  ];
   CommonElementsCreator.appendScripts(includes);
 }
 
 function start()
 {
-  setRandomHue();
+  hueChangeCurve = new AnimationCurve();
+  hueChangeCurve.addKeyFrame(0, 0);
+  hueChangeCurve.addKeyFrame(0.5, 1);
+  hueChangeCurve.addKeyFrame(1, 0);
 
   initCanvas();
+
   initVectorField();
   initParticles();
-}
 
-function setRandomHue()
-{
-  theHue = (minHue+(hueVariation*0.5)) + (Math.random() * ((maxHue-(minHue))-hueVariation));
+  updateBgCanvas();
 }
 
 function initCanvas()
@@ -88,12 +90,12 @@ function onWindowResize()
   if (validateCanvasSize() == true)
   {
     changeTimer = 0;
-    fadeOutTimer = 0;
-
-    resetBgCanvas();
+    bgUpdateTimer = 0;
 
     initVectorField();
     resetParticles();
+
+    updateBgCanvas();
   }
 }
 
@@ -104,7 +106,6 @@ function initVectorField()
   var vectorDir;
   var hueValue;
   var theVector;
-  var hueWithVar;
 
   vectorField = [];
 
@@ -121,16 +122,10 @@ function initVectorField()
       vectorStr = Math.scaleNormal(vectorStr, vectorFieldMinStr, vectorFieldMaxStr);
 
       vectorDir = (simplexNoise.noise(x * dirNoiseScale, y * dirNoiseScale) + 1) * Math.PI;
-      hueValue = simplexNoise.noise(x * hueNoiseScale, y * hueNoiseScale); //-1 to 1
 
       theVector = new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
       theVector.multiply(vectorStr * vectorFieldStrMultip);
       vectorField[x][y] = theVector;
-
-      // Background canvas
-      hueWithVar = theHue + (hueValue * hueVariation);
-      bgCtx.fillStyle = 'hsla('+hueWithVar+','+theSaturation+'%,' +backgroundBrightness +'%,1)';
-      bgCtx.fillRect(x,y,pixelSizeX,pixelSizeY);
     }
   }
 }
@@ -183,38 +178,21 @@ function update()
   changeTimer += GameLoop.deltaTime;
   if (changeTimer > changeFrequency)
   {
-    if (fadeOutTimer < fadeOutDur)
+    changeTimer   = 0;
+
+    initVectorField();
+    var l = particles.length;
+    for ( var n = 0; n < l; n++ )
     {
-      fadeOutTimer += GameLoop.deltaTime;
-
-      var endOpacity = EasingUtil.easeNone(fadeOutTimer, 1, -1, fadeOutDur);
-      bgCanvas.style.opacity = endOpacity;
-    }
-    else
-    {
-      changeTimer   = 0;
-      fadeOutTimer  = 0;
-
-      setRandomHue();
-      resetBgCanvas();
-
-      //reset of the vector field after a while, keeps things interesting...
-      initVectorField();
-
-      var l = particles.length;
-      for ( var n = 0; n < l; n++ )
-      {
-        addRandomForceToParticle(particles[n]);
-      }
+      addRandomForceToParticle(particles[n]);
     }
   }
 
-  if (fadeInTimer < fadeInDur)
+  bgUpdateTimer += GameLoop.deltaTime;
+  if (bgUpdateTimer > bgUpdateFreq)
   {
-    fadeInTimer += GameLoop.deltaTime;
-
-    var endOpacity = EasingUtil.easeNone(fadeInTimer, 0, 1, fadeInDur);
-    bgCanvas.style.opacity = endOpacity;
+    bgUpdateTimer = 0;
+    updateBgCanvas();
   }
 
   renderTimer += GameLoop.deltaTime;
@@ -228,11 +206,24 @@ function update()
   updateAndDrawParticles( bDraw );
 }
 
-function resetBgCanvas()
+function updateBgCanvas()
 {
-  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-  bgCanvas.style.opacity = 0;
-  fadeInTimer = 0;
+  hueValue = (GameLoop.currentTime % hueChangeSpeed) / hueChangeSpeed;
+  hueValue = hueChangeCurve.evaluate( hueValue );
+  var scaledHueValue = Math.scaleNormal(hueValue, minHue + hueVariance, maxHue - hueVariance);
+
+  var wScale = 1.25 * bgCanvas.width;
+  var hScale = 1 * bgCanvas.height;
+  var hOffset = (hScale - bgCanvas.height) * 0.5;
+  var wOffset = (wScale - bgCanvas.width) * 0.5;
+  var grd = bgCtx.createLinearGradient(wOffset, hOffset, wScale, hScale);
+
+  grd.addColorStop(0, 'hsla('+(scaledHueValue-hueVariance)+','+theSaturation+'%,' +backgroundBrightness +'%,1)');
+  grd.addColorStop(0.5, 'hsla('+scaledHueValue+','+theSaturation+'%,' +backgroundBrightness +'%,1)');
+  grd.addColorStop(1, 'hsla('+(scaledHueValue+hueVariance)+','+theSaturation+'%,' +backgroundBrightness +'%,1)');
+
+  bgCtx.fillStyle = grd;
+  bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
 }
 
 function updateAndDrawParticles( bDraw )
@@ -240,7 +231,7 @@ function updateAndDrawParticles( bDraw )
   if (bDraw)
   {
     activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
-    activeCtx.fillStyle = 'hsla('+theHue+','+theSaturation+'%,' +particleBrightness +'%,0.6)';
+    activeCtx.fillStyle = 'rgba(255, 255, 255, 0.33)';
   }
 
   var particle;
