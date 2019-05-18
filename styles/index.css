@@ -16,11 +16,11 @@
 
 .blurred
 {
-  -webkit-filter  : blur(4px) brightness(0.6);
-  -ms-filter      : blur(4px) brightness(0.6);
-  -moz-filter     : blur(4px) brightness(0.6);
-  -o-filter       : blur(4px) brightness(0.6);
-  filter          : blur(4px) brightness(0.6);
+  -webkit-filter  : blur(3px) brightness(0.66);
+  -ms-filter      : blur(3px) brightness(0.66);
+  -moz-filter     : blur(3px) brightness(0.66);
+  -o-filter       : blur(3px) brightness(0.66);
+  filter          : blur(3px) brightness(0.66);
 }
 
 #contentContainer
@@ -47,17 +47,16 @@
 
   opacity             : 0;
 
-  background-color    : rgba(255, 255, 255, 0.05);
-  border-radius       : 2px;
+  background-color    : rgba(255, 255, 255, 0.1);
 
   border-style        : solid;
-  border-radius       : 4px;
   border-color        : rgba(255, 255, 255, 0.05);
   border-width        : 1px;
+  border-radius       : 4px;
 
-  -webkit-box-shadow  : 5px 5px 10px 10px rgba(0,0,0,0.1);
-  -moz-box-shadow     : 5px 5px 10px 10px rgba(0,0,0,0.1);
-  box-shadow          : 5px 5px 10px 10px rgba(0,0,0,0.1);
+  -webkit-box-shadow  : 4px 4px 8px 8px rgba(0,0,0,0.2);
+  -moz-box-shadow     : 4px 4px 8px 8px rgba(0,0,0,0.2);
+  box-shadow          : 4px 4px 8px 8px rgba(0,0,0,0.2);
 
   height              : auto;
   width               : calc(100% - 70px);
@@ -132,12 +131,11 @@
   height              : auto;
   padding             : 0px;
   background-color    : rgba(0, 0, 0, 0.33);
-  border-radius       : 0px 0px 2px 2px;
+  border-radius       : 4px 4px 2px 2px;
 
-  border-style        : solid;
-  border-radius       : 4px;
-  border-color        : rgba(255, 255, 255, 0.05);
-  border-width        : 1px;
+  /*border-style        : solid;
+  border-color        : rgba(255, 255, 255, 0.1);
+  border-width        : 0px 1px 1px 1px;*/
 }
 
 .standardButton, .standardButton-close
@@ -197,18 +195,17 @@
 {
   height        : 200px;
   border        : 0px solid rgba(255, 255, 255, 0.5);
-  border-radius : 0px;
   overflow      : hidden;
   position      : relative;
 
-  border-style        : solid;
   border-radius       : 4px;
+  /*border-style        : solid;
   border-color        : rgba(255, 255, 255, 0.05);
-  border-width        : 1px;
+  border-width        : 1px;*/
 
-  -webkit-box-shadow  : 3px 3px 3px 3px rgba(0,0,0,0.33);
-  -moz-box-shadow     : 3px 3px 3px 3px rgba(0,0,0,0.33);
-  box-shadow          : 3px 3px 3px 3px rgba(0,0,0,0.33);
+  -webkit-box-shadow  : 3px 3px 4px 4px rgba(0,0,0,0.25);
+  -moz-box-shadow     : 3px 3px 4px 4px rgba(0,0,0,0.25);
+  box-shadow          : 3px 3px 4px 4px rgba(0,0,0,0.25);
 }
 
 .projects-grid > li > img
@@ -270,7 +267,7 @@
   {
     margin-top          : 47px;
   }
-  
+
   .projects-grid
   {
     grid-template-columns : repeat(auto-fit, minmax(200px, 1fr));
