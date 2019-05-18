@@ -24,10 +24,10 @@ var particles;
 var particleMouseAvoidanceDist  = 100;
 var particleMouseAvoidanceStr   = 1;
 
-var minHue                = 180;
+var minHue                = 80;
 var maxHue                = 360;
 var theHue                = 0;
-var hueVariation          = 60;
+var hueVariation          = 80;
 var theSaturation         = 60; //0-100 (percent)
 var backgroundBrightness  = 25;
 var particleBrightness    = 80;

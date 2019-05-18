@@ -21,7 +21,7 @@
       <a class="standardButton-close" id="close-about" target="_blank" >x</a>
 
       <p id="headerLabel" >Hi, I'm Josh Newland</p>
-      <p id="descriptionLabel" style="padding-bottom:12px;" >I'm a software programmer from the UK, with an interest in games and web development, procedural generation & good stories</p>
+      <p id="descriptionLabel" style="padding-bottom:12px;" >I'm a front end developer from the UK, with an interest in games and web development, procedural generation & good stories</p>
 
       <a class="standardButton" href="https://docs.google.com/document/d/1aoY__ax24UL680VNK6I426u9ZPTJPOzOeF7xRY3nEOI/edit?usp=sharing" target="_blank" >Check out my CV</a>
     </div>
@@ -29,21 +29,27 @@
     <div id="projects" class="labelsContainer">
       <a class="standardButton-close" id="close-projects" target="_blank" >x</a>
 
-      <p id="headerLabel" >Projects</p>
+      <p id="headerLabel" style="padding-bottom: 12px; padding-top: 12px;" >Projects</p>
       <div class="scrollContainer" >
-        <p id="gridHeaderLabel" >AAA Games</p>
-        <ul class="projects-grid" id="aaaProjectsGrid"> </ul>
+        <div class="gridContainer" >
+          <p id="gridHeaderLabel" style="background-image: linear-gradient(to right, rgba(255, 171, 150, 0.9), rgba(249, 166, 162, 0.9), rgba(255, 163, 194, 0.9), rgba(232, 137, 216, 0.9), rgba(255, 150, 248, 0.9));">AAA Games</p>
+          <ul class="projects-grid" id="aaaProjectsGrid"> </ul>
+        </div>
 
-        <p id="gridHeaderLabel" style="padding-top: 32px;" >Indie Games</p>
-        <p id="descriptionLabel" >
-          I have a load of small game projects on
-          <a href="https://gamejolt.com/@Jn327/games" target="_blank" >Game Jolt</a>
-          & <a href="https://jn327.itch.io/" target="_blank" >Itch.io</a>
-        </p>
-        <ul class="projects-grid" id="gamesProjectsGrid"> </ul>
+        <div class="gridContainer" style="margin-top: 32px;" >
+          <p id="gridHeaderLabel" style="background-image: linear-gradient(to right, rgba(140, 255, 173, 0.9), rgba(128, 232, 187, 0.9), rgba(179, 252, 241, 0.9), rgba(128, 219, 232, 0.9), rgba(140, 182, 255, 0.9));" >Indie Games</p>
+          <p id="descriptionLabel" >
+            I have a load of small game projects on
+            <a href="https://gamejolt.com/@Jn327/games" target="_blank" >Game Jolt</a>
+            & <a href="https://jn327.itch.io/" target="_blank" >Itch.io</a>
+          </p>
+          <ul class="projects-grid" id="gamesProjectsGrid"> </ul>
+        </div>
 
-        <p id="gridHeaderLabel" style="padding-top: 32px;" >Other experiments</p>
-        <ul class="projects-grid" id="otherProjectsGrid"> </ul>
+        <div class="gridContainer" style="margin-top: 32px;" >
+          <p id="gridHeaderLabel" style="background-image: linear-gradient(to right, rgba(213, 138, 255, 0.9), rgba(165, 125, 232, 0.9), rgba(161, 150, 255, 0.9), rgba(175, 189, 255, 0.9), rgba(138, 214, 255, 0.9));" >Other experiments</p>
+          <ul class="projects-grid" id="otherProjectsGrid"> </ul>
+        </div>
       </div>
     </div>
   </div>

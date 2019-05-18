@@ -63,7 +63,7 @@
   width               : calc(100% - 70px);
   max-height          : calc(100% - 120px);
 
-  padding             : 38px 0px 0px 0px;
+  padding             : 0px;
   margin-top          : 100px;
 
   -webkit-transition  : opacity 0.075s linear 0.05s, margin 0.075s linear 0.0s;
@@ -89,11 +89,11 @@
   height              : auto;
   max-height          : 100%;
   overflow-y          : scroll;
-  padding             : 28px;
-  background-color    : rgba(0, 0, 0, 0.2);
+  padding             : 12px;
+  background-color    : rgba(0, 0, 0, 0.33);
   border-style        : solid;
   border-radius       : 0px 0px 2px 2px;
-  border-color        : #E2E2E2;
+  border-color        : rgba(255, 255, 255, 0.33);
   border-width        : 1px 0px 0px 0px;
 }
 
@@ -109,12 +109,35 @@
 
 #gridHeaderLabel
 {
-  font-style      : bold;
-  font-size       : 22px;
-  text-align      : center;
+  font-style          : bold;
+  font-size           : 22px;
+  text-align          : center;
 
-  margin          : 0px 0px 0px 0px;
-  padding         : 0px;
+  color               : rgba(0,0,0, 0.75);
+
+  margin              : 0px 0px 0px 0px;
+  padding             : 4px;
+
+  border-radius       : 4px;
+
+  -webkit-box-shadow  : 0px 6px 6px 0px rgba(0,0,0,0.75);
+  -moz-box-shadow     : 0px 6px 6px 0px rgba(0,0,0,0.75);
+  box-shadow          : 0px 6px 6px 0px rgba(0,0,0,0.75);
+}
+
+.gridContainer
+{
+  box-sizing          : border-box;
+  width               : 100%;
+  height              : auto;
+  padding             : 0px;
+  background-color    : rgba(0, 0, 0, 0.33);
+  border-radius       : 0px 0px 2px 2px;
+
+  border-style        : solid;
+  border-radius       : 4px;
+  border-color        : rgba(255, 255, 255, 0.05);
+  border-width        : 1px;
 }
 
 .standardButton, .standardButton-close
@@ -127,7 +150,7 @@
   color               : #fff;
   padding             : 8px;
 
-  border              : 1px solid #E2E2E2;
+  border              : 1px solid rgba(255, 255, 255, 0.5);
   border-radius       : 2px;
   background-color    : rgba(0, 0, 0, 0);
 
@@ -156,26 +179,36 @@
   align-items           : center;
   grid-template-columns : repeat(auto-fit, minmax(280px, 1fr));
   grid-template-rows    : auto;
-  grid-gap              : 0px;
+  grid-gap              : 16px;
   grid-auto-flow        : dense;
 
   margin                : 0px;
-  padding               : 0px;
+  padding               : 16px;
 
-  border-style          : solid;
-  border-radius         : 0px 0px 14px 14px;
-  border-color          : #E2E2E2;
-  border-width          : 1px 0px 0px 0px;
-  overflow              : hidden;
+  /*border-width          : 1px 0px 0px 0px; */
+  /*border-style          : solid;
+  border-radius         : 0px 0px 4px 4px;
+  border-color          : rgba(255, 255, 255, 0.5);
+  overflow              : hidden;*/
+
 }
 
 .projects-grid > li
 {
   height        : 200px;
-  border        : 0px solid #E2E2E2;
+  border        : 0px solid rgba(255, 255, 255, 0.5);
   border-radius : 0px;
   overflow      : hidden;
   position      : relative;
+
+  border-style        : solid;
+  border-radius       : 4px;
+  border-color        : rgba(255, 255, 255, 0.05);
+  border-width        : 1px;
+
+  -webkit-box-shadow  : 3px 3px 3px 3px rgba(0,0,0,0.33);
+  -moz-box-shadow     : 3px 3px 3px 3px rgba(0,0,0,0.33);
+  box-shadow          : 3px 3px 3px 3px rgba(0,0,0,0.33);
 }
 
 .projects-grid > li > img
