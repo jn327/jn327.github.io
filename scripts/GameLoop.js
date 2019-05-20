@@ -18,9 +18,9 @@ GameLoop.main = function( tFrame )
 
   GameLoop.stopMain = window.requestAnimationFrame( GameLoop.main );
 
-  GameLoop.deltaTime = (tFrame - GameLoop.currentFrame)/1000;
-  GameLoop.currentFrame = tFrame;
-  GameLoop.currentTime += GameLoop.deltaTime;
+  GameLoop.deltaTime = (tFrame - GameLoop.currentTime)/1000;
+  GameLoop.currentTime = tFrame;
+  GameLoop.currentFrame ++;
   GameLoop.fps = 1 / GameLoop.deltaTime;
 
   update();

@@ -139,7 +139,7 @@ StarsManager.update = function( t, cavases, shootingStarCtx, nebulaCanvas, theWi
     {
       var iNormal = ((i / (l-1)) / this.twinkleSpeed);
 
-      var theAlpha = 0.5 + (0.5*Math.cos( this.twinkleSpeed * 2 * Math.PI * (iNormal+GameLoop.currentFrame)));
+      var theAlpha = 0.5 + (0.5*Math.cos( this.twinkleSpeed * 2 * Math.PI * (iNormal+GameLoop.currentTime)));
 
       starCanvas = cavases[i];
       starCanvas.style.opacity = nightTimeLerp * theAlpha;

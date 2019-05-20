@@ -1,20 +1,24 @@
 //HTML Elements
 var bgCanvas, bgCtx;
+var mgCanvas, mgCtx;
 var activeCanvas, activeCtx;
 
 //noise
 var strNoiseScale = 0.002;
-var dirNoiseScale = 0.004;
+var dirNoiseScale = 0.00125;
+var curlEps       = 0.5;
 
 var vectorField;
-var vectorFieldMinStr     = 0.25;
+var vectorFieldMinStr     = 0.5;
 var vectorFieldMaxStr     = 1;
-var vectorFieldStrMultip  = 1.5;
+var vectorFieldStrMultip  = 250;
+var randomiseForceStr     = 10;
+
+var linesAlpha      = 0.01;
+var particlesAlpha  = 0.33;
 
 var pixelSizeX = 6;
 var pixelSizeY = 6;
-var lastPixelX;
-var lastPixelY;
 
 var nParticles    = 900;
 var particleSize  = 3;
@@ -27,18 +31,22 @@ var currHue;
 var minHue                = 160;
 var maxHue                = 360;
 var hueVariance           = 40;
-var hueChangeSpeed        = 50;
+var hueChangeSpeed        = 50000;
 var hueChangeCurve;
 
 var theSaturation         = 60; //0-100 (percent)
 var backgroundBrightness  = 25;
 
-var changeFrequency   = 12;
+var changeFrequency   = 30;
 var changeTimer       = 0;
-var bgUpdateFreq      = 0.2;
+var bgUpdateFreq      = 0.4;
 var bgUpdateTimer     = 0;
-var renderFrequency   = 0.033;
+var renderFrequency   = 0.02;
 var renderTimer       = 0;
+var renderIndex       = 0;
+
+var particlesUpdateStagger = 4; //update 1/particlesUpdateStagger of the particles every frame, so like half or a third every frame.
+var particlesDrawStagger = 2;
 
 //------------------------------------------------
 //                Initialization
@@ -70,8 +78,18 @@ function start()
 
 function initCanvas()
 {
-  activeCanvas = CommonElementsCreator.createCanvas();
-  activeCtx    = activeCanvas.getContext('2d');
+  activeCanvas = [];
+  activeCtx = [];
+  var theCanvas;
+  for (var i = 0; i < particlesDrawStagger; i++)
+  {
+    theCanvas       = CommonElementsCreator.createCanvas();
+    activeCanvas[i] = theCanvas;
+    activeCtx[i]    = theCanvas.getContext('2d');
+  }
+
+  mgCanvas  = CommonElementsCreator.createCanvas();
+  mgCtx     = mgCanvas.getContext('2d');
 
   bgCanvas  = CommonElementsCreator.createCanvas();
   bgCtx     = bgCanvas.getContext('2d', { alpha: false });
@@ -82,7 +100,12 @@ function initCanvas()
 
 function validateCanvasSize()
 {
-  return CanvasScaler.updateCanvasSize( [bgCanvas, activeCanvas] );
+  var canvases = [bgCanvas, mgCanvas];
+  for (var i = 0; i < activeCanvas.length; i++)
+  {
+    canvases.push(activeCanvas[i]);
+  }
+  return CanvasScaler.updateCanvasSize( canvases );
 }
 
 function onWindowResize()
@@ -102,32 +125,78 @@ function onWindowResize()
 function initVectorField()
 {
   var simplexNoise = new SimplexNoise();
+  var hueValue;
   var vectorStr;
   var vectorDir;
-  var hueValue;
-  var theVector;
 
   vectorField = [];
 
-  for ( var x = 0; x < bgCanvas.width; x += pixelSizeX )
+  var theWidth = roundUpToNearestMultip(bgCanvas.width, pixelSizeX);
+  var theHeight = roundUpToNearestMultip(bgCanvas.height, pixelSizeY);
+
+  for ( var x = 0; x <= theWidth; x += pixelSizeX )
   {
-    lastPixelX = x;
     vectorField[x] = [];
 
-    for ( var y = 0; y < bgCanvas.height; y+= pixelSizeY )
+    for ( var y = 0; y <= theHeight; y+= pixelSizeY )
     {
-      lastPixelY = y;
-
       vectorStr = (simplexNoise.noise(x * strNoiseScale, y * strNoiseScale) + 1) * 0.5; //0-1
       vectorStr = Math.scaleNormal(vectorStr, vectorFieldMinStr, vectorFieldMaxStr);
 
-      vectorDir = (simplexNoise.noise(x * dirNoiseScale, y * dirNoiseScale) + 1) * Math.PI;
+      vectorDir = getCurledVectorFieldDir(curlEps, simplexNoise, x, y);
+      //vectorDir = getVectorFieldDir(simplexNoise, x, y);
 
-      theVector = new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
-      theVector.multiply(vectorStr * vectorFieldStrMultip);
-      vectorField[x][y] = theVector;
+      vectorDir.multiply(vectorStr * vectorFieldStrMultip);
+      vectorField[x][y] = vectorDir;
     }
   }
+}
+
+function getVectorFieldDir(theNoise, x, y)
+{
+  var vectorDir = getDirNoise(theNoise, x, y);
+  return new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
+}
+
+function getDirNoise(theNoise, x, y)
+{
+  return (theNoise.noise(x * dirNoiseScale, y * dirNoiseScale) + 1) * Math.PI;
+}
+
+function getCurledVectorFieldDir(eps, theNoise, x, y)
+{
+  //rate of change x
+  var n1 = getDirNoise(theNoise, x + eps, y);
+  var n2 = getDirNoise(theNoise, x - eps, y);
+
+  //average to approx derivative
+  var a = (n1 - n2)/(2 * eps);
+
+  //rate of change y
+  var n3 = getDirNoise(theNoise, x, y + eps);
+  var n4 = getDirNoise(theNoise, x, y - eps);
+
+  //average to approx derivative
+  var b = (n3 - n4)/(2 * eps);
+
+  //Curl
+  return new Vector2D(b, -a);
+}
+
+function roundUpToNearestMultip( value, multip )
+{
+  var result = value;
+  if ((result % multip) != 0)
+  {
+    result = Math.roundMultip(result, multip);
+
+    //if it rounded down and we're still smaller than the width;
+    if (result < value)
+    {
+      result += multip;
+    }
+  }
+  return result;
 }
 
 function initParticles()
@@ -145,9 +214,10 @@ function initParticles()
 
 function setupParticle(theParticle)
 {
-  theParticle.position.x = Math.random() * lastPixelX;
-  theParticle.position.y = Math.random() * lastPixelY;
+  theParticle.randomizePosition( 0, 0, mgCanvas.width, mgCanvas.height );
   theParticle.scale = particleSize;
+  theParticle.alpha = particlesAlpha;
+  theParticle.trailAlpha = linesAlpha;
 
   // add some random force...
   addRandomForceToParticle(theParticle);
@@ -157,8 +227,7 @@ function setupParticle(theParticle)
 
 function addRandomForceToParticle(theParticle)
 {
-  var randForce = vectorFieldStrMultip * 3;
-  theParticle.addForce(Math.getRnd(-1,1) * randForce, Math.getRnd(-1,1) * randForce);
+  theParticle.addForce(Math.getRnd(-1,1) * randomiseForceStr, Math.getRnd(-1,1) * randomiseForceStr);
 }
 
 function resetParticles()
@@ -180,6 +249,8 @@ function update()
   {
     changeTimer   = 0;
 
+    mgCtx.clearRect(0, 0, mgCanvas.width, mgCanvas.height);
+
     initVectorField();
     var l = particles.length;
     for ( var n = 0; n < l; n++ )
@@ -195,15 +266,14 @@ function update()
     updateBgCanvas();
   }
 
+  updateParticles();
   renderTimer += GameLoop.deltaTime;
-  var bDraw = false;
   if (renderTimer > renderFrequency)
   {
     renderTimer = 0;
-    bDraw = true;
+    drawParticles();
   }
 
-  updateAndDrawParticles( bDraw );
 }
 
 function updateBgCanvas()
@@ -226,18 +296,18 @@ function updateBgCanvas()
   bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
 }
 
-function updateAndDrawParticles( bDraw )
+function updateParticles()
 {
-  if (bDraw)
-  {
-    activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
-    activeCtx.fillStyle = 'rgba(255, 255, 255, 0.33)';
-  }
-
+  var l = particles.length;
   var particle;
   var xPos;
   var yPos;
-  var l = particles.length;
+  var xMax = vectorField.length;
+  var yMax = vectorField[0].length;
+
+  var canvasW = mgCanvas.width;
+  var canvasH = mgCanvas.height;
+
   var velocityVector;
 
   var mousePos;
@@ -245,19 +315,20 @@ function updateAndDrawParticles( bDraw )
   var bAvoidMouse = /*MouseTracker.bMouseDown &&*/ MouseTracker.mousePos != undefined;
   if (bAvoidMouse)
   {
-    mousePos = new Vector2D(MouseTracker.mousePos.x * activeCanvas.width, MouseTracker.mousePos.y * activeCanvas.height);
+    mousePos = new Vector2D(MouseTracker.mousePos.x * canvasW, MouseTracker.mousePos.y * canvasH);
   }
 
-  for ( var n = 0; n < l; n++ )
+  var deltaTimeMulitp = GameLoop.deltaTime * particlesUpdateStagger;
+  var initialOffset = GameLoop.currentFrame % particlesUpdateStagger;
+
+  for ( var n = initialOffset; n < l; n += particlesUpdateStagger )
   {
     particle = particles[n];
 
-    //Guard against null ref!
     xPos = Math.roundMultip(particle.position.x, pixelSizeX);
     yPos = Math.roundMultip(particle.position.y, pixelSizeY);
 
-    if (xPos >= 0 && yPos >= 0
-      && xPos <= lastPixelX && yPos <= lastPixelY)
+    if (xPos >= 0 && yPos >= 0 && xPos <= xMax && yPos <= yMax)
     {
       //avoid the mouse!!!
       if (bAvoidMouse)
@@ -268,27 +339,39 @@ function updateAndDrawParticles( bDraw )
           var mouseStr = (particleMouseAvoidanceDist-mouseDist)/particleMouseAvoidanceDist;
           var mouseDir = particle.position.direction( mousePos );
 
-          mouseDir.multiply( mouseStr * particleMouseAvoidanceStr * GameLoop.deltaTime );
+          mouseDir.multiply( mouseStr * particleMouseAvoidanceStr * deltaTimeMulitp );
           particle.addForce( mouseDir.x, mouseDir.y );
         }
       }
 
       // accelerate the particle
       velocityVector = vectorField[xPos][yPos];
-      particle.addForce( velocityVector.x * GameLoop.deltaTime, velocityVector.y * GameLoop.deltaTime );
+      particle.addForce( velocityVector.x * deltaTimeMulitp, velocityVector.y * deltaTimeMulitp );
     }
 
     // move the particle
-    particle.update();
-    particle.wrapPosition(0,0, activeCanvas.width, activeCanvas.height);
-
-    //draw the particles
-    if (bDraw)
-    {
-      activeCtx.fillRect(xPos, yPos, particle.scale, particle.scale);
-    }
+    particle.update( deltaTimeMulitp/*, pixelSizeX, pixelSizeY*/ );
+    particle.wrapPosition(0,0, canvasW, canvasH);
   }
+}
 
+function drawParticles()
+{
+  renderIndex ++;
+  var canvasIndex = renderIndex % particlesDrawStagger;
+
+  var theCanvas = activeCanvas[canvasIndex];
+  var theCtx = activeCtx[canvasIndex];
+
+  theCtx.clearRect(0, 0, theCanvas.width, theCanvas.height);
+
+  var l = particles.length;
+  var particle;
+  for ( var n = canvasIndex; n < l; n += particlesDrawStagger )
+  {
+    particle = particles[n];
+    particle.draw( theCtx, mgCtx );
+  }
 }
 
 //------------------------------------------------
