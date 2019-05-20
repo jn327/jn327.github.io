@@ -21,22 +21,12 @@ function Particle()
     return this;
   }
 
-  this.update = function( deltaTime, roundingX, roundingY )
+  this.update = function( deltaTime )
   {
     this.lifeTime += deltaTime;
 
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
-
-    if (roundingX != undefined)
-    {
-      this.position.x = Math.roundMultip(this.position.x, roundingX);
-    }
-
-    if (roundingY != undefined)
-    {
-      this.position.y = Math.roundMultip(this.position.y, roundingY);
-    }
 
     var deltaFriction = Math.clamp(this.friction * deltaTime, 0, 1);
     this.velocity.multiply(1 - deltaFriction);
@@ -57,7 +47,7 @@ function Particle()
     this.position.y = Math.scaleNormal(Math.random(), yMin, yMax);
   }
 
-  this.draw = function( ctx, trailCtx )
+  this.draw = function( ctx, trailCtx, roundingX, roundingY )
   {
     var alphaMultip = 1;
     if (this.lifeTime < this.fadeInTime)
@@ -65,10 +55,23 @@ function Particle()
       alphaMultip = this.lifeTime/this.fadeInTime;
     }
 
+    var theX = this.position.x;
+    var theY = this.position.y;
+    
+    if (roundingX != undefined)
+    {
+      theX = Math.roundMultip(theX, roundingX);
+    }
+
+    if (roundingY != undefined)
+    {
+      theY = Math.roundMultip(theY, roundingY);
+    }
+
     ctx.fillStyle = 'rgba(255, 255, 255, ' +(this.alpha * alphaMultip) +')';
     mgCtx.fillStyle = 'rgba(255, 255, 255, ' +(this.trailAlpha * alphaMultip) +')';
 
-    ctx.fillRect(this.position.x, this.position.y, this.scale, this.scale);
-    mgCtx.fillRect(this.position.x, this.position.y, this.scale, this.scale);
+    ctx.fillRect(theX, theY, this.scale, this.scale);
+    mgCtx.fillRect(theX, theY, this.scale, this.scale);
   }
 }

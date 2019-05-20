@@ -350,7 +350,7 @@ function updateParticles()
     }
 
     // move the particle
-    particle.update( deltaTimeMulitp/*, pixelSizeX, pixelSizeY*/ );
+    particle.update( deltaTimeMulitp );
     particle.wrapPosition(0,0, canvasW, canvasH);
   }
 }
@@ -370,7 +370,7 @@ function drawParticles()
   for ( var n = canvasIndex; n < l; n += particlesDrawStagger )
   {
     particle = particles[n];
-    particle.draw( theCtx, mgCtx );
+    particle.draw( theCtx, mgCtx/*, pixelSizeX, pixelSizeY*/ );
   }
 }
 
