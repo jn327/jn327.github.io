@@ -1,6 +1,7 @@
 var CommonElementsCreator = {};
 CommonElementsCreator.defaultHeaderParent = document.body;
 CommonElementsCreator.defaultCanvasParent = document.body;
+CommonElementsCreator.rootLocation;
 
 CommonElementsCreator.addLoadEvent = function(func)
 {
@@ -22,13 +23,33 @@ CommonElementsCreator.addLoadEvent = function(func)
   }
 }
 
-CommonElementsCreator.createHeaderElement = function( parentElement )
+CommonElementsCreator.addStyles = function( theFonts, theCss )
 {
-  if (parentElement == undefined)
+  var rootLocation = this.getRootLocation();
+
+  var l = theFonts.length;
+  var theLink;
+  for (var i = 0; i < l; i++ )
   {
-    parentElement = this.defaultHeaderParent;
+    theLink = document.createElement('link');
+    theLink.href = theFonts[i];
+    theLink.rel = "stylesheet";
+    document.head.appendChild(theLink);
   }
 
+  l = theCss.length;
+  for (var i = 0; i < l; i++ )
+  {
+    theLink = document.createElement('link');
+    theLink.href = rootLocation +"styles/" +theCss[i] +".css";
+    theLink.rel = "stylesheet";
+    document.head.appendChild(theLink);
+  }
+}
+
+CommonElementsCreator.createHeaderElement = function()
+{
+  var parentElement = this.defaultHeaderParent;
   var rootLocation = this.getRootLocation();
 
   var pathName = window.location.pathname;
@@ -111,7 +132,15 @@ CommonElementsCreator.addLinksToHeader = function( labels, selectedIndex )
 
 CommonElementsCreator.getRootLocation = function()
 {
-  var rootLocation = "";
+  var rootLocation = CommonElementsCreator.rootLocation;
+  if (rootLocation == undefined)
+  {
+    rootLocation = "";
+  }
+  else
+  {
+    return rootLocation;
+  }
 
   if (window.location.protocol == "file:")
   {
@@ -129,6 +158,7 @@ CommonElementsCreator.getRootLocation = function()
     }
   }
 
+  CommonElementsCreator.rootLocation = rootLocation;
   return rootLocation;
 }
 
@@ -164,3 +194,11 @@ CommonElementsCreator.createCanvas = function( parentElement, className )
 
   return canvas;
 }
+
+CommonElementsCreator.addStyles( ["https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap"], ["shared", "topBar"] );
+
+CommonElementsCreator.onLoad = function(func)
+{
+  CommonElementsCreator.createHeaderElement();
+}
+CommonElementsCreator.addLoadEvent( CommonElementsCreator.onLoad );

@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<html lang = "en"> <!-- language flag, used by screen readers -->
+<html lang = "en" > <!-- language flag, used by screen readers -->
 <head>
   <meta charset = "uft-8" /> <!-- character set definition -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=0.5">
 
   <title>Josh Newland's page</title>
   <!-- imports  CSS definitions with media queries-->
-  <link rel= "stylesheet" href ="styles/shared.css">
-  <link rel= "stylesheet" href ="styles/topBar.css">
-
   <link rel= "stylesheet" href ="styles/index.css">
 
 </head>
 <body>
+
+  <script src="scripts/CommonElementsCreator.js"></script>
 
   <div id="canvasContainer" class="toBlur" > </div>
 
@@ -55,13 +54,13 @@
   </div>
 
   <!-- scripts -->
-  <script src="scripts/CommonElementsCreator.js"></script>
   <script>
     //set canvas container.
     CommonElementsCreator.defaultCanvasParent = document.getElementById("canvasContainer");
 
     var headerIds = ["about", "projects"];
     var headerElements = [];
+    var headerBtns = [];
     var closeBtn;
 
     var visHeaderItemIndex = -1;
@@ -69,34 +68,36 @@
     var currUrlHash = window.location.hash;
     var urlHeaderIndex = (currUrlHash == noHeaderHash) ? -1 : 0;
 
-    for (var k = 0; k < headerIds.length; k++)
+    function initHeaders()
     {
-      headerElements.push ( document.getElementById(headerIds[k]) );
-
-      var closeBtn = document.getElementById("close-"+headerIds[k]);
-      closeBtn.addEventListener( "click", function() { onHeaderCloseButton() } );
-
-      if ( currUrlHash != "" )
+      for (var k = 0; k < headerIds.length; k++)
       {
-        var hashedId = "#"+headerIds[k];
-        if (hashedId == currUrlHash)
+        headerElements.push ( document.getElementById(headerIds[k]) );
+
+        var closeBtn = document.getElementById("close-"+headerIds[k]);
+        closeBtn.addEventListener( "click", function() { onHeaderCloseButton() } );
+
+        if ( currUrlHash != "" )
         {
-          urlHeaderIndex = k;
+          var hashedId = "#"+headerIds[k];
+          if (hashedId == currUrlHash)
+          {
+            urlHeaderIndex = k;
+          }
         }
       }
-    }
 
-    //creating the header
-    CommonElementsCreator.createHeaderElement();
-    var headerBtns = CommonElementsCreator.addLinksToHeader( [ "About me", "Projects" ] );
+      //creating the header
+      headerBtns = CommonElementsCreator.addLinksToHeader( [ "About me", "Projects" ] );
 
-    //set the selected item.
-    setSelectedHeaderItem(urlHeaderIndex);
+      //set the selected item.
+      setSelectedHeaderItem(urlHeaderIndex);
 
-    //listeners for header buttons
-    for (var i = 0; i < headerBtns.length; i++)
-    {
-      headerBtns[i].addEventListener( "click", bindClickToIndex(i) );
+      //listeners for header buttons
+      for (var i = 0; i < headerBtns.length; i++)
+      {
+        headerBtns[i].addEventListener( "click", bindClickToIndex(i) );
+      }
     }
 
     function bindClickToIndex(i)
@@ -267,6 +268,7 @@
     // otherwise the main javascript has to sit around and wait for the images
     // before it gets its init() call from window.onload
     CommonElementsCreator.addLoadEvent(initProjects);
+    CommonElementsCreator.addLoadEvent(initHeaders);
 
   </script>
 
