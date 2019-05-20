@@ -195,7 +195,7 @@ CommonElementsCreator.createCanvas = function( parentElement, className )
   return canvas;
 }
 
-CommonElementsCreator.addStyles( ["https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap"], ["shared", "topBar"] );
+CommonElementsCreator.addStyles( ["https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap"], ["shared", "topBar"] );
 
 CommonElementsCreator.onLoad = function(func)
 {

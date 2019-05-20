@@ -242,7 +242,6 @@
   padding         : 6px 0px 6px 0px;
   background-color: rgba(0, 0, 0, 0.33);
 
-  font-weight     : 400;
   font-size       : 20px;
 
   -webkit-transition  : background-color 0.075s linear 0s, padding 0.075s linear 0s, font-size 0.075s linear 0s;
