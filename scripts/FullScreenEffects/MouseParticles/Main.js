@@ -15,6 +15,14 @@ var maxMouseRadius  = 12;
 var mouseDragTimer  = 0;
 var mouseDragTime   = 0.5;
 
+var dropParticlesMin  = 200;
+var dropParticlesMax  = 500;
+var dropFrequency     = 0.2;
+var dropTimer         = 0;
+var dropRadius        = 4;
+var dropForceMin      = 2;
+var dropForceMax      = 3;
+
 var renderFrequency   = 0.02;
 var renderTimer       = 0;
 
@@ -122,6 +130,29 @@ function update()
 
 function spawnParticles()
 {
+  spawnDropParticles();
+  spawnMouseParticles();
+}
+
+function spawnDropParticles()
+{
+  dropTimer += GameLoop.deltaTime;
+
+  if (dropTimer > dropFrequency)
+  {
+    dropTimer = 0;
+
+    var nParticles  = Math.scaleNormal(Math.random(), dropParticlesMin, dropParticlesMax);
+    var thePos      = new Vector2D(Math.random() * activeCanvas.width, Math.random() * activeCanvas.height);
+    var theForce    = Math.scaleNormal(Math.random(), dropForceMin, dropForceMax);
+    var lifeTimeN   = Math.scaleNormal(Math.random(), 0, 0.3);
+
+    createParticles( nParticles, thePos, dropRadius, thePos, theForce, lifeTimeN );
+  }
+}
+
+function spawnMouseParticles()
+{
   if (MouseTracker.mousePos != undefined)
   {
     var canvasW = activeCanvas.width;
@@ -145,7 +176,7 @@ function spawnParticles()
       mouseDragN = Math.clamp(mouseDragN, 0, 1);
 
       var mouseRadius = Math.scaleNormal( mouseDragN, minMouseRadius, maxMouseRadius);
-      var particlesPerFrame = Math.scaleNormal( mouseDragN, minParticlesPerFrame, maxParticlesPerFrame);
+      var particlesToSpawn = Math.scaleNormal( mouseDragN, minParticlesPerFrame, maxParticlesPerFrame);
 
       var lifeTimeN = 1 - mouseDragN;
 
@@ -158,53 +189,57 @@ function spawnParticles()
       {
         var mouseDelta = currMousePos.direction(mousePos);
         mouseDelta.normalize();
-        centerPos = new Vector2D(mousePos.x + (mouseDelta.x * mouseRadius), mousePos.y + (mouseDelta.y * mouseRadius));
+        centerPos = new Vector2D(currMousePos.x - (mouseDelta.x * mouseRadius), currMousePos.y - (mouseDelta.y * mouseRadius));
       }
 
       mousePos = currMousePos;
-      var twoPI = Math.PI * 2;
-
-      for (var i = 0; i < particlesPerFrame; i++)
-      {
-        if (particles.length < maxParticles)
-        {
-          var theParticle = particlePool.getItem();
-          if (theParticle == null)
-          {
-            theParticle = new Particle( particlePool );
-          }
-
-          var posX = mousePos.x + (Math.sin(Math.random() * twoPI) * (Math.random() * mouseRadius));
-          var posY = mousePos.y + (Math.cos(Math.random() * twoPI) * (Math.random() * mouseRadius));
-
-          if (posX < 0)
-          {
-            posX = 0;
-          }
-          if (posY < 0)
-          {
-            posY = 0;
-          }
-
-          particleForce = new Vector2D(posX, posY).direction(centerPos);
-          particleForce.normalize();
-          particleForce = particleForce.getMultiplied(mouseMoveParticleForce);
-
-          theParticle.spawn(posX, posY, particleForce.x, particleForce.y, lifeTimeN);
-
-          particles.push(theParticle);
-        }
-        else
-        {
-          i = particlesPerFrame;
-        }
-      }
+      createParticles( particlesToSpawn, mousePos, mouseRadius, centerPos, mouseMoveParticleForce, lifeTimeN );
     }
     else
     {
       mouseDragTimer = 0;
     }
+  }
+}
 
+function createParticles( nParticles, pos, radius, forceCenter, forceMultip, lifeTimeN )
+{
+  var twoPI = Math.PI * 2;
+
+  for (var i = 0; i < nParticles; i++)
+  {
+    if (particles.length < maxParticles)
+    {
+      var theParticle = particlePool.getItem();
+      if (theParticle == null)
+      {
+        theParticle = new Particle( particlePool );
+      }
+
+      var posX = pos.x + (Math.sin(Math.random() * twoPI) * (Math.random() * radius));
+      var posY = pos.y + (Math.cos(Math.random() * twoPI) * (Math.random() * radius));
+
+      if (posX < 0)
+      {
+        posX = 0;
+      }
+      if (posY < 0)
+      {
+        posY = 0;
+      }
+
+      particleForce = new Vector2D(posX, posY).direction(forceCenter);
+      particleForce.normalize();
+      particleForce = particleForce.getMultiplied(forceMultip);
+
+      theParticle.spawn(posX, posY, particleForce.x, particleForce.y, lifeTimeN);
+
+      particles.push(theParticle);
+    }
+    else
+    {
+      i = nParticles;
+    }
   }
 }
 
