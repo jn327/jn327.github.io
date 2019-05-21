@@ -230,6 +230,24 @@
   right             : 0px;
 }
 
+.projects-grid > li > h1
+{
+  pointer-events  : none;
+  position        : absolute;
+  left            : 0px;
+  bottom          : 0px;
+  width           : 100%;
+  height          : auto;
+  margin          : 0px;
+  padding         : 6px 0px 6px 0px;
+  background-color: rgba(0, 0, 0, 0.33);
+
+  font-size       : 20px;
+
+  -webkit-transition  : background-color 0.1s linear 0s, padding 0.1s ease-out 0s, font-size 0.1s ease-out 0s;
+  transition          : background-color 0.1s linear 0s, padding 0.1s ease-out 0s, font-size 0.1s ease-out 0s;
+}
+
 .projects-grid > li > p
 {
   pointer-events  : none;
@@ -244,8 +262,16 @@
 
   font-size       : 20px;
 
-  -webkit-transition  : background-color 0.075s linear 0s, padding 0.075s linear 0s, font-size 0.075s linear 0s;
-  transition          : background-color 0.075s linear 0s, padding 0.075s linear 0s, font-size 0.075s linear 0s;
+  -webkit-transition  : background-color 0.1s linear 0s, padding 0.1s ease-out 0s, font-size 0.1s ease-out 0s;
+  transition          : background-color 0.1s linear 0s, padding 0.1s ease-out 0s, font-size 0.1s ease-out 0s;
+}
+
+.projects-grid > li:hover > h1
+{
+  padding         : 12px 0px 12px 0px;
+  background-color: rgba(0, 0, 0, 0.66);
+
+  font-size       : 24px;
 }
 
 .projects-grid > li:hover > p

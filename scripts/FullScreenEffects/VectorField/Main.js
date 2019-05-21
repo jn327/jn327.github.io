@@ -1,6 +1,5 @@
 //HTML Elements
 var bgCanvas, bgCtx;
-var mgCanvas, mgCtx;
 var activeCanvas, activeCtx;
 
 //noise
@@ -14,30 +13,33 @@ var vectorFieldMaxStr     = 1;
 var vectorFieldStrMultip  = 250;
 var randomiseForceStr     = 10;
 
-var linesAlpha      = 0.01;
-var particlesAlpha  = 0.33;
+var particlesAlpha  = 0.5;
 
-var pixelSizeX = 6;
-var pixelSizeY = 6;
+var bgSaturation  = 60; //0-100 (percent)
+var bgBrightness  = 20;
 
-var nParticles    = 900;
+var particleSaturation  = 100; //0-100 (percent)
+var particleBrightness  = 100;
+
+var pixelSizeX = 12;
+var pixelSizeY = 12;
+
+var nParticles    = 1300;
 var particleSize  = 3;
 var particles;
 
 var particleMouseAvoidanceDist  = 100;
 var particleMouseAvoidanceStr   = 1;
 
-var currHue;
-var minHue                = 160;
+var hueValue;
+var minHue                = 180;
 var maxHue                = 360;
 var hueVariance           = 40;
 var hueChangeSpeed        = 50000;
+var hueOffset             = Math.random() * hueChangeSpeed;
 var hueChangeCurve;
 
-var theSaturation         = 60; //0-100 (percent)
-var backgroundBrightness  = 25;
-
-var changeFrequency   = 30;
+var changeFrequency   = 45;
 var changeTimer       = 0;
 var bgUpdateFreq      = 0.4;
 var bgUpdateTimer     = 0;
@@ -88,9 +90,6 @@ function initCanvas()
     activeCtx[i]    = theCanvas.getContext('2d');
   }
 
-  mgCanvas  = CommonElementsCreator.createCanvas();
-  mgCtx     = mgCanvas.getContext('2d');
-
   bgCanvas  = CommonElementsCreator.createCanvas();
   bgCtx     = bgCanvas.getContext('2d', { alpha: false });
 
@@ -100,7 +99,7 @@ function initCanvas()
 
 function validateCanvasSize()
 {
-  var canvases = [bgCanvas, mgCanvas];
+  var canvases = [bgCanvas];
   for (var i = 0; i < activeCanvas.length; i++)
   {
     canvases.push(activeCanvas[i]);
@@ -125,7 +124,6 @@ function onWindowResize()
 function initVectorField()
 {
   var simplexNoise = new SimplexNoise();
-  var hueValue;
   var vectorStr;
   var vectorDir;
 
@@ -214,10 +212,12 @@ function initParticles()
 
 function setupParticle(theParticle)
 {
-  theParticle.randomizePosition( 0, 0, mgCanvas.width, mgCanvas.height );
+  theParticle.randomizePosition( 0, 0, activeCanvas[0].width, activeCanvas[0].height );
   theParticle.scale = particleSize;
   theParticle.alpha = particlesAlpha;
-  theParticle.trailAlpha = linesAlpha;
+
+  theParticle.saturation = particleSaturation;
+  theParticle.brightness = particleBrightness;
 
   // add some random force...
   addRandomForceToParticle(theParticle);
@@ -249,8 +249,6 @@ function update()
   {
     changeTimer   = 0;
 
-    mgCtx.clearRect(0, 0, mgCanvas.width, mgCanvas.height);
-
     initVectorField();
     var l = particles.length;
     for ( var n = 0; n < l; n++ )
@@ -278,7 +276,7 @@ function update()
 
 function updateBgCanvas()
 {
-  hueValue = (GameLoop.currentTime % hueChangeSpeed) / hueChangeSpeed;
+  hueValue = ((GameLoop.currentTime+hueOffset) % hueChangeSpeed) / hueChangeSpeed;
   hueValue = hueChangeCurve.evaluate( hueValue );
   var scaledHueValue = Math.scaleNormal(hueValue, minHue + hueVariance, maxHue - hueVariance);
 
@@ -288,9 +286,9 @@ function updateBgCanvas()
   var wOffset = (wScale - bgCanvas.width) * 0.5;
   var grd = bgCtx.createLinearGradient(wOffset, hOffset, wScale, hScale);
 
-  grd.addColorStop(0, 'hsla('+(scaledHueValue-hueVariance)+','+theSaturation+'%,' +backgroundBrightness +'%,1)');
-  grd.addColorStop(0.5, 'hsla('+scaledHueValue+','+theSaturation+'%,' +backgroundBrightness +'%,1)');
-  grd.addColorStop(1, 'hsla('+(scaledHueValue+hueVariance)+','+theSaturation+'%,' +backgroundBrightness +'%,1)');
+  grd.addColorStop(0, 'hsla('+(scaledHueValue-hueVariance)+','+bgSaturation+'%,' +bgBrightness +'%,1)');
+  grd.addColorStop(0.5, 'hsla('+scaledHueValue+','+bgSaturation+'%,' +bgBrightness +'%,1)');
+  grd.addColorStop(1, 'hsla('+(scaledHueValue+hueVariance)+','+bgSaturation+'%,' +bgBrightness +'%,1)');
 
   bgCtx.fillStyle = grd;
   bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
@@ -305,8 +303,8 @@ function updateParticles()
   var xMax = vectorField.length;
   var yMax = vectorField[0].length;
 
-  var canvasW = mgCanvas.width;
-  var canvasH = mgCanvas.height;
+  var canvasW = activeCanvas[0].width;
+  var canvasH = activeCanvas[0].height;
 
   var velocityVector;
 
@@ -370,7 +368,7 @@ function drawParticles()
   for ( var n = canvasIndex; n < l; n += particlesDrawStagger )
   {
     particle = particles[n];
-    particle.draw( theCtx, mgCtx/*, pixelSizeX, pixelSizeY*/ );
+    particle.draw( theCtx/*, pixelSizeX, pixelSizeY*/ );
   }
 }
 

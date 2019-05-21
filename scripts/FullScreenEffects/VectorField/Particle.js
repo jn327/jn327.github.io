@@ -7,8 +7,11 @@ function Particle()
   this.speedMultip = Math.scaleNormal(Math.random(), 0.9, 1);
   this.friction = Math.scaleNormal(Math.random(), 0.98, 1); //loose this percentage * 100 every second.
 
+  this.hue = 30;
+  this.saturation = 80;
+  this.brightness = 80;
+
   this.alpha = 1;
-  this.trailAlpha = 1;
 
   this.lifeTime = 0;
   this.fadeInTime = 10;
@@ -47,7 +50,7 @@ function Particle()
     this.position.y = Math.scaleNormal(Math.random(), yMin, yMax);
   }
 
-  this.draw = function( ctx, trailCtx, roundingX, roundingY )
+  this.draw = function( ctx, roundingX, roundingY )
   {
     var alphaMultip = 1;
     if (this.lifeTime < this.fadeInTime)
@@ -57,7 +60,7 @@ function Particle()
 
     var theX = this.position.x;
     var theY = this.position.y;
-    
+
     if (roundingX != undefined)
     {
       theX = Math.roundMultip(theX, roundingX);
@@ -68,10 +71,8 @@ function Particle()
       theY = Math.roundMultip(theY, roundingY);
     }
 
-    ctx.fillStyle = 'rgba(255, 255, 255, ' +(this.alpha * alphaMultip) +')';
-    mgCtx.fillStyle = 'rgba(255, 255, 255, ' +(this.trailAlpha * alphaMultip) +')';
+    ctx.fillStyle = 'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, ' +(this.alpha * alphaMultip) +')';
 
     ctx.fillRect(theX, theY, this.scale, this.scale);
-    mgCtx.fillRect(theX, theY, this.scale, this.scale);
   }
 }
