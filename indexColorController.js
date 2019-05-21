@@ -4,20 +4,21 @@ function applyColorPalleteToHtml()
 
   if (ColorUtil.golbalColorPallete.length > 0 && ColorUtil.golbalColorPallete != undefined)
   {
+    var l          = 50;
+
     var bgColor    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-1];
     var bgHue      = bgColor[0];
     var bgS        = bgColor[1];
-    var l          = 50;
-    var elColor    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-2];
-    var elHue      = elColor[0];
-    var elS        = elColor[1];
 
     document.body.style.backgroundColor = 'hsla(' +bgHue +', ' +bgS +'%, ' +l +'%, 1)';
 
+    /*var elColor    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-2];
+    var elHue      = elColor[0];
+    var elS        = elColor[1];
     for( var i = 0; i < headerElements.length; i++ )
     {
       headerElements[i].style.backgroundColor = 'hsla(' +elHue +', ' +elS +'%, ' +l +'%, 1)';
-    }
+    }*/
 
     //grid headers
     var theIndex = 0;
