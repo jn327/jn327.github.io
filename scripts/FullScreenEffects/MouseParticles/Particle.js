@@ -19,9 +19,9 @@ function Particle( thePool )
   }
 
   var noise         = new SimplexNoise( this );
-  function nosiseScaled(x,y) { return (noise.noise(x,y) + 1) * 0.5; }
   var noiseScale    = 0.008;
-  var curl          = new CurlNoise( nosiseScaled, noiseScale, 0.2 );
+  function getNoise(x,y) { return noise.scaledNoise(x,y) };
+  var curl          = new CurlNoise( getNoise, noiseScale, 0.2 );
 
   var hueNoiseScale   = 0.0005;
   var hue;
@@ -52,7 +52,7 @@ function Particle( thePool )
     this.position.x = x;
     this.position.y = y;
 
-    hue = Math.scaleNormal(nosiseScaled(x * hueNoiseScale, y * hueNoiseScale), 40, 340);
+    hue = Math.scaleNormal(noise.scaledNoise(x * hueNoiseScale, y * hueNoiseScale), 40, 340);
 
     velocity.x = velX;
     velocity.y = velY;

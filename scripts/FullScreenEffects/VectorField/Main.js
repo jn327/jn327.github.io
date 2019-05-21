@@ -138,7 +138,7 @@ function initVectorField()
 
     for ( var y = 0; y <= theHeight; y+= pixelSizeY )
     {
-      vectorStr = (simplexNoise.noise(x * strNoiseScale, y * strNoiseScale) + 1) * 0.5; //0-1
+      vectorStr = simplexNoise.scaledNoise(x * strNoiseScale, y * strNoiseScale); //0-1
       vectorStr = Math.scaleNormal(vectorStr, vectorFieldMinStr, vectorFieldMaxStr);
 
       vectorDir = getCurledVectorFieldDir(curlEps, simplexNoise, x, y);

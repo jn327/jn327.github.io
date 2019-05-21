@@ -51,8 +51,8 @@ StarsManager.initStars = function( twinkleSpeedDivider, theWidth, theHeight )
 
 StarsManager.setStarSize = function(theStar)
 {
-  var starSize = (this.spawnNoise.noise(theStar.position.x * this.spawnNoiseScale
-    ,theStar.position.y * this.spawnNoiseScale) + 1) * 0.5;
+  var starSize = this.spawnNoise.scaledNoise(theStar.position.x * this.spawnNoiseScale
+    ,theStar.position.y * this.spawnNoiseScale);
 
   theStar.size = Math.scaleNormal(starSize, this.minStarSize, this.maxStarSize);
 }
@@ -83,13 +83,24 @@ StarsManager.drawNebula = function( ctx, canvas, theWidth, theHeight )
 
   var xStep = 2;
   var yStep = 2;
+  var hueNoiseScale = 0.003;
+  var minHue        = 180;
+  var maxHue        = 300;
+  var saturation    = 60;
+  var brightness    = 60;
+  var minAlpha      = 0.025;
+  var maxAlpha      = 0.1;
   for (var x = 0; x < theWidth; x += xStep)
   {
     for (var y = 0; y < theHeight; y += yStep)
     {
-      var noiseVal = (this.spawnNoise.noise(x * this.spawnNoiseScale, y * this.spawnNoiseScale) + 1) * 0.5;
-      var whiteness = 255 * noiseVal;
-      ctx.fillStyle = "rgba( "+whiteness +", "+whiteness +", "+whiteness +", 0.1)";
+      var noiseVal = this.spawnNoise.scaledNoise(x * this.spawnNoiseScale, y * this.spawnNoiseScale);
+      var theAlpha = Math.scaleNormal(noiseVal, minAlpha, maxAlpha);
+
+      var hueNoise = this.spawnNoise.scaledNoise(x * hueNoiseScale, y * hueNoiseScale);
+      var theHue = Math.scaleNormal(hueNoise, minHue, maxHue);
+
+      ctx.fillStyle = "hsla( "+theHue +", " +saturation +"%, " +brightness +"%, " +theAlpha +")";
       ctx.fillRect(x, y, xStep, yStep);
     }
   }
@@ -139,7 +150,7 @@ StarsManager.update = function( t, cavases, shootingStarCtx, nebulaCanvas, theWi
     {
       var iNormal = ((i / (l-1)) / this.twinkleSpeed);
 
-      var theAlpha = 0.5 + (0.5*Math.cos( this.twinkleSpeed * 2 * Math.PI * (iNormal+GameLoop.currentTime)));
+      var theAlpha = PeriodicFunctions.inverseWave( (iNormal+GameLoop.currentTime) * this.twinkleSpeed );
 
       starCanvas = cavases[i];
       starCanvas.style.opacity = nightTimeLerp * theAlpha;

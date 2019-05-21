@@ -41,6 +41,15 @@ SimplexNoise.prototype.dot = function(g, x, y) {
 };
 
 SimplexNoise.prototype.noise = function(xin, yin) {
+  if (xin < 0)
+  {
+    xin = 0;
+  }
+  if (yin < 0)
+  {
+    yin = 0;
+  }
+
   var n0, n1, n2; // Noise contributions from the three corners
   // Skew the input space to determine which simplex cell we're in
   var F2 = 0.5*(Math.sqrt(3.0)-1.0);
@@ -93,6 +102,10 @@ SimplexNoise.prototype.noise = function(xin, yin) {
   // Add contributions from each corner to get the final noise value.
   // The result is scaled to return values in the interval [-1,1].
   return 70.0 * (n0 + n1 + n2);
+};
+
+SimplexNoise.prototype.scaledNoise = function(xin, yin) {
+  return (this.noise(xin, yin) + 1) * 0.5;
 };
 
 // 3D simplex noise

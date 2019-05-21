@@ -41,8 +41,9 @@ function init()
 {
   var includes =
   [
-    'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise', 'Utils/AnimationCurve', 'Utils/Gradient',
-    'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil', 'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
+    'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise', 'Utils/AnimationCurve',
+    'Utils/Gradient', 'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil', 'Utils/PeriodicFunctions',
+    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
     'FullScreenEffects/ProceduralGarden/Sun', 'FullScreenEffects/ProceduralGarden/Moon',
     'FullScreenEffects/ProceduralGarden/Sky', 'FullScreenEffects/ProceduralGarden/Terrain',
     'FullScreenEffects/ProceduralGarden/Cloud', 'FullScreenEffects/ProceduralGarden/CloudsManager',

@@ -34,10 +34,10 @@ function Cloud()
     for (var i = 0; i < nPoints; i++)
     {
       var angleN = i / (nPoints-1);
-      var noiseN = -(Math.cos(2 * Math.PI * angleN) * 0.5) + 0.5;
+      var noiseN = PeriodicFunctions.wave(angleN);
       var t = angleN * 2 * Math.PI;
 
-      var sizeScale = (this.simpleNoise.noise(t * noiseN * nScale, nScale) + 1) * 0.5;
+      var sizeScale = this.simpleNoise.scaledNoise(t * noiseN * nScale, nScale);
       sizeScale = EasingUtil.easeOutQuad(sizeScale, 0, 1, 1);
 
       var x	=	Math.scaleNormal(sizeScale, this.minNoiseScaleX, 1) * Math.cos(t);
@@ -67,7 +67,7 @@ function Cloud()
 
     // change the scale on a noise function
     var scaleChangeFreq = 0.00001;
-    var sizeScale = (this.simpleNoise.noise(GameLoop.currentTime * scaleChangeFreq, 0) + 1) * 0.5;
+    var sizeScale = this.simpleNoise.scaledNoise(GameLoop.currentTime * scaleChangeFreq, 0);
     sizeScale = EasingUtil.easeOutQuad(sizeScale, 0, 1, 1);
     sizeScale = Math.scaleNormal(sizeScale, this.minScale, this.maxScale);
     this.scale = sizeScale;

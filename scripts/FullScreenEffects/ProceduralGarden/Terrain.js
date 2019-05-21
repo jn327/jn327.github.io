@@ -100,13 +100,13 @@ function Terrain()
 
         //make it more ridged
         // as per https://www.redblobgames.com/maps/terrain-from-noise/
-        var yNoise = (theNoise.noise(x * noiseScale, noiseScale) + 1) * 0.5;
+        var yNoise = theNoise.scaledNoise(x * noiseScale, noiseScale);
         var ridgedYNoise = 2 * (0.5 - Math.abs(0.5 - yNoise));
         thePoint.y = (yNoise*(1-this.ridgeNoiseStr)) + (ridgedYNoise*this.ridgeNoiseStr);
 
         //curl the noise a bit.
         //we're offsetting x based on the value of y, it's a bit hacky, but it looks nicer than anything else I've tried.
-        var curlVal = (1 - Math.cos(2 * Math.PI * thePoint.y)) * 0.5;
+        var curlVal = PeriodicFunctions.wave(thePoint.y);
         thePoint.x += curlVal * this.sandCurlOffset;
 
         thePoint.y = sandTopY + (sandHeightDelta * scaleMultip * thePoint.y);
@@ -162,7 +162,7 @@ function Terrain()
 
       var offestNoise = theNoise.noise(y * this.riverNoiseFreq, this.riverNoiseFreq);
       var offsetX = offestNoise * this.riverOffsetMultip;
-      offsetX *= -(Math.cos(2 * Math.PI * yNormal) * 0.5) + 0.5;
+      offsetX *= PeriodicFunctions.wave(yNormal);
       offsetX += (riverXDelta * yNormal); //move towards the center.
 
       //get the river and valley widths

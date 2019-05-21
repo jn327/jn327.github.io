@@ -10,8 +10,8 @@ var particlePool;
 
 var mousePos;
 var mouseMoveParticleForce = 5;
-var minMouseRadius  = 4;
-var maxMouseRadius  = 10;
+var minMouseRadius  = 6;
+var maxMouseRadius  = 12;
 var mouseDragTimer  = 0;
 var mouseDragTime   = 0.5;
 
@@ -124,19 +124,22 @@ function spawnParticles()
 {
   if (MouseTracker.mousePos != undefined)
   {
-    var currMousePos = new Vector2D(MouseTracker.mousePos.x * activeCanvas.width, MouseTracker.mousePos.y * activeCanvas.height);
+    var canvasW = activeCanvas.width;
+    var canvasH = activeCanvas.height;
+
+    var currMousePos = new Vector2D(MouseTracker.mousePos.x * canvasW, MouseTracker.mousePos.y * canvasH);
     var particleForce = new Vector2D(0,0);
     if( mousePos == undefined )
     {
       mousePos = currMousePos;
     }
 
-    if (mousePos.x != currMousePos.x || mousePos.y != currMousePos.y)
-    {
-      var mouseDelta = currMousePos.direction(mousePos);
-      mouseDelta.normalize();
+    var mouseDown = MouseTracker.bMouseDown;
+    var mouseHasMoved = mousePos.x != currMousePos.x || mousePos.y != currMousePos.y;
 
-      mouseDragTimer += GameLoop.deltaTime;
+    if ( mouseHasMoved || mouseDown )
+    {
+      mouseDragTimer = (mouseDown && !mouseHasMoved) ? mouseDragTime : mouseDragTimer + GameLoop.deltaTime;
 
       var mouseDragN = mouseDragTimer / mouseDragTime;
       mouseDragN = Math.clamp(mouseDragN, 0, 1);
@@ -144,9 +147,19 @@ function spawnParticles()
       var mouseRadius = Math.scaleNormal( mouseDragN, minMouseRadius, maxMouseRadius);
       var particlesPerFrame = Math.scaleNormal( mouseDragN, minParticlesPerFrame, maxParticlesPerFrame);
 
-      var frontPos = new Vector2D(mousePos.x + (mouseDelta.x * mouseRadius), mousePos.y + (mouseDelta.y * mouseRadius));
-
       var lifeTimeN = 1 - mouseDragN;
+
+      var centerPos;
+      if (mouseDown && !mouseHasMoved)
+      {
+        centerPos = currMousePos;
+      }
+      else
+      {
+        var mouseDelta = currMousePos.direction(mousePos);
+        mouseDelta.normalize();
+        centerPos = new Vector2D(mousePos.x + (mouseDelta.x * mouseRadius), mousePos.y + (mouseDelta.y * mouseRadius));
+      }
 
       mousePos = currMousePos;
       var twoPI = Math.PI * 2;
@@ -164,7 +177,16 @@ function spawnParticles()
           var posX = mousePos.x + (Math.sin(Math.random() * twoPI) * (Math.random() * mouseRadius));
           var posY = mousePos.y + (Math.cos(Math.random() * twoPI) * (Math.random() * mouseRadius));
 
-          particleForce = new Vector2D(posX, posY).direction(frontPos);
+          if (posX < 0)
+          {
+            posX = 0;
+          }
+          if (posY < 0)
+          {
+            posY = 0;
+          }
+
+          particleForce = new Vector2D(posX, posY).direction(centerPos);
           particleForce.normalize();
           particleForce = particleForce.getMultiplied(mouseMoveParticleForce);
 
