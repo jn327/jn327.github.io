@@ -2,7 +2,7 @@
 var bgCanvas, bgCtx;
 var activeCanvas, activeCtx;
 
-var maxParticles          = 3000;
+var maxParticles          = 2000;
 var particles;
 var particlePool;
 
@@ -13,7 +13,7 @@ var maxMouseRadius      = 12;
 var mouseDragTimer      = 0;
 var mouseDragTime       = 0.5;
 var minMouseParticles   = 10;
-var maxMouseParticles   = 1000;
+var maxMouseParticles   = 500;
 var currMouseColor;
 
 var dropParticlesMin  = 200;
@@ -24,7 +24,7 @@ var dropRadius        = 4;
 var dropForceMin      = 2;
 var dropForceMax      = 3;
 
-var renderFrequency   = 0.02;
+var renderFrequency   = 0.033;
 var renderTimer       = 0;
 
 //------------------------------------------------
@@ -134,7 +134,7 @@ function spawnDropParticles()
 
 function getRandomColor()
 {
-  var theIndex = Math.round(Math.random() * (ColorUtil.golbalColorPallete.length - 3));
+  var theIndex = Math.round(Math.random() * (ColorUtil.golbalColorPallete.length - 1));
   return ColorUtil.golbalColorPallete[theIndex];
 }
 

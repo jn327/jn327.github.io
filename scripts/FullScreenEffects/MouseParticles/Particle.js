@@ -34,7 +34,7 @@ function Particle( thePool )
   var alpha           = 1;
   var ageAlphaMultip  = 1;
   var bgSaturation    = 90;
-  var bgBrightness    = 40;
+  var bgBrightness    = 50;
 
   var lifeTime      = 0;
   var maxLifeTime   = Math.scaleNormal(Math.random(), 1, 1.5);
