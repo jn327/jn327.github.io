@@ -2,22 +2,23 @@
 var bgCanvas, bgCtx;
 var activeCanvas, activeCtx;
 
-var maxParticles      = 3000;
-var minParticlesPerFrame  = 10;
-var maxParticlesPerFrame  = 1000;
+var maxParticles          = 3000;
 var particles;
 var particlePool;
 
 var mousePos;
-var mouseMoveParticleForce = 5;
-var minMouseRadius  = 6;
-var maxMouseRadius  = 12;
-var mouseDragTimer  = 0;
-var mouseDragTime   = 0.5;
+var mouseParticlesForce = 5;
+var minMouseRadius      = 6;
+var maxMouseRadius      = 12;
+var mouseDragTimer      = 0;
+var mouseDragTime       = 0.5;
+var minMouseParticles   = 10;
+var maxMouseParticles   = 1000;
+var currMouseColor;
 
 var dropParticlesMin  = 200;
 var dropParticlesMax  = 500;
-var dropFrequency     = 0.2;
+var dropFrequency     = 1.25;
 var dropTimer         = 0;
 var dropRadius        = 4;
 var dropForceMin      = 2;
@@ -25,19 +26,6 @@ var dropForceMax      = 3;
 
 var renderFrequency   = 0.02;
 var renderTimer       = 0;
-
-//bg
-var hueValue;
-var minHue                = 180;
-var maxHue                = 360;
-var hueVariance           = 40;
-var hueChangeSpeed        = 50000;
-var hueOffset             = Math.random() * hueChangeSpeed;
-var hueChangeCurve;
-var bgSaturation          = 60; //0-100 (percent)
-var bgBrightness          = 10;
-var bgUpdateFreq          = 0.4;
-var bgUpdateTimer         = 0;
 
 //------------------------------------------------
 //                Initialization
@@ -47,7 +35,7 @@ function init()
 {
   var includes = [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve',
-    'Utils/TimingUtil', 'Utils/CurlNoise', 'Utils/ObjectPool',
+    'Utils/TimingUtil', 'Utils/CurlNoise', 'Utils/ObjectPool', 'Utils/ColorUtil',
     'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'FullScreenEffects/MouseParticles/Particle'
   ];
   CommonElementsCreator.appendScripts(includes);
@@ -65,7 +53,7 @@ function start()
   particles = [];
   particlePool = new ObjectPool();
 
-  updateBgCanvas();
+  ColorUtil.setGlobalColorPallete( ColorUtil.generateColorPallete( 3, 10 ) );
 }
 
 function initCanvas()
@@ -74,7 +62,7 @@ function initCanvas()
   activeCtx     = activeCanvas.getContext('2d');
 
   bgCanvas  = CommonElementsCreator.createCanvas();
-  bgCtx     = bgCanvas.getContext('2d', { alpha: false });
+  bgCtx     = bgCanvas.getContext('2d');
 
   validateCanvasSize();
   window.addEventListener( "resize", TimingUtil.debounce(onWindowResize, 250) );
@@ -90,7 +78,6 @@ function onWindowResize()
   if (validateCanvasSize() == true)
   {
     resetParticles();
-    updateBgCanvas();
   }
 }
 
@@ -119,13 +106,6 @@ function update()
     drawParticles();
   }
 
-  bgUpdateTimer += GameLoop.deltaTime;
-  if (bgUpdateTimer > bgUpdateFreq)
-  {
-    bgUpdateTimer = 0;
-    updateBgCanvas();
-  }
-
 }
 
 function spawnParticles()
@@ -146,9 +126,16 @@ function spawnDropParticles()
     var thePos      = new Vector2D(Math.random() * activeCanvas.width, Math.random() * activeCanvas.height);
     var theForce    = Math.scaleNormal(Math.random(), dropForceMin, dropForceMax);
     var lifeTimeN   = Math.scaleNormal(Math.random(), 0, 0.3);
+    var theColor    = getRandomColor();
 
-    createParticles( nParticles, thePos, dropRadius, thePos, theForce, lifeTimeN );
+    createParticles( nParticles, thePos, dropRadius, thePos, theForce, lifeTimeN, theColor );
   }
+}
+
+function getRandomColor()
+{
+  var theIndex = Math.round(Math.random() * (ColorUtil.golbalColorPallete.length - 3));
+  return ColorUtil.golbalColorPallete[theIndex];
 }
 
 function spawnMouseParticles()
@@ -170,13 +157,18 @@ function spawnMouseParticles()
 
     if ( mouseHasMoved || mouseDown )
     {
+      if (currMouseColor == undefined)
+      {
+        currMouseColor = getRandomColor();
+      }
+
       mouseDragTimer = (mouseDown && !mouseHasMoved) ? mouseDragTime : mouseDragTimer + GameLoop.deltaTime;
 
       var mouseDragN = mouseDragTimer / mouseDragTime;
       mouseDragN = Math.clamp(mouseDragN, 0, 1);
 
       var mouseRadius = Math.scaleNormal( mouseDragN, minMouseRadius, maxMouseRadius);
-      var particlesToSpawn = Math.scaleNormal( mouseDragN, minParticlesPerFrame, maxParticlesPerFrame);
+      var particlesToSpawn = Math.scaleNormal( mouseDragN, minMouseParticles, maxMouseParticles);
 
       var lifeTimeN = 1 - mouseDragN;
 
@@ -193,16 +185,17 @@ function spawnMouseParticles()
       }
 
       mousePos = currMousePos;
-      createParticles( particlesToSpawn, mousePos, mouseRadius, centerPos, mouseMoveParticleForce, lifeTimeN );
+      createParticles( particlesToSpawn, mousePos, mouseRadius, centerPos, mouseParticlesForce, lifeTimeN, currMouseColor );
     }
     else
     {
+      currMouseColor = undefined;
       mouseDragTimer = 0;
     }
   }
 }
 
-function createParticles( nParticles, pos, radius, forceCenter, forceMultip, lifeTimeN )
+function createParticles( nParticles, pos, radius, forceCenter, forceMultip, lifeTimeN, theColor )
 {
   var twoPI = Math.PI * 2;
 
@@ -232,7 +225,7 @@ function createParticles( nParticles, pos, radius, forceCenter, forceMultip, lif
       particleForce.normalize();
       particleForce = particleForce.getMultiplied(forceMultip);
 
-      theParticle.spawn(posX, posY, particleForce.x, particleForce.y, lifeTimeN);
+      theParticle.spawn(posX, posY, particleForce.x, particleForce.y, lifeTimeN, theColor);
 
       particles.push(theParticle);
     }
@@ -284,29 +277,25 @@ function drawParticles()
   for ( var n = 0; n < l; n ++ )
   {
     particle = particles[n];
-    particle.draw( activeCtx );
+    particle.draw( activeCtx, bgCtx );
   }
-}
 
-//background
-function updateBgCanvas()
-{
-  hueValue = ((GameLoop.currentTime+hueOffset) % hueChangeSpeed) / hueChangeSpeed;
-  hueValue = hueChangeCurve.evaluate( hueValue );
-  var scaledHueValue = Math.scaleNormal(hueValue, minHue + hueVariance, maxHue - hueVariance);
+  l = ColorUtil.golbalColorPallete.length;
+  var w         = 0.01 * activeCanvas.width;
+  var h         = 0.05 * activeCanvas.height;
+  var padding   = 1;
+  var dPadding  = padding * 2;
 
-  var wScale = 1.25 * bgCanvas.width;
-  var hScale = 1 * bgCanvas.height;
-  var hOffset = (hScale - bgCanvas.height) * 0.5;
-  var wOffset = (wScale - bgCanvas.width) * 0.5;
-  var grd = bgCtx.createLinearGradient(wOffset, hOffset, wScale, hScale);
+  //activeCtx.fillStyle = 'rgba(255, 255, 255, 1)'
+  //activeCtx.fillRect( 0, activeCanvas.height-(h+dPadding), (w*l)+dPadding, h+dPadding );
 
-  grd.addColorStop(0, 'hsla('+(scaledHueValue-hueVariance)+','+bgSaturation+'%,' +bgBrightness +'%,1)');
-  grd.addColorStop(0.5, 'hsla('+scaledHueValue+','+bgSaturation+'%,' +bgBrightness +'%,1)');
-  grd.addColorStop(1, 'hsla('+(scaledHueValue+hueVariance)+','+bgSaturation+'%,' +bgBrightness +'%,1)');
+  for ( var i = 0; i < l; i ++ )
+  {
+    var color = ColorUtil.golbalColorPallete[i];
 
-  bgCtx.fillStyle = grd;
-  bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+    activeCtx.fillStyle = 'hsla(' +color[0] +', ' +color[1] +'%, 50%, 1)';
+    activeCtx.fillRect(padding + w*i, activeCanvas.height-(h+padding), w, h);
+  }
 }
 
 //------------------------------------------------

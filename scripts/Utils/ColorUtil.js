@@ -1,5 +1,48 @@
 var ColorUtil = {};
 
+ColorUtil.golbalColorPallete = [];
+ColorUtil.setGlobalColorPallete = function( colors )
+{
+  if (ColorUtil.golbalColorPallete == undefined || ColorUtil.golbalColorPallete.length <= 0 )
+  {
+    this.golbalColorPallete = colors;
+  }
+}
+
+//given saturation and lightness, will generate a color pallete composed of (2 * nPoints) colors.
+ColorUtil.generateColorPallete = function(nPoints, s, l, h, sVariation)
+{
+  var thePallete = [];
+
+  if (nPoints == undefined)
+  {
+    nPoints = 3;
+  }
+  if (sVariation == undefined)
+  {
+    sVariation = 10;
+  }
+  if (h == undefined)
+  {
+    h = Math.random() * 360;
+  }
+
+  var altSaturation = s > (100-sVariation) ? s - sVariation : s + sVariation;
+
+  var hueStep = 360 / nPoints;
+  var startHue = h;
+  for (var i = 0; i < nPoints; i++)
+  {
+    var theHue = startHue + (hueStep * i);
+    theHue = Math.wrap( theHue, 0, 360 );
+
+    thePallete.push( [ theHue, s, l ] );
+    thePallete.push( [ theHue, altSaturation, l ] );
+  }
+
+  return thePallete;
+}
+
 // Converts a #ffffff hex string into a [r,g,b] array
 ColorUtil.hexToRgb = function(hex)
 {

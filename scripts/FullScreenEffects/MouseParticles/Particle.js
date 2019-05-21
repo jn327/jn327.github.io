@@ -1,5 +1,10 @@
 function Particle( thePool )
 {
+  this.random = function()
+  {
+    return 1;
+  }
+
   //Call our prototype
   GameObject.call(this);
 
@@ -9,32 +14,32 @@ function Particle( thePool )
   var velocity        = new Vector2D(0,0);
   var speedMultip     = Math.scaleNormal(Math.random(), 20, 25);
   var ageSpeedMultip  = 1;
-  var friction        = Math.scaleNormal(Math.random(), 0.99, 1);
+  var friction        = Math.scaleNormal(Math.random(), 0.98, 1);
 
-  this.scale = Math.scaleNormal(Math.random(), 1, 3);
-
-  this.random = function()
-  {
-    return 1;
-  }
+  var scaleNoise      = new SimplexNoise();
+  var minScale        = 1;
+  var maxScale        = 15;
+  var scaleNoiseScale = 4;
+  var ageScaleMultip  = 1;
 
   var noise         = new SimplexNoise( this );
   var noiseScale    = 0.008;
   function getNoise(x,y) { return noise.scaledNoise(x,y) };
   var curl          = new CurlNoise( getNoise, noiseScale, 0.2 );
 
-  var hueNoiseScale   = 0.0005;
+  //var hueNoiseScale   = 0.0005;
   var hue;
   var saturation      = 90;
   var brightness      = 60;
   var alpha           = 1;
   var ageAlphaMultip  = 1;
-
+  var bgSaturation    = 90;
+  var bgBrightness    = 40;
 
   var lifeTime      = 0;
   var maxLifeTime   = Math.scaleNormal(Math.random(), 1, 1.5);
 
-  this.spawn = function(x, y, velX, velY, lifeTimeN)
+  this.spawn = function(x, y, velX, velY, lifeTimeN, theColor)
   {
     if (lifeTimeN == undefined)
     {
@@ -52,7 +57,10 @@ function Particle( thePool )
     this.position.x = x;
     this.position.y = y;
 
-    hue = Math.scaleNormal(noise.scaledNoise(x * hueNoiseScale, y * hueNoiseScale), 40, 340);
+    //hue = Math.scaleNormal(noise.scaledNoise(x * hueNoiseScale, y * hueNoiseScale), 40, 340);
+    hue           = theColor[0];
+    saturation    = theColor[1];
+    bgSaturation  = saturation;
 
     velocity.x = velX;
     velocity.y = velY;
@@ -97,11 +105,35 @@ function Particle( thePool )
     objectPool.addToPool(this);
   }
 
-  this.draw = function( ctx )
+  this.draw = function( ctx, bgCtx )
   {
-    ageAlphaMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
+    //ageAlphaMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
 
-    ctx.fillStyle = 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +(alpha * ageAlphaMultip) +')';
-    ctx.fillRect(this.position.x, this.position.y, this.scale, this.scale);
+    //ageScaleMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
+    this.scale = scaleNoise.scaledNoise(lifeTime * scaleNoiseScale, 0);
+    this.scale = Math.scaleNormal( this.scale, minScale, maxScale ) * ageScaleMultip;
+
+    var theAlpha = (alpha * ageAlphaMultip);
+
+    ctx.fillStyle = 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')';
+    bgCtx.fillStyle = 'hsla('+hue +', '+bgSaturation +'%, '+bgBrightness +'%, ' +theAlpha +')';
+
+    if (this.scale < 10)
+    {
+      ctx.fillRect(this.position.x, this.position.y, this.scale, this.scale);
+      bgCtx.fillRect(this.position.x, this.position.y, this.scale, this.scale);
+    }
+    else
+    {
+      var radius = this.scale * 0.5;
+
+      ctx.beginPath();
+      ctx.arc(this.position.x, this.position.y, radius, 0, 2 * Math.PI);
+      ctx.fill();
+
+      bgCtx.beginPath();
+      bgCtx.arc(this.position.x, this.position.y, radius, 0, 2 * Math.PI);
+      bgCtx.fill();
+    }
   }
 }
