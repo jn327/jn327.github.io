@@ -118,7 +118,7 @@ function Particle( thePool )
     ctx.fillStyle = 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')';
     bgCtx.fillStyle = 'hsla('+hue +', '+bgSaturation +'%, '+bgBrightness +'%, ' +theAlpha +')';
 
-    if (this.scale < 10)
+    if (this.scale < 2)
     {
       ctx.fillRect(this.position.x, this.position.y, this.scale, this.scale);
       bgCtx.fillRect(this.position.x, this.position.y, this.scale, this.scale);

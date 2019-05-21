@@ -18,7 +18,7 @@ var currMouseColor;
 
 var dropParticlesMin  = 200;
 var dropParticlesMax  = 500;
-var dropFrequency     = 1.25;
+var dropFrequency     = 1.5;
 var dropTimer         = 0;
 var dropRadius        = 4;
 var dropForceMin      = 2;
