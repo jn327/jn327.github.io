@@ -18,7 +18,7 @@ function Particle( thePool )
 
   var scaleNoise      = new SimplexNoise();
   var minScale        = 1;
-  var maxScale        = 15;
+  var maxScale        = 8;
   var scaleNoiseScale = 4;
   var ageScaleMultip  = 1;
 
