@@ -12,13 +12,13 @@ function applyColorPalleteToHtml()
 
     document.body.style.backgroundColor = 'hsla(' +bgHue +', ' +bgS +'%, ' +l +'%, 1)';
 
-    /*var elColor    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-2];
+    var elColor    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-2];
     var elHue      = elColor[0];
     var elS        = elColor[1];
     for( var i = 0; i < headerElements.length; i++ )
     {
-      headerElements[i].style.backgroundColor = 'hsla(' +elHue +', ' +elS +'%, ' +l +'%, 1)';
-    }*/
+      headerElements[i].style.backgroundColor = 'hsla(' +elHue +', ' +elS +'%, 16%, 1)';
+    }
 
     //grid headers
     var theIndex = 0;
