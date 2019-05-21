@@ -22,11 +22,11 @@ html, body
 
 .blurred
 {
-  -webkit-filter  : blur(2px) brightness(0.66);
-  -ms-filter      : blur(2px) brightness(0.66);
-  -moz-filter     : blur(2px) brightness(0.66);
-  -o-filter       : blur(2px) brightness(0.66);
-  filter          : blur(2px) brightness(0.66);
+  -webkit-filter  : blur(2px);
+  -ms-filter      : blur(2px);
+  -moz-filter     : blur(2px);
+  -o-filter       : blur(2px);
+  filter          : blur(2px);
 }
 
 #contentContainer
