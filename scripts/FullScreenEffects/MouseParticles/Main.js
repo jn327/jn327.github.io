@@ -265,14 +265,11 @@ function drawParticles()
     particle.draw( activeCtx, bgCtx );
   }
 
-  l = ColorUtil.golbalColorPallete.length;
+  /*l = ColorUtil.golbalColorPallete.length;
   var w         = 0.01 * activeCanvas.width;
   var h         = 0.05 * activeCanvas.height;
   var padding   = 1;
   var dPadding  = padding * 2;
-
-  //activeCtx.fillStyle = 'rgba(255, 255, 255, 1)'
-  //activeCtx.fillRect( 0, activeCanvas.height-(h+dPadding), (w*l)+dPadding, h+dPadding );
 
   for ( var i = 0; i < l; i ++ )
   {
@@ -280,7 +277,7 @@ function drawParticles()
 
     activeCtx.fillStyle = 'hsla(' +color[0] +', ' +color[1] +'%, 50%, 1)';
     activeCtx.fillRect(padding + w*i, activeCanvas.height-(h+padding), w, h);
-  }
+  }*/
 }
 
 //------------------------------------------------

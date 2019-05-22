@@ -39,6 +39,8 @@ function Particle( thePool )
   var lifeTime      = 0;
   var maxLifeTime   = Math.scaleNormal(Math.random(), 1, 1.25);
 
+  var twoPI         = 2 * Math.PI;
+
   this.spawn = function(x, y, velX, velY, lifeTimeN, theColor)
   {
     if (lifeTimeN == undefined)
@@ -84,8 +86,12 @@ function Particle( thePool )
     this.position.x += velocity.x;
     this.position.y += velocity.y;
 
-    var deltaFriction = Math.clamp(friction * deltaTime, 0, 1);
-    velocity.multiply(1 - deltaFriction);
+    var tFriction = friction * deltaTime;
+    if (tFriction > 1)
+    {
+      tFriction = 1;
+    }
+    velocity.multiply(1 - tFriction);
 
     if ( lifeTime >= maxLifeTime
       || this.position.x < xMin || this.position.x > xMax
@@ -116,6 +122,7 @@ function Particle( thePool )
 
     var theAlpha = (alpha * ageAlphaMultip);
 
+    //TODO: only set this if its different from last particle.
     ctx.fillStyle = 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')';
     bgCtx.fillStyle = 'hsla('+hue +', '+bgSaturation +'%, '+bgBrightness +'%, ' +theAlpha +')';
 
@@ -133,11 +140,11 @@ function Particle( thePool )
       var radius = this.scale * 0.5;
 
       ctx.beginPath();
-      ctx.arc(this.position.x, this.position.y, radius, 0, 2 * Math.PI);
+      ctx.arc(this.position.x, this.position.y, radius, 0, twoPI);
       ctx.fill();
 
       bgCtx.beginPath();
-      bgCtx.arc(this.position.x, this.position.y, radius, 0, 2 * Math.PI);
+      bgCtx.arc(this.position.x, this.position.y, radius, 0, twoPI);
       bgCtx.fill();
     }
   }
