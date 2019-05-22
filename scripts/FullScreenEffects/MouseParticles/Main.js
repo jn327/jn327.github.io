@@ -11,16 +11,16 @@ var mouseParticlesForce = 5;
 var minMouseRadius      = 6;
 var maxMouseRadius      = 12;
 var mouseDragTimer      = 0;
-var mouseDragTime       = 0.5;
+var mouseDragTime       = 0.66;
 var minMouseParticles   = 10;
-var maxMouseParticles   = 500;
+var maxMouseParticles   = 300;
 var currMouseColor;
 
-var dropParticlesMin  = 200;
-var dropParticlesMax  = 500;
-var dropFrequency     = 1.5;
+var dropParticlesMin  = 150;
+var dropParticlesMax  = 300;
+var dropFrequency     = 2.5;
 var dropTimer         = 0;
-var dropRadius        = 4;
+var dropRadius        = 2;
 var dropForceMin      = 2;
 var dropForceMax      = 3;
 
@@ -110,11 +110,11 @@ function update()
 
 function spawnParticles()
 {
-  spawnDropParticles();
+  updateDropParticles();
   spawnMouseParticles();
 }
 
-function spawnDropParticles()
+function updateDropParticles()
 {
   dropTimer += GameLoop.deltaTime;
 
@@ -122,8 +122,8 @@ function spawnDropParticles()
   {
     dropTimer = 0;
 
+    var thePos = new Vector2D(Math.random() * activeCanvas.width, Math.random() * activeCanvas.height);
     var nParticles  = Math.scaleNormal(Math.random(), dropParticlesMin, dropParticlesMax);
-    var thePos      = new Vector2D(Math.random() * activeCanvas.width, Math.random() * activeCanvas.height);
     var theForce    = Math.scaleNormal(Math.random(), dropForceMin, dropForceMax);
     var lifeTimeN   = Math.scaleNormal(Math.random(), 0, 0.3);
     var theColor    = getRandomColor();
@@ -152,17 +152,15 @@ function spawnMouseParticles()
       mousePos = currMousePos;
     }
 
-    var mouseDown = MouseTracker.bMouseDown;
     var mouseHasMoved = mousePos.x != currMousePos.x || mousePos.y != currMousePos.y;
-
-    if ( mouseHasMoved || mouseDown )
+    if ( mouseHasMoved )
     {
       if (currMouseColor == undefined)
       {
         currMouseColor = getRandomColor();
       }
 
-      mouseDragTimer = (mouseDown && !mouseHasMoved) ? mouseDragTime : mouseDragTimer + GameLoop.deltaTime;
+      mouseDragTimer += GameLoop.deltaTime;
 
       var mouseDragN = mouseDragTimer / mouseDragTime;
       mouseDragN = Math.clamp(mouseDragN, 0, 1);
@@ -172,17 +170,9 @@ function spawnMouseParticles()
 
       var lifeTimeN = 1 - mouseDragN;
 
-      var centerPos;
-      if (mouseDown && !mouseHasMoved)
-      {
-        centerPos = currMousePos;
-      }
-      else
-      {
-        var mouseDelta = currMousePos.direction(mousePos);
-        mouseDelta.normalize();
-        centerPos = new Vector2D(currMousePos.x - (mouseDelta.x * mouseRadius), currMousePos.y - (mouseDelta.y * mouseRadius));
-      }
+      var mouseDelta = currMousePos.direction(mousePos);
+      mouseDelta.normalize();
+      var centerPos = new Vector2D(currMousePos.x - (mouseDelta.x * mouseRadius), currMousePos.y - (mouseDelta.y * mouseRadius));
 
       mousePos = currMousePos;
       createParticles( particlesToSpawn, mousePos, mouseRadius, centerPos, mouseParticlesForce, lifeTimeN, currMouseColor );
@@ -303,5 +293,17 @@ function drawParticles()
 //------------------------------------------------
 function onMouseDown()
 {
+  if (MouseTracker.mousePos != undefined)
+  {
+    var canvasW = activeCanvas.width;
+    var canvasH = activeCanvas.height;
+
+    dropTimer = 0;
+
+    var thePos      = new Vector2D(MouseTracker.mousePos.x * canvasW, MouseTracker.mousePos.y * canvasH);
+    var theColor    = getRandomColor();
+
+    createParticles( maxMouseParticles, thePos, maxMouseRadius, thePos, mouseParticlesForce, 0, theColor );
+  }
 
 }
