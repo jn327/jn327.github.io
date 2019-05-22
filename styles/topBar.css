@@ -141,17 +141,6 @@
   transition        : opacity 0.2s linear 0.05s, margin-top 0.25s ease-out 0s;
 }
 
-/*.toolTip::after {
-  content: " ";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: transparent transparent rgba(0, 0, 0, 0.33) transparent;
-}*/
-
 .imageLink:hover > .toolTip
 {
   visibility      : visible;

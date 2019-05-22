@@ -74,11 +74,12 @@ function Particle( thePool )
     lifeTime += deltaTime;
 
     ageSpeedMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
+    ageSpeedMultip *= speedMultip;
 
     var theVel = curl.noise( this.position.x, this.position.y );
 
-    velocity.x += theVel.x * speedMultip * ageSpeedMultip;
-    velocity.y += theVel.y * speedMultip * ageSpeedMultip;
+    velocity.x += theVel.x * ageSpeedMultip;
+    velocity.y += theVel.y * ageSpeedMultip;
 
     this.position.x += velocity.x;
     this.position.y += velocity.y;
@@ -108,8 +109,8 @@ function Particle( thePool )
   this.draw = function( ctx, bgCtx )
   {
     //ageAlphaMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
-
     //ageScaleMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
+
     this.scale = scaleNoise.scaledNoise(lifeTime * scaleNoiseScale, 0);
     this.scale = Math.scaleNormal( this.scale, minScale, maxScale ) * ageScaleMultip;
 
@@ -117,6 +118,10 @@ function Particle( thePool )
 
     ctx.fillStyle = 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')';
     bgCtx.fillStyle = 'hsla('+hue +', '+bgSaturation +'%, '+bgBrightness +'%, ' +theAlpha +')';
+
+    //TODO: see if rounding positions makes any difference to speed.
+    //var xPos = Math.round(this.position.x);
+    //var yPos = Math.round(this.position.y);
 
     if (this.scale < 2)
     {

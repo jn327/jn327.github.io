@@ -6,8 +6,11 @@
 
   <title>Josh Newland's page</title>
 
-  <!-- hide the labels containers while we load them up,
-    otherwise they'll be visible and changing about while all our styles are loading in -->
+  <!--
+    hide the labels containers while we load them up,
+    otherwise they'll be visible and changing about while all our styles are loading in,
+    if the element is already there when the style loads, then the transitions will play for any value changes
+  -->
   <style>
     .labelsContainer
     {

@@ -45,11 +45,6 @@ function start()
 {
   initCanvas();
 
-  hueChangeCurve = new AnimationCurve();
-  hueChangeCurve.addKeyFrame(0, 0);
-  hueChangeCurve.addKeyFrame(0.5, 1);
-  hueChangeCurve.addKeyFrame(1, 0);
-
   particles = [];
   particlePool = new ObjectPool();
 
