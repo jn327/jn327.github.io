@@ -46,4 +46,5 @@ function applyColorPalleteToHtml()
     }
   }
 }
+
 CommonElementsCreator.addLoadEvent( applyColorPalleteToHtml );
