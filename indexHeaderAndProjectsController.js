@@ -161,7 +161,6 @@ function createProjectElements( gridId, itemsData )
   var container;
   var img;
   var vid;
-  var vidSource;
   var label;
   var theParent;
   for (var j = 0; j < itemsData.length; j++)
@@ -204,6 +203,7 @@ function createProjectElements( gridId, itemsData )
     {
       vid = document.createElement('video');
       vid.className       = "projects-gridVideo";
+      vid.src             = theData.video;
       vid.autoplay        = "autoplay";
       vid.controls        = false;
       vid.loop            = true;
@@ -212,21 +212,6 @@ function createProjectElements( gridId, itemsData )
       vid.textContent     = "Your browser does not support the video tag.";
       vid.style.objectFit = theData.imgFit || "cover";
       theParent.appendChild(vid);
-
-      /*vid.addEventListener('mouseover', (e) =>
-      {
-        e.target.play()
-      }, false);
-
-      vid.addEventListener('mouseout', (e) =>
-      {
-        e.target.pause()
-      }, false); */
-
-      vidSource = document.createElement('source');
-      vidSource.type      = "video/mp4";
-      vidSource.src       = theData.video;
-      vid.appendChild(vidSource);
     }
 
     label = document.createElement('p');
