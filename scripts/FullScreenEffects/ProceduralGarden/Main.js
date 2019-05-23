@@ -43,7 +43,7 @@ function init()
   [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise', 'Utils/AnimationCurve',
     'Utils/Gradient', 'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil', 'Utils/PeriodicFunctions',
-    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
+    'GameLoop', 'CanvasScaler', 'GameObject',
     'FullScreenEffects/ProceduralGarden/Sun', 'FullScreenEffects/ProceduralGarden/Moon',
     'FullScreenEffects/ProceduralGarden/Sky', 'FullScreenEffects/ProceduralGarden/Terrain',
     'FullScreenEffects/ProceduralGarden/Cloud', 'FullScreenEffects/ProceduralGarden/CloudsManager',
@@ -258,12 +258,4 @@ function updateTodSlider()
   {
     todSliderInput.value = currTod;
   }
-}
-
-//------------------------------------------------
-//                  Mouse events
-//------------------------------------------------
-function onMouseDown()
-{
-
 }

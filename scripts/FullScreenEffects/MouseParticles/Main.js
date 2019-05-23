@@ -283,7 +283,7 @@ function drawParticles()
 //------------------------------------------------
 //                    Mouse events
 //------------------------------------------------
-function onMouseDown()
+function onMouseUp()
 {
   if (MouseTracker.mousePos != undefined)
   {

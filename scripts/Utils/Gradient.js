@@ -1,3 +1,5 @@
+//Requires 'Utils/ColorUtil' & 'Utils/EasingUtil'
+
 //Lets you define a list of keyframes with calls to addKeyFrame.
 //Colors are expected and returned in the format of [r,g,b].
 //You can then evaluate the gradient for a given point and it'll return a lerped and eased value for the gradient at said point.

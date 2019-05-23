@@ -20,9 +20,9 @@ function init()
 {
   var includes =
   [
-    'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise', 'Utils/AnimationCurve',
+    'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/AnimationCurve',
     'Utils/Gradient', 'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil',
-    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject'
+    'GameLoop', 'CanvasScaler', 'GameObject'
   ];
   CommonElementsCreator.appendScripts(includes);
 }
@@ -201,12 +201,4 @@ function onTodSliderChange()
 function updateTodSlider()
 {
   todSliderInput.value = tod * 100;
-}
-
-//------------------------------------------------
-//                  Mouse events
-//------------------------------------------------
-function onMouseDown()
-{
-
 }

@@ -371,11 +371,3 @@ function drawParticles()
     particle.draw( theCtx/*, pixelSizeX, pixelSizeY*/ );
   }
 }
-
-//------------------------------------------------
-//                    Mouse events
-//------------------------------------------------
-function onMouseDown()
-{
-
-}

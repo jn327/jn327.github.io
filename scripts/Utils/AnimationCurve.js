@@ -1,3 +1,5 @@
+//Requires 'Utils/EasingUtil'
+
 //Lets you define a list of keyframes with calls to addKeyFrame.
 //You can then evaluate the curve for a given point and it'll return a lerped and eased value for the curve at said point.
 //this is basically just a list of points and we esentially ride on the back of the easing functions to do all the lerping.
