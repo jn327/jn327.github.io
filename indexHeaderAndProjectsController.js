@@ -194,11 +194,11 @@ function createProjectElements( gridId, itemsData )
     img.src = theData.image;
     img.alt = "Image file not found: " +theData.image;
     img.style.objectFit = theData.imgFit || "cover";
-    container.appendChild(img);
+    imageParent.appendChild(img);
 
     label = document.createElement('p');
     label.textContent = theData.title;
-    container.appendChild(label);
+    imageParent.appendChild(label);
 
     if (theData.bgImage)
     {

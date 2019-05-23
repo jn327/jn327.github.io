@@ -67,11 +67,14 @@ CommonElementsCreator.createHeaderElement = function()
 
   if (!bIndex)
   {
+    li = document.createElement('li');
+    list.appendChild(li);
+
     var headerItem = document.createElement('a');
     headerItem.className = 'headerLink';
     headerItem.href = "../index.html";
     headerItem.textContent = "Home";
-    list.appendChild(headerItem);
+    li.appendChild(headerItem);
   }
 
   var imgList = document.createElement('ul');
@@ -119,14 +122,19 @@ CommonElementsCreator.createHeaderElement = function()
   var linkItem;
   var toolTipItem;
   var theData;
+  var li;
   for (var j = 0; j < links.length; j++)
   {
+    li = document.createElement('li');
+    imgList.appendChild(li);
+
     theData = links[j];
 
     linkItem = document.createElement('a');
     linkItem.className = 'imageLink';
     linkItem.href = theData.link;
     linkItem.target = '_blank';
+    linkItem.rel = 'noopener';
 
     //<span class="tooltiptext">Tooltip text</span>
     toolTipItem = document.createElement('span');
@@ -140,7 +148,7 @@ CommonElementsCreator.createHeaderElement = function()
 
     linkItem.appendChild(imgItem);
     linkItem.appendChild(toolTipItem);
-    imgList.appendChild(linkItem);
+    li.appendChild(linkItem);
   }
 }
 
