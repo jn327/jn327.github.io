@@ -51,7 +51,8 @@ function start()
   ColorUtil.setGlobalColorPallete( ColorUtil.generateColorPallete( 3, 10 ) );
 
   //background
-  bgCtx.filter = "brightness(85%)";
+  bgCanvas.style.webkitFilter = "brightness(85%)";
+  bgCanvas.style.filter = "brightness(85%)";
   drawBackgroundColor();
 }
 

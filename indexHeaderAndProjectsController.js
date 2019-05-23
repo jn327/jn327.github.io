@@ -212,6 +212,16 @@ function createProjectElements( gridId, itemsData )
       vid.textContent     = "Your browser does not support the video tag.";
       vid.style.objectFit = theData.imgFit || "cover";
       theParent.appendChild(vid);
+
+      /*vid.addEventListener('mouseover', (e) =>
+      {
+        e.target.play()
+      }, false);
+
+      vid.addEventListener('mouseout', (e) =>
+      {
+        e.target.pause()
+      }, false); */
     }
 
     label = document.createElement('p');
