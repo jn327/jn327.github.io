@@ -57,7 +57,8 @@ init();
 function init()
 {
   var includes = [
-    'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve', 'Utils/TimingUtil',
+    'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve',
+    'Utils/TimingUtil', 'Utils/CurlNoise',
     'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'FullScreenEffects/VectorField/Particle'
   ];
   CommonElementsCreator.appendScripts(includes);
@@ -123,8 +124,11 @@ function onWindowResize()
 
 function initVectorField()
 {
-  var simplexNoise = new SimplexNoise();
+  var simplexNoise  = new SimplexNoise();
+  function getNoise(x,y) { return simplexNoise.scaledNoise(x,y) };
+  var curl          = new CurlNoise( getNoise, dirNoiseScale, curlEps );
   var vectorStr;
+  var dirArr;
   var vectorDir;
 
   vectorField = [];
@@ -141,44 +145,13 @@ function initVectorField()
       vectorStr = simplexNoise.scaledNoise(x * strNoiseScale, y * strNoiseScale); //0-1
       vectorStr = Math.scaleNormal(vectorStr, vectorFieldMinStr, vectorFieldMaxStr);
 
-      vectorDir = getCurledVectorFieldDir(curlEps, simplexNoise, x, y);
-      //vectorDir = getVectorFieldDir(simplexNoise, x, y);
+      dirArr = curl.noise(x, y);
 
+      vectorDir = new Vector2D(dirArr[0], dirArr[1]);
       vectorDir.multiply(vectorStr * vectorFieldStrMultip);
       vectorField[x][y] = vectorDir;
     }
   }
-}
-
-function getVectorFieldDir(theNoise, x, y)
-{
-  var vectorDir = getDirNoise(theNoise, x, y);
-  return new Vector2D(Math.cos(vectorDir), Math.sin(vectorDir));
-}
-
-function getDirNoise(theNoise, x, y)
-{
-  return (theNoise.noise(x * dirNoiseScale, y * dirNoiseScale) + 1) * Math.PI;
-}
-
-function getCurledVectorFieldDir(eps, theNoise, x, y)
-{
-  //rate of change x
-  var n1 = getDirNoise(theNoise, x + eps, y);
-  var n2 = getDirNoise(theNoise, x - eps, y);
-
-  //average to approx derivative
-  var a = (n1 - n2)/(2 * eps);
-
-  //rate of change y
-  var n3 = getDirNoise(theNoise, x, y + eps);
-  var n4 = getDirNoise(theNoise, x, y - eps);
-
-  //average to approx derivative
-  var b = (n3 - n4)/(2 * eps);
-
-  //Curl
-  return new Vector2D(b, -a);
 }
 
 function roundUpToNearestMultip( value, multip )

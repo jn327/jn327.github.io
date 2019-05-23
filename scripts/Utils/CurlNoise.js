@@ -8,6 +8,7 @@ function CurlNoise( noiseFunction, noiseScale, derivativeSampleDist )
   var noiseFunc = noiseFunction;
   var scale     = noiseScale;
   var eps       = derivativeSampleDist;
+  var twoEps    = derivativeSampleDist * 2;
 
   function getNoise(x, y)
   {
@@ -17,17 +18,11 @@ function CurlNoise( noiseFunction, noiseScale, derivativeSampleDist )
   this.noise = function(x, y)
   {
     //approximate via finite difference.
-    // rate of change x and y
-    var x1 = getNoise(x + eps, y);
-    var x2 = getNoise(x - eps, y);
-    var y1 = getNoise(x, y + eps);
-    var y2 = getNoise(x, y - eps);
-
-    // average
-    var a = (x1 - x2)/(2 * eps);
-    var b = (y1 - y2)/(2 * eps);
+    // get rate of change and average
+    var a = (getNoise(x + eps, y) - getNoise(x - eps, y)) / (twoEps);
+    var b = (getNoise(x, y + eps) - getNoise(x, y - eps)) / (twoEps);
 
     //the curl
-    return new Vector2D(b, -a);
+    return [b, -a];
   }
 }

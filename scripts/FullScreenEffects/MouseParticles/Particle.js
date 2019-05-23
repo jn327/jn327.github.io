@@ -72,17 +72,18 @@ function Particle( thePool )
   {
     lifeTime += deltaTime;
 
-    ageSpeedMultip = 1 - (lifeTime / maxLifeTime);
-    ageSpeedMultip *= speedMultip;
+    //decrease speed linearly from 100% to 0% as we age.
+    ageSpeedMultip = (1 - (lifeTime / maxLifeTime)) * speedMultip;
 
     var theVel = curl.noise( this.position.x, this.position.y );
 
-    velocity.x += theVel.x * ageSpeedMultip;
-    velocity.y += theVel.y * ageSpeedMultip;
+    velocity.x += theVel[0] * ageSpeedMultip;
+    velocity.y += theVel[1] * ageSpeedMultip;
 
     this.position.x += velocity.x;
     this.position.y += velocity.y;
 
+    //apply friction
     var tFriction = friction * deltaTime;
     if (tFriction > 1)
     {
@@ -90,6 +91,7 @@ function Particle( thePool )
     }
     velocity.multiply(1 - tFriction);
 
+    //despawn if we've been around too long or if we're out of the screen.
     if ( lifeTime >= maxLifeTime
       || this.position.x < xMin || this.position.x > xMax
       || this.position.y < yMin || this.position.y > yMax )
@@ -119,7 +121,7 @@ function Particle( thePool )
 
     var theAlpha = (alpha * ageAlphaMultip);
 
-    //TODO: only set this if its different from last particle.
+    //TODO: maybe only set this if its different from last particle.
     ctx.fillStyle = 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')';
 
     //TODO: see if rounding positions makes any difference to speed.
