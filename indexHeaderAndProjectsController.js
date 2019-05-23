@@ -79,20 +79,17 @@ function initProjects()
   [
     {
       title       : "Planet Coaster",
-      image       : "images/projects/PlanCo.gif",
-      bgImage     : "images/projects/PlanCo.jpeg",
+      video       : "images/projects/PlanCo.mp4",
       description : "UI developer"
     },
     {
       title       : "Jurassic World Evolution",
-      image       : "images/projects/Jwe.gif",
-      bgImage     : "images/projects/Jwe.jpeg",
+      video       : "images/projects/Jwe.mp4",
       description : "UI developer"
     },
     {
       title       : "Planet Zoo",
-      image       : "images/projects/PlanZoo.gif",
-      bgImage     : "images/projects/PlanZoo.jpeg",
+      video       : "images/projects/PlanZoo.mp4",
       description : "UI developer"
     }
   ];
@@ -101,22 +98,19 @@ function initProjects()
   [
     {
       title       : "Duel",
-      image       : "images/projects/Duel.gif",
-      bgImage     : "images/projects/Duel.jpeg",
+      video       : "images/projects/Duel.mp4",
       description : "Programmer for a small game made with some friends",
       link        : "https://gamejolt.com/games/duel/305917"
     },
     {
       title       : "Abandoned Earth",
-      image       : "images/projects/AE.gif",
-      bgImage     : "images/projects/AE.jpeg",
+      video       : "images/projects/AE.mp4",
       description : "Programmer for a game made while a student",
       link        : "https://gamejolt.com/games/abandoned-earth/81441"
     },
     {
       title       : "Space Hole Initiation Training",
-      image       : "images/projects/SpaceHole.gif",
-      bgImage     : "images/projects/SpaceHole.jpeg",
+      video       : "images/projects/SpaceHole.mp4",
       description : "Programmer for the Brains Eden 2014 winning game",
       link        : "https://gamejolt.com/games/space-hole-initiation-training/81466"
     }
@@ -126,32 +120,29 @@ function initProjects()
   [
     {
       title       : "RichRap 3dr delta printer",
-      image       : "images/projects/3dPrinter.gif",
-      bgImage     : "images/projects/3dPrinter.jpeg",
+      video       : "images/projects/3dPrinter.mp4",
       imgFit      : "contain",
       description : "Assembled 3D printer and setup Marlin on an Arduino."
     },
     {
       title       : "LED curtain",
-      image       : "images/projects/Leds.gif",
-      bgImage     : "images/projects/Leds.jpeg",
+      video       : "images/projects/Leds.mp4",
       description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."
     },
     {
       title       : "HTML 5 Canvas",
-      image       : "images/projects/HTMLCanvas.gif",
-      bgImage     : "images/projects/HTMLCanvas.jpeg",
+      video       : "images/projects/HTMLCanvas.mp4",
       description : "Procedural scene with HTML Canvas",
       link        : "pages/proceduralGarden.html"
     },
     {
       title       : "2000 origami cranes",
-      image       : "images/projects/Origami.png",
+      image       : "images/projects/Origami.jpg",
       description : "Lots of origami cranes"
     },
     {
       title       : "2d world map creator",
-      image       : "images/projects/ProceduralMap.png",
+      image       : "images/projects/ProceduralMap.jpg",
       description : "Procedural map creator",
       link        : "https://jn327.itch.io/2d-procedural-world"
     }
@@ -169,8 +160,10 @@ function createProjectElements( gridId, itemsData )
   var theData;
   var container;
   var img;
+  var vid;
+  var vidSource;
   var label;
-  var imageParent;
+  var theParent;
   for (var j = 0; j < itemsData.length; j++)
   {
     theData = itemsData[j];
@@ -181,30 +174,65 @@ function createProjectElements( gridId, itemsData )
     if (theData.link)
     {
       var linkItem = document.createElement('a');
-      linkItem.href = theData.link;
+      linkItem.className  = "projects-gridLink";
+      linkItem.href       = theData.link;
       container.appendChild(linkItem);
-      imageParent = linkItem;
+      theParent = linkItem;
     }
     else
     {
-      imageParent = container;
+      theParent = container;
     }
 
-    img = document.createElement('img');
-    img.src = theData.image;
-    img.alt = "Image file not found: " +theData.image;
-    img.style.objectFit = theData.imgFit || "cover";
-    imageParent.appendChild(img);
+    if (theData.image)
+    {
+      img = document.createElement('img');
+      img.className       = "projects-gridImage";
+      img.src             = theData.image;
+      img.alt             = "Image file not found: " +theData.image;
+      img.style.objectFit = theData.imgFit || "cover";
+      theParent.appendChild(img);
+
+      if (theData.bgImage)
+      {
+        img.style.backgroundImage = "url('"+theData.bgImage+"')";
+        img.style.backgroundSize = theData.imgFit || "cover";
+      }
+    }
+
+    if (theData.video)
+    {
+      vid = document.createElement('video');
+      vid.className       = "projects-gridVideo";
+      vid.autoplay        = "autoplay";
+      vid.controls        = false;
+      vid.loop            = true;
+      vid.muted           = true;
+      vid.preload         = "auto";
+      vid.textContent     = "Your browser does not support the video tag.";
+      vid.style.objectFit = theData.imgFit || "cover";
+      theParent.appendChild(vid);
+
+      /*vid.addEventListener('mouseover', (e) =>
+      {
+        e.target.play()
+      }, false);
+
+      vid.addEventListener('mouseout', (e) =>
+      {
+        e.target.pause()
+      }, false); */
+
+      vidSource = document.createElement('source');
+      vidSource.type      = "video/mp4";
+      vidSource.src       = theData.video;
+      vid.appendChild(vidSource);
+    }
 
     label = document.createElement('p');
-    label.textContent = theData.title;
-    imageParent.appendChild(label);
-
-    if (theData.bgImage)
-    {
-      img.style.backgroundImage = "url('"+theData.bgImage+"')";
-      img.style.backgroundSize = theData.imgFit || "cover";
-    }
+    label.className     = "projects-gridTitle";
+    label.textContent   = theData.title;
+    container.appendChild(label);
 
     grid.appendChild(container);
   }
