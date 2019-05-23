@@ -21,6 +21,11 @@
   margin    : 0px 0px 0px 12px;
 }
 
+#headerList > li
+{
+  display             : inline-block;
+}
+
 .headerLink,
 .headerLink-active
 {

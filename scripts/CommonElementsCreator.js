@@ -78,28 +78,65 @@ CommonElementsCreator.createHeaderElement = function()
   imgList.id = 'linksList';
   container.appendChild(imgList);
 
-  var imgTitles = [ "Email me", "Linkedin", "Twitter",
-    "BitBucket", "GitHub", "GameJolt", "ItchIo" ];
-  var imgLinks = [ "mailto:joshuanewland33@gmail.com", "https://www.linkedin.com/in/jn327/", "https://twitter.com/JoshuaNewland",
-    "https://bitbucket.org/Jn327/", "https://github.com/jn327",
-    "https://gamejolt.com/@Jn327/games", "https://jn327.itch.io/" ];
-  var imgSources = ["email", "linkedin", "twitter",
-    "bitbucket", "github", "gamejolt", "itchio" ];
-  for (var j = 0; j < imgLinks.length; j++)
+  var links = [
+    {
+      title: "Email me",
+      link: "mailto:joshuanewland33@gmail.com",
+      source: "email"
+    },
+    {
+      title: "Linkedin",
+      link: "https://www.linkedin.com/in/jn327/",
+      source: "linkedin"
+    },
+    {
+      title: "Twitter",
+      link: "https://twitter.com/JoshuaNewland",
+      source: "twitter"
+    },
+    {
+      title: "BitBucket",
+      link: "https://bitbucket.org/Jn327/",
+      source: "bitbucket"
+    },
+    {
+      title: "GitHub",
+      link: "https://github.com/jn327",
+      source: "github"
+    },
+    {
+      title: "GameJolt",
+      link: "https://gamejolt.com/@Jn327/games",
+      source: "gamejolt"
+    },
+    {
+      title: "ItchIo",
+      link: "https://jn327.itch.io/",
+      source: "itchio"
+    }
+  ];
+
+  var linkItem;
+  var toolTipItem;
+  var theData;
+  for (var j = 0; j < links.length; j++)
   {
-    var linkItem = document.createElement('a');
+    theData = links[j];
+
+    linkItem = document.createElement('a');
     linkItem.className = 'imageLink';
-    linkItem.href = imgLinks[j];
+    linkItem.href = theData.link;
     linkItem.target = '_blank';
 
     //<span class="tooltiptext">Tooltip text</span>
-    var toolTipItem = document.createElement('span');
+    toolTipItem = document.createElement('span');
     toolTipItem.className = 'toolTip';
-    toolTipItem.textContent = imgTitles[j];
+    toolTipItem.textContent = theData.title;
 
     var imgItem = document.createElement('img');
     imgItem.className = 'imageLinkIcon';
-    imgItem.src = (rootLocation+"images/"+imgSources[j]+".png");
+    imgItem.src = (rootLocation+"images/"+theData.source+".png");
+    imgItem.alt = "Image file not found: " +theData.source;
 
     linkItem.appendChild(imgItem);
     linkItem.appendChild(toolTipItem);
@@ -116,14 +153,18 @@ CommonElementsCreator.addLinksToHeader = function( labels, selectedIndex )
 
   var list = document.getElementById("headerList");
   var headerItem;
+  var li;
   var headerItems = [];
   for (var i = 0; i < labels.length; i++)
   {
+    li = document.createElement('li');
+    list.appendChild(li);
+
     headerItem = document.createElement('a');
     headerItem.className = i != selectedIndex ? 'headerLink' : 'headerLink-active';
     headerItem.textContent = labels[i];
+    li.appendChild(headerItem);
 
-    list.appendChild(headerItem);
     headerItems.push(headerItem);
   }
 

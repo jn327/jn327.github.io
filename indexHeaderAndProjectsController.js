@@ -170,6 +170,7 @@ function createProjectElements( gridId, itemsData )
   var container;
   var img;
   var label;
+  var imageParent;
   for (var j = 0; j < itemsData.length; j++)
   {
     theData = itemsData[j];
@@ -177,22 +178,27 @@ function createProjectElements( gridId, itemsData )
     container = document.createElement('li');
     //container.textContent = theData.title;
 
+    if (theData.link)
+    {
+      var linkItem = document.createElement('a');
+      linkItem.href = theData.link;
+      container.appendChild(linkItem);
+      imageParent = linkItem;
+    }
+    else
+    {
+      imageParent = container;
+    }
+
     img = document.createElement('img');
     img.src = theData.image;
-    //img.alt = "Image file not found: " +theData.image;
+    img.alt = "Image file not found: " +theData.image;
     img.style.objectFit = theData.imgFit || "cover";
     container.appendChild(img);
 
     label = document.createElement('p');
     label.textContent = theData.title;
     container.appendChild(label);
-
-    if (theData.link)
-    {
-      var linkItem = document.createElement('a');
-      linkItem.href = theData.link;
-      container.appendChild(linkItem);
-    }
 
     if (theData.bgImage)
     {
