@@ -57,7 +57,7 @@ CommonElementsCreator.createHeaderElement = function()
     || (pathName.length > 11 && pathName.substr(pathName.length - 11) == "/index.html");
 
   //start creating some elements
-  var container = document.createElement('div');
+  var container = document.createElement('nav');
   container.id = "headerContainer";
   parentElement.appendChild(container);
 
