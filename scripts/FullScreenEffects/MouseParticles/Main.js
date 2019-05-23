@@ -49,6 +49,20 @@ function start()
   particlePool = new ObjectPool();
 
   ColorUtil.setGlobalColorPallete( ColorUtil.generateColorPallete( 3, 10 ) );
+
+  //background
+  bgCtx.filter = "brightness(85%)";
+  drawBackgroundColor();
+}
+
+function drawBackgroundColor()
+{
+  var bgColor    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-1];
+  var bgHue      = bgColor[0];
+  var bgS        = bgColor[1];
+
+  bgCtx.fillStyle = 'hsla(' +bgHue +', ' +bgS +'%, 60%, 1)';
+  bgCtx.fillRect( 0, 0, bgCanvas.width, bgCanvas.height );
 }
 
 function initCanvas()
@@ -72,6 +86,7 @@ function onWindowResize()
 {
   if (validateCanvasSize() == true)
   {
+    drawBackgroundColor();
     resetParticles();
   }
 }
@@ -262,8 +277,10 @@ function drawParticles()
   for ( var n = 0; n < l; n ++ )
   {
     particle = particles[n];
-    particle.draw( activeCtx, bgCtx );
+    particle.draw( activeCtx );
   }
+
+  bgCtx.drawImage(activeCanvas, 0, 0);
 
   /*l = ColorUtil.golbalColorPallete.length;
   var w         = 0.01 * activeCanvas.width;

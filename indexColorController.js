@@ -4,14 +4,6 @@ function applyColorPalleteToHtml()
 
   if (ColorUtil.golbalColorPallete.length > 0 && ColorUtil.golbalColorPallete != undefined)
   {
-    var l          = 50;
-
-    var bgColor    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-1];
-    var bgHue      = bgColor[0];
-    var bgS        = bgColor[1];
-
-    document.body.style.backgroundColor = 'hsla(' +bgHue +', ' +bgS +'%, ' +l +'%, 1)';
-
     var elColor    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-2];
     var elHue      = elColor[0];
     var elS        = elColor[1];
@@ -22,6 +14,8 @@ function applyColorPalleteToHtml()
 
     //grid headers
     var theIndex = 0;
+    var hL       = 50;
+    var cL       = 30;
     for (var j = 0; j < 3; j++)
     {
       var container = document.getElementById("gridContainer"+j);
@@ -39,10 +33,10 @@ function applyColorPalleteToHtml()
       container.style.backgroundImage = '';
       header.style.backgroundImage = '';
 
-      //container.style.backgroundColor = 'hsla(' +lHue +', ' +lS +'%, ' +l +'%, 0.33)';
-      //header.style.backgroundColor    = 'hsla(' +lHue +', ' +lS +'%, ' +l +'%, 1)';
-      container.style.backgroundColor = 'hsla(' +rHue +', ' +rS +'%, ' +l +'%, 0.33)';
-      header.style.backgroundColor    = 'hsla(' +rHue +', ' +rS +'%, ' +l +'%, 1)';
+      //container.style.backgroundColor = 'hsla(' +lHue +', ' +lS +'%, ' +cL +'%, 1)';
+      //header.style.backgroundColor    = 'hsla(' +lHue +', ' +lS +'%, ' +hL +'%, 1)';
+      container.style.backgroundColor = 'hsla(' +rHue +', ' +rS +'%, ' +cL +'%, 1)';
+      header.style.backgroundColor    = 'hsla(' +rHue +', ' +rS +'%, ' +hL +'%, 1)';
     }
   }
 }

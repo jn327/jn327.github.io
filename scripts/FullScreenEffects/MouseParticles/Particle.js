@@ -33,8 +33,6 @@ function Particle( thePool )
   var brightness      = 60;
   var alpha           = 1;
   var ageAlphaMultip  = 1;
-  var bgSaturation    = 90;
-  var bgBrightness    = 50;
 
   var lifeTime      = 0;
   var maxLifeTime   = Math.scaleNormal(Math.random(), 1, 1.25);
@@ -62,7 +60,6 @@ function Particle( thePool )
     //hue = Math.scaleNormal(noise.scaledNoise(x * hueNoiseScale, y * hueNoiseScale), 40, 340);
     hue           = theColor[0];
     saturation    = theColor[1];
-    bgSaturation  = saturation;
 
     velocity.x = velX;
     velocity.y = velY;
@@ -75,7 +72,7 @@ function Particle( thePool )
   {
     lifeTime += deltaTime;
 
-    ageSpeedMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
+    ageSpeedMultip = 1 - (lifeTime / maxLifeTime);
     ageSpeedMultip *= speedMultip;
 
     var theVel = curl.noise( this.position.x, this.position.y );
@@ -112,7 +109,7 @@ function Particle( thePool )
     objectPool.addToPool(this);
   }
 
-  this.draw = function( ctx, bgCtx )
+  this.draw = function( ctx )
   {
     //ageAlphaMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
     //ageScaleMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
@@ -124,7 +121,6 @@ function Particle( thePool )
 
     //TODO: only set this if its different from last particle.
     ctx.fillStyle = 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')';
-    bgCtx.fillStyle = 'hsla('+hue +', '+bgSaturation +'%, '+bgBrightness +'%, ' +theAlpha +')';
 
     //TODO: see if rounding positions makes any difference to speed.
     //var xPos = Math.round(this.position.x);
@@ -133,7 +129,6 @@ function Particle( thePool )
     if (this.scale < 2)
     {
       ctx.fillRect(this.position.x, this.position.y, this.scale, this.scale);
-      bgCtx.fillRect(this.position.x, this.position.y, this.scale, this.scale);
     }
     else
     {
@@ -142,10 +137,6 @@ function Particle( thePool )
       ctx.beginPath();
       ctx.arc(this.position.x, this.position.y, radius, 0, twoPI);
       ctx.fill();
-
-      bgCtx.beginPath();
-      bgCtx.arc(this.position.x, this.position.y, radius, 0, twoPI);
-      bgCtx.fill();
     }
   }
 }
