@@ -2,7 +2,7 @@
 var bgCanvas, bgCtx;
 var activeCanvas, activeCtx;
 
-var maxParticles          = 600;
+var maxParticles          = 400;
 var particles;
 var particlePool;
 
@@ -12,18 +12,18 @@ var mouseParticlesForce = 6;
 var minMouseRadius      = 6;
 var maxMouseRadius      = 20;
 var mouseDragTimer      = 0;
-var mouseDragTime       = 0.5;
+var mouseDragTime       = 0.3;
 var minMouseParticles   = 10;
-var maxMouseParticles   = 300;
+var maxMouseParticles   = 100;
 var currMouseColor;
 
 var dropParticlesMin  = 150;
-var dropParticlesMax  = 300;
+var dropParticlesMax  = 200;
 var dropFrequency     = 2;
 var dropTimer         = 0;
-var dropRadius        = 2;
-var dropForceMin      = 2;
-var dropForceMax      = 3;
+var dropRadius        = 20;
+var dropForceMin      = 4;
+var dropForceMax      = 6;
 
 var renderFrequency   = 0.033;
 var renderTimer       = 0;
