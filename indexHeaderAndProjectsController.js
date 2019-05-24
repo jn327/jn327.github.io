@@ -79,17 +79,23 @@ function initProjects()
   [
     {
       title       : "Planet Coaster",
-      video       : "images/projects/PlanCo.mp4",
+      bgImage     : "images/projects/PlanCo.jpg",
+      video       : "images/projects/PlanCo",
+      videoFormats: ["webm","mp4"],
       description : "UI developer"
     },
     {
       title       : "Jurassic World Evolution",
-      video       : "images/projects/Jwe.mp4",
+      bgImage     : "images/projects/Jwe.jpg",
+      video       : "images/projects/Jwe",
+      videoFormats: ["webm","mp4"],
       description : "UI developer"
     },
     {
       title       : "Planet Zoo",
-      video       : "images/projects/PlanZoo.mp4",
+      bgImage     : "images/projects/PlanZoo.jpg",
+      video       : "images/projects/PlanZoo",
+      videoFormats: ["webm","mp4"],
       description : "UI developer"
     }
   ];
@@ -98,19 +104,25 @@ function initProjects()
   [
     {
       title       : "Duel",
-      video       : "images/projects/Duel.mp4",
+      bgImage     : "images/projects/Duel.jpg",
+      video       : "images/projects/Duel",
+      videoFormats: ["webm","mp4"],
       description : "Programmer for a small game made with some friends",
       link        : "https://gamejolt.com/games/duel/305917"
     },
     {
       title       : "Abandoned Earth",
-      video       : "images/projects/AE.mp4",
+      bgImage     : "images/projects/AE.jpg",
+      video       : "images/projects/AE",
+      videoFormats: ["webm","mp4"],
       description : "Programmer for a game made while a student",
       link        : "https://gamejolt.com/games/abandoned-earth/81441"
     },
     {
       title       : "Space Hole Initiation Training",
-      video       : "images/projects/SpaceHole.mp4",
+      bgImage     : "images/projects/SpaceHole.jpg",
+      video       : "images/projects/SpaceHole",
+      videoFormats: ["webm","mp4"],
       description : "Programmer for the Brains Eden 2014 winning game",
       link        : "https://gamejolt.com/games/space-hole-initiation-training/81466"
     }
@@ -120,29 +132,35 @@ function initProjects()
   [
     {
       title       : "RichRap 3dr delta printer",
-      video       : "images/projects/3dPrinter.mp4",
+      bgImage     : "images/projects/3dPrinter.jpg",
+      video       : "images/projects/3dPrinter",
+      videoFormats: ["webm","mp4"],
       imgFit      : "contain",
       description : "Assembled 3D printer and setup Marlin on an Arduino."
     },
     {
       title       : "LED curtain",
-      video       : "images/projects/Leds.mp4",
+      bgImage     : "images/projects/Leds.jpg",
+      video       : "images/projects/Leds",
+      videoFormats: ["webm","mp4"],
       description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."
     },
     {
       title       : "HTML 5 Canvas",
-      video       : "images/projects/HTMLCanvas.mp4",
+      bgImage     : "images/projects/HTMLCanvas.jpg",
+      video       : "images/projects/HTMLCanvas",
+      videoFormats: ["webm","mp4"],
       description : "Procedural scene with HTML Canvas",
       link        : "pages/proceduralGarden.html"
     },
     {
       title       : "2000 origami cranes",
-      image       : "images/projects/Origami.jpg",
+      bgImage     : "images/projects/Origami.jpg",
       description : "Lots of origami cranes"
     },
     {
       title       : "2d world map creator",
-      image       : "images/projects/ProceduralMap.jpg",
+      bgImage     : "images/projects/ProceduralMap.jpg",
       description : "Procedural map creator",
       link        : "https://jn327.itch.io/2d-procedural-world"
     }
@@ -161,6 +179,7 @@ function createProjectElements( gridId, itemsData )
   var container;
   var img;
   var vid;
+  var source;
   var label;
   var theParent;
   for (var j = 0; j < itemsData.length; j++)
@@ -168,7 +187,6 @@ function createProjectElements( gridId, itemsData )
     theData = itemsData[j];
 
     container = document.createElement('li');
-    //container.textContent = theData.title;
 
     if (theData.link)
     {
@@ -183,6 +201,12 @@ function createProjectElements( gridId, itemsData )
       theParent = container;
     }
 
+    if (theData.bgImage)
+    {
+      container.style.backgroundImage = "url('"+theData.bgImage+"')";
+      container.style.backgroundSize = theData.imgFit || "cover";
+    }
+
     if (theData.image)
     {
       img = document.createElement('img');
@@ -191,37 +215,36 @@ function createProjectElements( gridId, itemsData )
       img.alt             = "Image file not found: " +theData.image;
       img.style.objectFit = theData.imgFit || "cover";
       theParent.appendChild(img);
-
-      if (theData.bgImage)
-      {
-        img.style.backgroundImage = "url('"+theData.bgImage+"')";
-        img.style.backgroundSize = theData.imgFit || "cover";
-      }
     }
 
     if (theData.video)
     {
       vid = document.createElement('video');
       vid.className       = "projects-gridVideo";
-      vid.src             = theData.video;
       vid.autoplay        = "autoplay";
       vid.controls        = false;
       vid.loop            = true;
       vid.muted           = true;
-      vid.preload         = "auto";
-      vid.textContent     = "Your browser does not support the video tag.";
+      vid.playsinline     = true;
+      vid.preload         = "none";
       vid.style.objectFit = theData.imgFit || "cover";
       theParent.appendChild(vid);
 
-      /*vid.addEventListener('mouseover', (e) =>
+      if (theData.videoFormats)
       {
-        e.target.play()
-      }, false);
+        for (var k = 0; k < theData.videoFormats.length; k++)
+        {
+          source = document.createElement('source');
+          source.src   = theData.video+"."+theData.videoFormats[k];
+          source.type  = "video/"+theData.videoFormats[k];
 
-      vid.addEventListener('mouseout', (e) =>
+          vid.appendChild(source);
+        }
+      }
+      else
       {
-        e.target.pause()
-      }, false); */
+        vid.src = theData.video;
+      }
     }
 
     label = document.createElement('p');
