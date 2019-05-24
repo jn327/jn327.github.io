@@ -2,16 +2,17 @@
 var bgCanvas, bgCtx;
 var activeCanvas, activeCtx;
 
-var maxParticles          = 100;
+var maxParticles          = 600;
 var particles;
 var particlePool;
 
 var mousePos;
-var mouseParticlesForce = 5;
+var dragParticlesForce  = 10;
+var mouseParticlesForce = 6;
 var minMouseRadius      = 6;
-var maxMouseRadius      = 12;
+var maxMouseRadius      = 20;
 var mouseDragTimer      = 0;
-var mouseDragTime       = 0.66;
+var mouseDragTime       = 0.5;
 var minMouseParticles   = 10;
 var maxMouseParticles   = 300;
 var currMouseColor;
@@ -188,7 +189,7 @@ function spawnMouseParticles()
       var centerPos = new Vector2D(currMousePos.x - (mouseDelta.x * mouseRadius), currMousePos.y - (mouseDelta.y * mouseRadius));
 
       mousePos = currMousePos;
-      createParticles( particlesToSpawn, mousePos, mouseRadius, centerPos, mouseParticlesForce, lifeTimeN, currMouseColor );
+      createParticles( particlesToSpawn, mousePos, mouseRadius, centerPos, dragParticlesForce, lifeTimeN, currMouseColor );
     }
     else
     {
