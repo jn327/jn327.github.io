@@ -26,7 +26,7 @@ PathUtil.createPath = function( points, thePath, offsetPoints, distanceNormal )
       }
     }
 
-    var p1 = points[i].sum(offset);
+    var p1 = points[i].getSum(offset);
     thePath.lineTo(p1.x, p1.y);
   }
 
@@ -86,9 +86,9 @@ PathUtil.createBezierCurve = function( points, thePath, tension, offsetPoints, d
         }
       }
 
-      var p1 = points[i].sum(p1Offset);
-      var p2 = bLast ? p1 : points[i+1].sum(p2Offset);
-      var p0 = bFirst ? p1 : points[i-1].sum(p0Offset);
+      var p1 = points[i].getSum(p1Offset);
+      var p2 = bLast ? p1 : points[i+1].getSum(p2Offset);
+      var p0 = bFirst ? p1 : points[i-1].getSum(p0Offset);
 
       //get the control points
       var dist01 = p1.distance(p0);
@@ -97,10 +97,10 @@ PathUtil.createBezierCurve = function( points, thePath, tension, offsetPoints, d
       var fa = tension * dist01 / (dist01 + dist12);
       var fb = tension - fa;
 
-      var dir02 = p0.direction(p2);
+      var dir02 = p0.getDirection(p2);
 
-      var cp0 = p1.sum( dir02.getMultiplied(fa) );
-      var cp2 = p1.sum( dir02.getMultiplied(fb) );
+      var cp0 = p1.getSum( dir02.getMultiplied(fa) );
+      var cp2 = p1.getSum( dir02.getMultiplied(fb) );
 
       //if last or first then use quadraticCurveTo
       if (bFirst)

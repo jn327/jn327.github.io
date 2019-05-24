@@ -1,6 +1,6 @@
 function applyColorPalleteToHtml()
 {
-  ColorUtil.setGlobalColorPallete( ColorUtil.generateColorPallete( 3, 10 ) );
+  ColorUtil.setGlobalColorPallete( ColorUtil.generateColorPallete( 3, 20 ) );
 
   if (ColorUtil.golbalColorPallete.length > 0 && ColorUtil.golbalColorPallete != undefined)
   {

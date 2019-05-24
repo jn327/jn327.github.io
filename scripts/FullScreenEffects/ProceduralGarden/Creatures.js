@@ -120,7 +120,7 @@ function Firefly()
     this.velocity.multiply(1 - deltaFriction);
 
     //update the position
-    this.position = this.position.sum(this.velocity);
+    this.position.sum(this.velocity);
 
     //TODO:Clamp position... this should be more velocity based. (add velocity in dir opposite to edges.
     if (this.position.y < hightestP)

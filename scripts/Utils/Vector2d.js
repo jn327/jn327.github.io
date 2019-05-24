@@ -8,7 +8,7 @@ function Vector2D(x, y)
     return Math.sqrt(this.dot(this));
   }
 
-  this.normalize = function(other)
+  this.normalize = function()
   {
   	return this.divide(this.magnitude());
   }
@@ -27,19 +27,30 @@ function Vector2D(x, y)
     return this;
   }
 
-  this.getMultiplied = function(n)
+  this.sumScalar = function(n)
   {
-    return new Vector2D(this.x * n, this.y * n);
-  }
-
-  this.direction = function(that)
-  {
-    return new Vector2D(this.x - that.x, this.y - that.y);
+    this.x += n;
+    this.y += n;
+    return this;
   }
 
   this.sum = function(that)
   {
-    return new Vector2D(this.x + that.x, this.y + that.y);
+    this.x += that.x;
+    this.y += that.y;
+    return this;
+  }
+
+  this.dot = function(that)
+  {
+    return this.x * that.x + this.y * that.y;
+  }
+
+  this.angleBetween = function(that)
+  {
+    //return Math.acos(this.dot(that) / (this.magnitude() * that.magnitude()));
+    //return Math.atan2(this.y - that.y, this.x - that.x);
+    return Math.atan2(that.y, that.x) - Math.atan2(this.y, this.x);
   }
 
   this.distance = function(that)
@@ -48,20 +59,18 @@ function Vector2D(x, y)
      return dist;
   }
 
-  this.dot = function(that)
+  this.getMultiplied = function(n)
   {
-    return this.x * that.x + this.y * that.y;
+    return new Vector2D(this.x * n, this.y * n);
   }
 
-  this.cross = function(that)
+  this.getDirection = function(that)
   {
-    return new Vector2D( this.x * that.y - this.y * that.x );
-  },
+    return new Vector2D(this.x - that.x, this.y - that.y);
+  }
 
-  this.angleBetween = function(that)
+  this.getSum = function(that)
   {
-    //return Math.acos(this.dot(that) / (this.magnitude() * that.magnitude()));
-    //return Math.atan2(this.y - that.y, this.x - that.x);
-    return Math.atan2(that.y, that.x) - Math.atan2(this.y, this.x);
+    return new Vector2D(this.x + that.x, this.y + that.y);
   }
 }

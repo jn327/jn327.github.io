@@ -2,7 +2,7 @@
 var bgCanvas, bgCtx;
 var activeCanvas, activeCtx;
 
-var maxParticles          = 2000;
+var maxParticles          = 100;
 var particles;
 var particlePool;
 
@@ -18,7 +18,7 @@ var currMouseColor;
 
 var dropParticlesMin  = 150;
 var dropParticlesMax  = 300;
-var dropFrequency     = 2.5;
+var dropFrequency     = 2;
 var dropTimer         = 0;
 var dropRadius        = 2;
 var dropForceMin      = 2;
@@ -26,6 +26,8 @@ var dropForceMax      = 3;
 
 var renderFrequency   = 0.033;
 var renderTimer       = 0;
+
+var metaballsThreshold = 240;
 
 //------------------------------------------------
 //                Initialization
@@ -48,11 +50,11 @@ function start()
   particles = [];
   particlePool = new ObjectPool();
 
-  ColorUtil.setGlobalColorPallete( ColorUtil.generateColorPallete( 3, 10 ) );
+  ColorUtil.setGlobalColorPallete( ColorUtil.generateColorPallete( 3, 20 ) );
 
   //background
-  bgCanvas.style.webkitFilter = "brightness(85%)";
-  bgCanvas.style.filter = "brightness(85%)";
+  bgCanvas.style.webkitFilter = "brightness(80%)";
+  bgCanvas.style.filter = "brightness(80%)";
   drawBackgroundColor();
 }
 
@@ -62,7 +64,7 @@ function drawBackgroundColor()
   var bgHue      = bgColor[0];
   var bgS        = bgColor[1];
 
-  bgCtx.fillStyle = 'hsla(' +bgHue +', ' +bgS +'%, 60%, 1)';
+  bgCtx.fillStyle = 'hsla(' +bgHue +', ' +bgS +'%, 70%, 1)';
   bgCtx.fillRect( 0, 0, bgCanvas.width, bgCanvas.height );
 }
 
@@ -71,8 +73,8 @@ function initCanvas()
   activeCanvas  = CommonElementsCreator.createCanvas();
   activeCtx     = activeCanvas.getContext('2d');
 
-  bgCanvas  = CommonElementsCreator.createCanvas();
-  bgCtx     = bgCanvas.getContext('2d');
+  bgCanvas      = CommonElementsCreator.createCanvas();
+  bgCtx         = bgCanvas.getContext('2d');
 
   validateCanvasSize();
   window.addEventListener( "resize", TimingUtil.debounce(onWindowResize, 250) );
@@ -181,7 +183,7 @@ function spawnMouseParticles()
 
       var lifeTimeN = 1 - mouseDragN;
 
-      var mouseDelta = currMousePos.direction(mousePos);
+      var mouseDelta = currMousePos.getDirection(mousePos);
       mouseDelta.normalize();
       var centerPos = new Vector2D(currMousePos.x - (mouseDelta.x * mouseRadius), currMousePos.y - (mouseDelta.y * mouseRadius));
 
@@ -222,7 +224,7 @@ function createParticles( nParticles, pos, radius, forceCenter, forceMultip, lif
         posY = 0;
       }
 
-      particleForce = new Vector2D(posX, posY).direction(forceCenter);
+      particleForce = new Vector2D(posX, posY).getDirection(forceCenter);
       particleForce.normalize();
       particleForce = particleForce.getMultiplied(forceMultip);
 
@@ -281,6 +283,19 @@ function drawParticles()
     particle.draw( activeCtx );
   }
 
+  //update the data and put it back
+  var imageData = activeCtx.getImageData(0, 0, activeCanvas.width, activeCanvas.height);
+  var pix = imageData.data;
+
+  for (var i = 0, n = pix.length; i <n; i += 4)
+  {
+    if(pix[i+3] < metaballsThreshold)
+    {
+      pix[i+3] = 0;
+    }
+  }
+
+  activeCtx.putImageData(imageData, 0, 0);
   bgCtx.drawImage(activeCanvas, 0, 0);
 
   /*l = ColorUtil.golbalColorPallete.length;

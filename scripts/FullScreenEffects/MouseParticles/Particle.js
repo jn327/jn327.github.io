@@ -17,8 +17,8 @@ function Particle( thePool )
   var friction        = Math.scaleNormal(Math.random(), 0.98, 1);
 
   var scaleNoise      = new SimplexNoise();
-  var minScale        = 1;
-  var maxScale        = 8;
+  var minScale        = 20;
+  var maxScale        = 40;
   var scaleNoiseScale = 4;
   var ageScaleMultip  = 1;
 
@@ -30,7 +30,7 @@ function Particle( thePool )
   //var hueNoiseScale   = 0.0005;
   var hue;
   var saturation      = 90;
-  var brightness      = 60;
+  var brightness      = 70;
   var alpha           = 1;
   var ageAlphaMultip  = 1;
 
@@ -121,24 +121,13 @@ function Particle( thePool )
 
     var theAlpha = (alpha * ageAlphaMultip);
 
-    //TODO: maybe only set this if its different from last particle.
-    ctx.fillStyle = 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')';
+    var grd = ctx.createRadialGradient(this.position.x, this.position.y, 0, this.position.x, this.position.y, this.scale);
+    grd.addColorStop(0, 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')');
+    grd.addColorStop(1, 'hsla('+hue +', '+saturation +'%, '+brightness +'%, 0)');
+    ctx.fillStyle = grd;
 
-    //TODO: see if rounding positions makes any difference to speed.
-    //var xPos = Math.round(this.position.x);
-    //var yPos = Math.round(this.position.y);
-
-    if (this.scale < 2)
-    {
-      ctx.fillRect(this.position.x, this.position.y, this.scale, this.scale);
-    }
-    else
-    {
-      var radius = this.scale * 0.5;
-
-      ctx.beginPath();
-      ctx.arc(this.position.x, this.position.y, radius, 0, twoPI);
-      ctx.fill();
-    }
+    ctx.beginPath();
+    ctx.arc(this.position.x, this.position.y, this.scale, 0, twoPI);
+    ctx.fill();
   }
 }
