@@ -193,6 +193,7 @@ function createProjectElements( gridId, itemsData )
       var linkItem = document.createElement('a');
       linkItem.className  = "projects-gridLink";
       linkItem.href       = theData.link;
+      linkItem.ariaLabel  = theData.title;
       container.appendChild(linkItem);
       theParent = linkItem;
     }
