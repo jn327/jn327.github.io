@@ -12,7 +12,7 @@ function Particle( thePool )
   var objectPool    = thePool;
 
   var velocity        = new Vector2D(0,0);
-  var speedMultip     = Math.scaleNormal(Math.random(), 30, 35);
+  var speedMultip     = Math.scaleNormal(Math.random(), 45, 50);
   var ageSpeedMultip  = 1;
   var friction        = Math.scaleNormal(Math.random(), 0.98, 1);
 
@@ -23,7 +23,7 @@ function Particle( thePool )
   var ageScaleMultip  = 1;
 
   var noise         = new SimplexNoise( this );
-  var noiseScale    = 0.01;
+  var noiseScale    = 0.005;
   function getNoise(x,y) { return noise.scaledNoise(x,y) };
   var curl          = new CurlNoise( getNoise, noiseScale, 0.2 );
 
