@@ -2,7 +2,7 @@
 var bgCanvas, bgCtx;
 var activeCanvas, activeCtx;
 
-var maxParticles          = 400;
+var maxParticles          = 300;
 var particles;
 var particlePool;
 
@@ -13,12 +13,13 @@ var minMouseRadius      = 6;
 var maxMouseRadius      = 20;
 var mouseDragTimer      = 0;
 var mouseDragTime       = 0.3;
-var minMouseParticles   = 10;
-var maxMouseParticles   = 100;
+var minMouseParticles   = 2;
+var maxMouseParticles   = 20;
+var mouseClickParticles = 75;
 var currMouseColor;
 
-var dropParticlesMin  = 150;
-var dropParticlesMax  = 200;
+var dropParticlesMin  = 50;
+var dropParticlesMax  = 100;
 var dropFrequency     = 2;
 var dropTimer         = 0;
 var dropRadius        = 20;
@@ -278,26 +279,29 @@ function drawParticles()
 
   activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
 
-  for ( var n = 0; n < l; n ++ )
+  if (l > 0)
   {
-    particle = particles[n];
-    particle.draw( activeCtx );
-  }
-
-  //update the data and put it back
-  var imageData = activeCtx.getImageData(0, 0, activeCanvas.width, activeCanvas.height);
-  var pix = imageData.data;
-
-  for (var i = 0, n = pix.length; i <n; i += 4)
-  {
-    if(pix[i+3] < metaballsThreshold)
+    for ( var n = 0; n < l; n ++ )
     {
-      pix[i+3] = 0;
+      particle = particles[n];
+      particle.draw( activeCtx );
     }
-  }
 
-  activeCtx.putImageData(imageData, 0, 0);
-  bgCtx.drawImage(activeCanvas, 0, 0);
+    //update the data and put it back
+    var imageData = activeCtx.getImageData(0, 0, activeCanvas.width, activeCanvas.height);
+    var pix = imageData.data;
+
+    for (var i = 0, n = pix.length; i <n; i += 4)
+    {
+      if(pix[i+3] < metaballsThreshold)
+      {
+        pix[i+3] = 0;
+      }
+    }
+
+    activeCtx.putImageData(imageData, 0, 0);
+    bgCtx.drawImage(activeCanvas, 0, 0);
+  }
 
   /*l = ColorUtil.golbalColorPallete.length;
   var w         = 0.01 * activeCanvas.width;
@@ -329,7 +333,7 @@ function onMouseUp()
     var thePos      = new Vector2D(MouseTracker.mousePos.x * canvasW, MouseTracker.mousePos.y * canvasH);
     var theColor    = getRandomColor();
 
-    createParticles( maxMouseParticles, thePos, maxMouseRadius, thePos, mouseParticlesForce, 0, theColor );
+    createParticles( mouseClickParticles, thePos, maxMouseRadius, thePos, mouseParticlesForce, 0, theColor );
   }
 
 }
