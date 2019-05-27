@@ -32,7 +32,7 @@ var updateTimer       = 0;
 var renderFrequency   = 0.033;
 var renderTimer       = 0;
 
-var metaballsThreshold = 240;
+var metaballsThreshold = 200;
 
 //------------------------------------------------
 //                Initialization
@@ -305,6 +305,10 @@ function drawParticles()
       if(pix[i+3] < metaballsThreshold)
       {
         pix[i+3] = 0;
+      }
+      else
+      {
+        pix[i+3] = 255;
       }
     }
 
