@@ -4,40 +4,31 @@ function applyColorPalleteToHtml()
 
   if (ColorUtil.golbalColorPallete.length > 0 && ColorUtil.golbalColorPallete != undefined)
   {
-    var elColor    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-2];
-    var elHue      = elColor[0];
-    var elS        = elColor[1];
+    var color    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-2];
+    var hue      = color[0];
+    var s        = color[1];
     for( var i = 0; i < headerElements.length; i++ )
     {
-      headerElements[i].style.backgroundColor = 'hsla(' +elHue +', ' +elS +'%, 20%, 1)';
+      headerElements[i].style.backgroundColor = 'hsla(' +hue +', ' +s +'%, 20%, 1)';
     }
 
     //grid headers
     var theIndex = 0;
-    var hL       = 50;
-    var cL       = 30;
     for (var j = 0; j < 3; j++)
     {
       var container = document.getElementById("gridContainer"+j);
       var header = document.getElementById("gridHeader"+j);
 
-      /*var leftColor   = ColorUtil.golbalColorPallete[theIndex];
-      var lHue        = leftColor[0];
-      var lS          = leftColor[1];*/
-      theIndex ++;
-      var rightColor  = ColorUtil.golbalColorPallete[theIndex];
-      var rHue        = rightColor[0];
-      var rS          = rightColor[1];
-      theIndex++;
-
       container.style.backgroundImage = '';
       header.style.backgroundImage = '';
 
-      //container.style.backgroundColor = 'hsla(' +lHue +', ' +lS +'%, ' +cL +'%, 1)';
-      //header.style.backgroundColor    = 'hsla(' +lHue +', ' +lS +'%, ' +hL +'%, 1)';
-      container.style.backgroundColor = 'hsla(' +rHue +', ' +rS +'%, ' +cL +'%, 1)';
-      header.style.backgroundColor    = 'hsla(' +rHue +', ' +rS +'%, ' +hL +'%, 1)';
+      container.style.backgroundColor = 'hsla(' +hue +', ' +s +'%, 18%, 1)';
+      header.style.backgroundColor    = 'hsla(' +hue +', ' +s +'%, 24%, 1)';
     }
+
+    var projectsHeader = document.getElementById("projectsHeader");
+    projectsHeader.style.backgroundImage = '';
+    projectsHeader.style.backgroundColor    = 'hsla(' +hue +', ' +s +'%, 30%, 1)';
   }
 }
 
