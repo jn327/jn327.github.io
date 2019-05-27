@@ -22,7 +22,7 @@ function applyColorPalleteToHtml()
       container.style.backgroundImage = '';
       header.style.backgroundImage = '';
 
-      container.style.backgroundColor = 'hsla(' +hue +', ' +s +'%, 18%, 1)';
+      container.style.backgroundColor = 'hsla(' +hue +', ' +s +'%, 16%, 1)';
       header.style.backgroundColor    = 'hsla(' +hue +', ' +s +'%, 24%, 1)';
     }
 
