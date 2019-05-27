@@ -9,7 +9,7 @@ function applyColorPalleteToHtml()
     var elS        = elColor[1];
     for( var i = 0; i < headerElements.length; i++ )
     {
-      headerElements[i].style.backgroundColor = 'hsla(' +elHue +', ' +elS +'%, 30%, 1)';
+      headerElements[i].style.backgroundColor = 'hsla(' +elHue +', ' +elS +'%, 20%, 1)';
     }
 
     //grid headers

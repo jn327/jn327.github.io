@@ -26,6 +26,9 @@ var dropRadius        = 20;
 var dropForceMin      = 4;
 var dropForceMax      = 6;
 
+var updateFreq        = 0.033;
+var updateTimer       = 0;
+
 var renderFrequency   = 0.033;
 var renderTimer       = 0;
 
@@ -113,7 +116,13 @@ function update()
 {
   spawnParticles();
 
-  updateParticles();
+  updateTimer += GameLoop.deltaTime;
+  if (updateTimer > updateFreq)
+  {
+    updateTimer = 0;
+    updateParticles();
+  }
+
   renderTimer += GameLoop.deltaTime;
   if (renderTimer > renderFrequency)
   {
@@ -254,7 +263,7 @@ function updateParticles()
   for ( var n = 0; n < l; n ++ )
   {
     particle = particles[n];
-    particle.update( GameLoop.deltaTime, 0, 0, canvasW, canvasH );
+    particle.update( updateFreq, 0, 0, canvasW, canvasH );
 
     if (particle.isActive() == false)
     {
