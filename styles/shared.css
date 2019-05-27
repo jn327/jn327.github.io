@@ -11,13 +11,13 @@ html, body, main
   font-family     : Roboto, Verdana, Geneva, sans-serif;
   font-weight     : 400;
   font-size       : 14px;
-  color           : rgba(255, 255, 255, 1);
+  color           : rgba(225, 225, 225, 1);
   text-align      : center;
 }
 
 a, a:visited
 {
-  color           : rgba(255, 255, 255, 1);
+  color           : rgba(225, 225, 225, 1);
 }
 
 .defaultCanvas

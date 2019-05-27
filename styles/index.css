@@ -109,8 +109,6 @@ html, body
   font-size           : 22px;
   text-align          : center;
 
-  color               : rgba(255, 255, 255, 1);
-
   margin              : 0px 0px 0px 0px;
   padding             : 4px;
 
@@ -136,10 +134,10 @@ html, body
 
   width               : auto;
 
-  color               : #fff;
+  color               : rgba(225, 225, 225, 1);
   padding             : 8px;
 
-  border              : 1px solid rgba(255, 255, 255, 0.5);
+  border              : 1px solid rgba(225, 225, 225, 0.5);
   border-radius       : 2px;
   background-color    : rgba(0, 0, 0, 0);
 
@@ -150,7 +148,7 @@ html, body
 .standardButton:hover, .standardButton-close:hover
 {
   color             : rgba(0, 0, 0, 1);
-  background-color  : #fff;
+  background-color  : rgba(225, 225, 225, 1);
 }
 
 .standardButton-close
@@ -182,7 +180,7 @@ html, body
   background-color  : rgba(0, 0, 0, 1);
   background-repeat : no-repeat;
   background-position: center;
-  border            : 0px solid rgba(255, 255, 255, 0.5);
+  border            : 0px solid rgba(225, 225, 225, 0.5);
   overflow          : hidden;
   position          : relative;
   border-radius     : 4px;

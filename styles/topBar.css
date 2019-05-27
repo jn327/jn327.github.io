@@ -36,13 +36,11 @@
   text-transform      : capitalize;
   font-size           : 14px;
 
-  color               : rgba(255, 255, 255, 1);
-
   margin              : 0px 10px 0px 10px;
   width               : auto;
   height              : auto;
   border-style        : solid;
-  border-color        : rgba(255, 255, 255, 0);
+  border-color        : rgba(225, 225, 225, 0);
   border-width        : 0px 0px 1px 0px;
   padding             : 0px 0px 5px 0px;
 
@@ -52,7 +50,7 @@
 
 .headerLink:hover
 {
-  border-color        : rgba(255, 255, 255, 1);
+  border-color        : rgba(225, 225, 225, 1);
   padding             : 0px 5px 5px 5px;
   margin              : 0px 5px 0px 5px;
 
@@ -62,7 +60,7 @@
 
 .headerLink-active
 {
-  border-color        : rgba(255, 255, 255, 1);
+  border-color        : rgba(225, 225, 225, 1);
   padding             : 0px 5px 5px 5px;
   margin              : 0px 5px 0px 5px;
 }
@@ -135,7 +133,6 @@
   padding           : 6px;
 
   text-decoration   : none;
-  color             : rgba(255, 255, 255, 1);
   text-align        : center;
 
   background-color  : rgba(0, 0, 0, 0);

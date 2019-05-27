@@ -55,7 +55,7 @@ function start()
   particles = [];
   particlePool = new ObjectPool();
 
-  ColorUtil.setGlobalColorPallete( ColorUtil.generateColorPallete( 3, 20 ) );
+  ColorUtil.setGlobalColorPallete( ColorUtil.generateColorPallete( 3, 30 ) );
 
   //background
   bgCanvas.style.webkitFilter = "brightness(80%)";
