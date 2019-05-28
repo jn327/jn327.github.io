@@ -6,9 +6,13 @@ var maxParticles          = 300;
 var particles;
 var particlePool;
 
+var noise;
+var curl;
+var noiseScale          = 0.005;
+
 var mousePos;
-var dragParticlesForce  = 10;
-var mouseParticlesForce = 6;
+var dragParticlesForce  = 24;
+var mouseParticlesForce = 18;
 var minMouseRadius      = 6;
 var maxMouseRadius      = 20;
 var mouseDragTimer      = 0;
@@ -18,15 +22,13 @@ var maxMouseParticles   = 20;
 var mouseClickParticles = 75;
 var currMouseColor;
 
-var particlesSeed       = Math.random();
-
 var dropParticlesMin  = 50;
 var dropParticlesMax  = 100;
 var dropFrequency     = 2.5;
 var dropTimer         = 0;
 var dropRadius        = 20;
-var dropForceMin      = 4;
-var dropForceMax      = 6;
+var dropForceMin      = 12;
+var dropForceMax      = 18;
 
 var updateFreq        = 0.033;
 var updateTimer       = 0;
@@ -52,6 +54,10 @@ function init()
 
 function start()
 {
+  noise = new SimplexNoise();
+  function getNoise(x,y) { return noise.scaledNoise(x,y) };
+  curl  = new CurlNoise( getNoise, noiseScale, 0.2 );
+
   initCanvas();
 
   particles = [];
@@ -73,6 +79,62 @@ function drawBackgroundColor()
 
   bgCtx.fillStyle = 'hsla(' +bgHue +', ' +bgS +'%, 70%, 1)';
   bgCtx.fillRect( 0, 0, bgCanvas.width, bgCanvas.height );
+
+  //drawBackgroundNoise();
+}
+
+function drawBackgroundNoise()
+{
+  var bgColor    = ColorUtil.golbalColorPallete[ColorUtil.golbalColorPallete.length-1];
+  var bgHue      = bgColor[0];
+  var bgS        = bgColor[1];
+  var linesHue   = Math.wrap(bgHue + 180, 0, 360 );
+
+  var lineStep  = 16;
+  var noiseStep = 8;
+
+  bgCtx.strokeStyle   = 'hsla(' +linesHue +', ' +bgS +'%, 70%, 1)';
+  bgCtx.lineWidth     = 1;
+  bgCtx.beginPath();
+
+  for (var x = 0; x < bgCanvas.width; x++)
+  {
+    for (var y = 0; y < bgCanvas.height; y++)
+    {
+      if (x % noiseStep == 0 && y % noiseStep == 0)
+      {
+        var simplexVal = noise.scaledNoise(x * noiseScale, y * noiseScale);
+        var simplexCol = 255 * simplexVal;
+        bgCtx.fillStyle = 'rgb(' +simplexCol +', ' +simplexCol +', ' +simplexCol +')';
+        bgCtx.fillRect( x, y, noiseStep, noiseStep );
+      }
+
+      if (x % lineStep == 0 && y % lineStep == 0)
+      {
+        var curlVal     = curl.noise(x, y);
+        var curlVector  = new Vector2D(curlVal[0], curlVal[1]);
+        curlVector.normalize();
+        curlVector.multiply(lineStep);
+
+        var startPoint = new Vector2D(x, y);
+        var endPoint = startPoint.getSum(curlVector);
+        var arrowEdgeDist = curlVector.getMultiplied(0.75); //how far along the arrow starts
+        var arrowEdgePoint = startPoint.getSum(arrowEdgeDist);
+        var perpendicularVector = curlVector.getPerpendicular();
+        perpendicularVector.multiply(0.25); //how wide the arrow is compared to our length
+        var arrowEdgeOne = arrowEdgePoint.getDifference(perpendicularVector);
+        var arrowEdgeTwo = arrowEdgePoint.getSum(perpendicularVector);
+
+        bgCtx.moveTo(startPoint.x, startPoint.y);
+        bgCtx.lineTo(endPoint.x, endPoint.y);
+        bgCtx.lineTo(arrowEdgeOne.x, arrowEdgeOne.y);
+        bgCtx.moveTo(endPoint.x, endPoint.y);
+        bgCtx.lineTo(arrowEdgeTwo.x, arrowEdgeTwo.y);
+      }
+    }
+  }
+
+  bgCtx.stroke();
 }
 
 function initCanvas()
@@ -196,7 +258,7 @@ function spawnMouseParticles()
 
       var lifeTimeN = 1 - mouseDragN;
 
-      var mouseDelta = currMousePos.getDirection(mousePos);
+      var mouseDelta = currMousePos.getDifference(mousePos);
       mouseDelta.normalize();
       var centerPos = new Vector2D(currMousePos.x - (mouseDelta.x * mouseRadius), currMousePos.y - (mouseDelta.y * mouseRadius));
 
@@ -222,7 +284,7 @@ function createParticles( nParticles, pos, radius, forceCenter, forceMultip, lif
       var theParticle = particlePool.getItem();
       if (theParticle == null)
       {
-        theParticle = new Particle( particlePool, particlesSeed );
+        theParticle = new Particle( particlePool, curl.noise );
       }
 
       var posX = pos.x + (Math.sin(Math.random() * twoPI) * (Math.random() * radius));
@@ -237,7 +299,7 @@ function createParticles( nParticles, pos, radius, forceCenter, forceMultip, lif
         posY = 0;
       }
 
-      particleForce = new Vector2D(posX, posY).getDirection(forceCenter);
+      particleForce = new Vector2D(posX, posY).getDifference(forceCenter);
       particleForce.normalize();
       particleForce = particleForce.getMultiplied(forceMultip);
 
@@ -317,20 +379,6 @@ function drawParticles()
     activeCtx.putImageData(imageData, 0, 0);
     bgCtx.drawImage(activeCanvas, 0, 0);
   }
-
-  /*l = ColorUtil.golbalColorPallete.length;
-  var w         = 0.01 * activeCanvas.width;
-  var h         = 0.05 * activeCanvas.height;
-  var padding   = 1;
-  var dPadding  = padding * 2;
-
-  for ( var i = 0; i < l; i ++ )
-  {
-    var color = ColorUtil.golbalColorPallete[i];
-
-    activeCtx.fillStyle = 'hsla(' +color[0] +', ' +color[1] +'%, 50%, 1)';
-    activeCtx.fillRect(padding + w*i, activeCanvas.height-(h+padding), w, h);
-  }*/
 }
 
 //------------------------------------------------
@@ -350,5 +398,4 @@ function onMouseUp()
 
     createParticles( mouseClickParticles, thePos, maxMouseRadius, thePos, mouseParticlesForce, 0, theColor );
   }
-
 }

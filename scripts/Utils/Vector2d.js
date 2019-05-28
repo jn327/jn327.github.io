@@ -59,12 +59,17 @@ function Vector2D(x, y)
      return dist;
   }
 
+  this.getPerpendicular = function()
+  {
+    return new Vector2D(-this.y, this.x);
+  }
+
   this.getMultiplied = function(n)
   {
     return new Vector2D(this.x * n, this.y * n);
   }
 
-  this.getDirection = function(that)
+  this.getDifference = function(that)
   {
     return new Vector2D(this.x - that.x, this.y - that.y);
   }

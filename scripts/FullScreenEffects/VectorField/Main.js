@@ -308,7 +308,7 @@ function updateParticles()
         if (mouseDist < particleMouseAvoidanceDist)
         {
           var mouseStr = (particleMouseAvoidanceDist-mouseDist)/particleMouseAvoidanceDist;
-          var mouseDir = particle.position.getDirection( mousePos );
+          var mouseDir = particle.position.getDifference( mousePos );
 
           mouseDir.multiply( mouseStr * particleMouseAvoidanceStr * deltaTimeMulitp );
           particle.addForce( mouseDir.x, mouseDir.y );

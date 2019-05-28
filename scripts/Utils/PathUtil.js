@@ -97,7 +97,7 @@ PathUtil.createBezierCurve = function( points, thePath, tension, offsetPoints, d
       var fa = tension * dist01 / (dist01 + dist12);
       var fb = tension - fa;
 
-      var dir02 = p0.getDirection(p2);
+      var dir02 = p0.getDifference(p2);
 
       var cp0 = p1.getSum( dir02.getMultiplied(fa) );
       var cp2 = p1.getSum( dir02.getMultiplied(fb) );

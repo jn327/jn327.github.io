@@ -1,21 +1,15 @@
-function Particle( thePool, noiseSeed )
+function Particle( _objectPool, _noiseFunct )
 {
-  var rndSeed = noiseSeed;
-  this.random = function()
-  {
-    return noiseSeed;
-  }
-
   //Call our prototype
   GameObject.call(this);
 
-  var active        = false;
-  var objectPool    = thePool;
+  var active          = false;
+  var objectPool      = _objectPool;
 
   var velocity        = new Vector2D(0,0);
-  var speedMultip     = Math.scaleNormal(Math.random(), 150, 200);
+  var speedMultip     = 500;
   var ageSpeedMultip  = 1;
-  var friction        = Math.scaleNormal(Math.random(), 0.98, 1);
+  var friction        = Math.scaleNormal(Math.random(), 3, 4);
 
   var scaleNoise      = new SimplexNoise();
   var minScale        = 20;
@@ -23,10 +17,7 @@ function Particle( thePool, noiseSeed )
   var scaleNoiseScale = 4;
   var ageScaleMultip  = 1;
 
-  var noise         = new SimplexNoise( this );
-  var noiseScale    = 0.005;
-  function getNoise(x,y) { return noise.scaledNoise(x,y) };
-  var curl          = new CurlNoise( getNoise, noiseScale, 0.2 );
+  var noiseFunct      = _noiseFunct;
 
   //var hueNoiseScale   = 0.0005;
   var hue;
@@ -76,7 +67,7 @@ function Particle( thePool, noiseSeed )
     //decrease speed linearly from 100% to 0% as we age.
     ageSpeedMultip = (1 - (lifeTime / maxLifeTime)) * speedMultip;
 
-    var theVel = curl.noise( this.position.x, this.position.y );
+    var theVel = noiseFunct( this.position.x, this.position.y );
 
     velocity.x += theVel[0] * ageSpeedMultip;
     velocity.y += theVel[1] * ageSpeedMultip;
