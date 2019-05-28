@@ -1,8 +1,9 @@
-function Particle( thePool )
+function Particle( thePool, noiseSeed )
 {
+  var rndSeed = noiseSeed;
   this.random = function()
   {
-    return 1;
+    return noiseSeed;
   }
 
   //Call our prototype
@@ -12,7 +13,7 @@ function Particle( thePool )
   var objectPool    = thePool;
 
   var velocity        = new Vector2D(0,0);
-  var speedMultip     = Math.scaleNormal(Math.random(), 45, 50);
+  var speedMultip     = Math.scaleNormal(Math.random(), 150, 200);
   var ageSpeedMultip  = 1;
   var friction        = Math.scaleNormal(Math.random(), 0.98, 1);
 

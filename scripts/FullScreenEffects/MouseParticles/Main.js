@@ -18,6 +18,8 @@ var maxMouseParticles   = 20;
 var mouseClickParticles = 75;
 var currMouseColor;
 
+var particlesSeed       = Math.random();
+
 var dropParticlesMin  = 50;
 var dropParticlesMax  = 100;
 var dropFrequency     = 2.5;
@@ -220,7 +222,7 @@ function createParticles( nParticles, pos, radius, forceCenter, forceMultip, lif
       var theParticle = particlePool.getItem();
       if (theParticle == null)
       {
-        theParticle = new Particle( particlePool );
+        theParticle = new Particle( particlePool, particlesSeed );
       }
 
       var posX = pos.x + (Math.sin(Math.random() * twoPI) * (Math.random() * radius));
