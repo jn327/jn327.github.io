@@ -1,4 +1,5 @@
 //HTML Elements
+var offscreenCanvas, offscreenCtx;
 var bgCanvas, bgCtx;
 var activeCanvas, activeCtx;
 
@@ -12,21 +13,22 @@ var noiseScale          = 0.005;
 
 var mousePos;
 var dragParticlesForce  = 24;
-var mouseParticlesForce = 18;
 var minMouseRadius      = 6;
 var maxMouseRadius      = 20;
 var mouseDragTimer      = 0;
 var mouseDragTime       = 0.3;
 var minMouseParticles   = 2;
 var maxMouseParticles   = 20;
+var mouseClickRadius    = 2;
 var mouseClickParticles = 75;
+var mouseParticlesForce = 16;
 var currMouseColor;
 
 var dropParticlesMin  = 50;
 var dropParticlesMax  = 100;
 var dropFrequency     = 2.5;
 var dropTimer         = 0;
-var dropRadius        = 20;
+var dropRadius        = 8;
 var dropForceMin      = 12;
 var dropForceMax      = 18;
 
@@ -139,6 +141,9 @@ function drawBackgroundNoise()
 
 function initCanvas()
 {
+  offscreenCanvas = document.createElement('canvas');
+  offscreenCtx    = offscreenCanvas.getContext('2d');
+
   activeCanvas  = CommonElementsCreator.createCanvas();
   activeCtx     = activeCanvas.getContext('2d');
 
@@ -151,7 +156,18 @@ function initCanvas()
 
 function validateCanvasSize()
 {
-  return CanvasScaler.updateCanvasSize( [bgCanvas, activeCanvas] );
+  var res = CanvasScaler.updateCanvasSize( [bgCanvas, activeCanvas] );
+
+  if (offscreenCanvas.width != bgCanvas.width)
+  {
+    offscreenCanvas.width = bgCanvas.width;
+  }
+  if (offscreenCanvas.height != bgCanvas.height)
+  {
+    offscreenCanvas.height = bgCanvas.height;
+  }
+
+  return res;
 }
 
 function onWindowResize()
@@ -350,6 +366,14 @@ function drawParticles()
   var l = particles.length;
   var particle;
 
+  //TODO: it should be possible to get the rect occupied by each element,
+  // then build a bounding rect for all the elements.
+  // We can then clear and redraw areas only within the current bounding.
+
+  // Maybe doing all this checking in the particles draw loop is slower
+  // than actually looping through the whole area tho?
+
+  offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
   activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
 
   if (l > 0)
@@ -357,14 +381,16 @@ function drawParticles()
     for ( var n = 0; n < l; n ++ )
     {
       particle = particles[n];
-      particle.draw( activeCtx );
+      particle.draw( offscreenCtx );
     }
 
     //update the data and put it back
-    var imageData = activeCtx.getImageData(0, 0, activeCanvas.width, activeCanvas.height);
+    var multip = 5;
+    var imageData = offscreenCtx.getImageData(0, 0, offscreenCanvas.width, offscreenCanvas.height);
     var pix = imageData.data;
+    var pixL = pix.length;
 
-    for (var i = 0, n = pix.length; i <n; i += 4)
+    for (var i = 0, n = pixL; i <n; i += 4)
     {
       if(pix[i+3] < metaballsThreshold)
       {
@@ -396,6 +422,6 @@ function onMouseUp()
     var thePos      = new Vector2D(MouseTracker.mousePos.x * canvasW, MouseTracker.mousePos.y * canvasH);
     var theColor    = getRandomColor();
 
-    createParticles( mouseClickParticles, thePos, maxMouseRadius, thePos, mouseParticlesForce, 0, theColor );
+    createParticles( mouseClickParticles, thePos, mouseClickRadius, thePos, mouseParticlesForce, 0, theColor );
   }
 }

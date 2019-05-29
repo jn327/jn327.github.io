@@ -9,7 +9,7 @@ function Particle( _objectPool, _noiseFunct )
   var velocity        = new Vector2D(0,0);
   var speedMultip     = 500;
   var ageSpeedMultip  = 1;
-  var friction        = Math.scaleNormal(Math.random(), 3, 4);
+  var friction        = Math.scaleNormal(Math.random(), 3.33, 3.66);
 
   var scaleNoise      = new SimplexNoise();
   var minScale        = 20;
