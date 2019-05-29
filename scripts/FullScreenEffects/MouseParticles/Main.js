@@ -40,6 +40,11 @@ var renderTimer       = 0;
 
 var metaballsThreshold = 200;
 
+var activeAreaXMin;
+var activeAreaYMin;
+var activeAreaXMax;
+var activeAreaYMax;
+
 //------------------------------------------------
 //                Initialization
 //------------------------------------------------
@@ -151,13 +156,17 @@ function initCanvas()
   bgCtx         = bgCanvas.getContext('2d');
 
   validateCanvasSize();
+  setOffscreenCanvasSize();
   window.addEventListener( "resize", TimingUtil.debounce(onWindowResize, 250) );
 }
 
 function validateCanvasSize()
 {
-  var res = CanvasScaler.updateCanvasSize( [bgCanvas, activeCanvas] );
+  return CanvasScaler.updateCanvasSize( [bgCanvas, activeCanvas] );
+}
 
+function setOffscreenCanvasSize()
+{
   if (offscreenCanvas.width != bgCanvas.width)
   {
     offscreenCanvas.width = bgCanvas.width;
@@ -166,14 +175,19 @@ function validateCanvasSize()
   {
     offscreenCanvas.height = bgCanvas.height;
   }
-
-  return res;
 }
 
 function onWindowResize()
 {
   if (validateCanvasSize() == true)
   {
+    setOffscreenCanvasSize();
+
+    activeAreaXMin = 0;
+    activeAreaYMin = 0;
+    activeAreaXMax = activeCanvas.width;
+    activeAreaYMax = activeCanvas.height;
+
     drawBackgroundColor();
     resetParticles();
   }
@@ -369,12 +383,34 @@ function drawParticles()
   //TODO: it should be possible to get the rect occupied by each element,
   // then build a bounding rect for all the elements.
   // We can then clear and redraw areas only within the current bounding.
+  if (activeAreaXMin == undefined)
+  {
+    activeAreaXMin = 0;
+  }
+  if (activeAreaYMin == undefined)
+  {
+    activeAreaYMin = 0;
+  }
+  if (activeAreaXMax == undefined)
+  {
+    activeAreaXMax = activeCanvas.width;
+  }
+  if (activeAreaYMax == undefined)
+  {
+    activeAreaYMax = activeCanvas.height;
+  }
 
-  // Maybe doing all this checking in the particles draw loop is slower
-  // than actually looping through the whole area tho?
+  var activeAreaXDelta = activeAreaXMax - activeAreaXMin;
+  var activeAreaYDelta = activeAreaYMax - activeAreaYMin;
 
-  offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
-  activeCtx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+  //clear prev frame
+  offscreenCtx.clearRect( activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta );
+  activeCtx.clearRect( activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta );
+
+  activeAreaXMin = activeCanvas.width * 0.5;
+  activeAreaYMin = activeCanvas.height * 0.5;
+  activeAreaXMax = activeCanvas.width * 0.5;
+  activeAreaYMax = activeCanvas.height * 0.5;
 
   if (l > 0)
   {
@@ -382,11 +418,60 @@ function drawParticles()
     {
       particle = particles[n];
       particle.draw( offscreenCtx );
+
+      if (activeAreaXMin > 0)
+      {
+        if ( particle.position.x - particle.scale < activeAreaXMin )
+        {
+          activeAreaXMin = particle.position.x - particle.scale;
+        }
+      }
+      if (activeAreaYMin > 0)
+      {
+        if ( particle.position.y - particle.scale < activeAreaYMin )
+        {
+          activeAreaYMin = particle.position.y - particle.scale;
+        }
+      }
+      if (activeAreaXMax < activeCanvas.width)
+      {
+        if ( particle.position.x + particle.scale > activeAreaXMax )
+        {
+          activeAreaXMax = particle.position.x + particle.scale;
+        }
+      }
+      if (activeAreaYMax < activeCanvas.height)
+      {
+        if ( particle.position.y + particle.scale > activeAreaYMax )
+        {
+          activeAreaYMax = particle.position.y + particle.scale;
+        }
+      }
     }
+
+    if (activeAreaXMin < 0)
+    {
+      activeAreaXMin = 0;
+    }
+    if (activeAreaYMin < 0)
+    {
+      activeAreaYMin = 0;
+    }
+    if (activeAreaXMax > activeCanvas.width)
+    {
+      activeAreaXMax = activeCanvas.width;
+    }
+    if (activeAreaYMax > activeCanvas.height)
+    {
+      activeAreaYMax = activeCanvas.height;
+    }
+
+    activeAreaXDelta = activeAreaXMax - activeAreaXMin;
+    activeAreaYDelta = activeAreaYMax - activeAreaYMin;
 
     //update the data and put it back
     var multip = 5;
-    var imageData = offscreenCtx.getImageData(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+    var imageData = offscreenCtx.getImageData( activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta );
     var pix = imageData.data;
     var pixL = pix.length;
 
@@ -402,7 +487,7 @@ function drawParticles()
       }
     }
 
-    activeCtx.putImageData(imageData, 0, 0);
+    activeCtx.putImageData(imageData, activeAreaXMin, activeAreaYMin);
     bgCtx.drawImage(activeCanvas, 0, 0);
   }
 }
