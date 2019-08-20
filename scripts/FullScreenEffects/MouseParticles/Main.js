@@ -274,7 +274,7 @@ function update()
 
         if (bUpdate)
         {
-          particle.update( updateFreq, 0, 0, canvasW, canvasH );
+          particle.update( updateFreq, 0, 0, canvasW, canvasH, particles );
         }
 
         if (bDraw)
