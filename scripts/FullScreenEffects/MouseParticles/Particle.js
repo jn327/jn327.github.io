@@ -13,7 +13,7 @@ function Particle( _objectPool, _noiseFunct )
   var scaleNoise      = new SimplexNoise();
   var minScale        = 5;
   var maxScale        = 40;
-  var noiseScaleMultip = 0.5;
+  var noiseScaleMultip = 0.33;
   var scaleNoiseScale = 4;
   var ageScaleMultip  = 1;
   var minScaleForGradient = 2;
@@ -24,8 +24,8 @@ function Particle( _objectPool, _noiseFunct )
   var cohesionMultip        = 1;
   var desiredseparation     = 0;
   var separationScaleMultip = 0.75;
-  var alignmentDist         = 100;
-  var cohesionDist          = 100;
+  var alignmentDist         = 120;
+  var cohesionDist          = 120;
 
   var noiseFunct      = _noiseFunct;
 
@@ -36,7 +36,7 @@ function Particle( _objectPool, _noiseFunct )
   var ageAlphaMultip  = 1;
 
   var lifeTime      = 0;
-  var maxLifeTime   = Math.scaleNormal(Math.random(), 0.5, 0.6);
+  var maxLifeTime   = Math.scaleNormal(Math.random(), 0.6, 0.8);
 
   var twoPI         = 2 * Math.PI;
 

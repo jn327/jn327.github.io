@@ -9,7 +9,8 @@ var particlePool;
 
 var noise;
 var curl;
-var noiseScale          = 0.005;
+var noiseScale          = 0.004;
+var drawBgNoise         = false;
 
 var mousePos;
 var dragParticlesForce  = 24;
@@ -21,16 +22,16 @@ var minMouseParticles   = 1;
 var maxMouseParticles   = 8;
 var mouseClickRadius    = 2;
 var mouseClickParticles = 33;
-var mouseParticlesForce = 14;
+var mouseParticlesForce = 10;
 var currMouseColor;
 
-var dropParticlesMin  = 40;
-var dropParticlesMax  = 80;
+var dropParticlesMin  = 25;
+var dropParticlesMax  = 50;
 var dropFrequency     = 2.5;
 var dropTimer         = 0;
-var dropRadius        = 8;
-var dropForceMin      = 12;
-var dropForceMax      = 18;
+var dropRadius        = 2;
+var dropForceMin      = 8;
+var dropForceMax      = 14;
 
 var updateFreq        = 0.033;
 var updateTimer       = 0;
@@ -87,7 +88,10 @@ function drawBackgroundColor()
   bgCtx.fillStyle = 'hsla(' +bgHue +', ' +bgS +'%, 70%, 1)';
   bgCtx.fillRect( 0, 0, bgCanvas.width, bgCanvas.height );
 
-  //drawBackgroundNoise();
+  if (drawBgNoise)
+  {
+    drawBackgroundNoise();
+  }
 }
 
 function drawBackgroundNoise()
