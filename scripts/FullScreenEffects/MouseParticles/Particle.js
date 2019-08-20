@@ -12,10 +12,12 @@ function Particle( _objectPool, _noiseFunct )
   var friction        = Math.scaleNormal(Math.random(), 3.33, 3.66);
 
   var scaleNoise      = new SimplexNoise();
-  var minScale        = 20;
+  var minScale        = 5;
   var maxScale        = 40;
+  var noiseScaleMultip = 0.5;
   var scaleNoiseScale = 4;
   var ageScaleMultip  = 1;
+  var minScaleForGradient = 2;
 
   var noiseFunct      = _noiseFunct;
 
@@ -106,17 +108,27 @@ function Particle( _objectPool, _noiseFunct )
   this.draw = function( ctx )
   {
     //ageAlphaMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
-    //ageScaleMultip = EasingUtil.easeNone(lifeTime, 1, -1, maxLifeTime);
 
-    this.scale = scaleNoise.scaledNoise(lifeTime * scaleNoiseScale, 0);
-    this.scale = Math.scaleNormal( this.scale, minScale, maxScale ) * ageScaleMultip;
+    ageScaleMultip = EasingUtil.easeInCubic(lifeTime, 1, -1, maxLifeTime);
+
+    var endScale = ((1 - noiseScaleMultip) + (scaleNoise.scaledNoise(lifeTime * scaleNoiseScale, 0) * noiseScaleMultip)) * ageScaleMultip;
+
+    this.scale = Math.scaleNormal( endScale, minScale, maxScale );
 
     var theAlpha = (alpha * ageAlphaMultip);
 
-    var grd = ctx.createRadialGradient(this.position.x, this.position.y, 0, this.position.x, this.position.y, this.scale);
-    grd.addColorStop(0, 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')');
-    grd.addColorStop(1, 'hsla('+hue +', '+saturation +'%, '+brightness +'%, 0)');
-    ctx.fillStyle = grd;
+    // if scale is very small, dont do a gradient, just a fill.
+    if (this.scale < minScaleForGradient)
+    {
+      ctx.fillStyle = 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')';
+    }
+    else
+    {
+      var grd = ctx.createRadialGradient(this.position.x, this.position.y, 0, this.position.x, this.position.y, this.scale);
+      grd.addColorStop(0, 'hsla('+hue +', '+saturation +'%, '+brightness +'%, ' +theAlpha +')');
+      grd.addColorStop(1, 'hsla('+hue +', '+saturation +'%, '+brightness +'%, 0)');
+      ctx.fillStyle = grd;
+    }
 
     ctx.beginPath();
     ctx.arc(this.position.x, this.position.y, this.scale, 0, twoPI);
