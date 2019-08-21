@@ -10,6 +10,8 @@ var plantsCanvas, plantsCtx;
 var activePlantsCanvas, activePlantsCtx;
 var creatureCanvas, creatureCtx;
 
+var canvasToUpdate;
+
 var skyUpdateFreq            = 0.04;
 var skyUpdateTimer           = skyUpdateFreq;
 var effectsUpdateFreq        = 0.04;
@@ -105,6 +107,12 @@ function initCanvas()
   skyCanvas           = CommonElementsCreator.createCanvas();
   skyCtx              = skyCanvas.getContext('2d', { alpha: false });
 
+  canvasToUpdate = [skyCanvas, nebulaCanvas, cloudsCanvas, terrainCanvas, effectsCanvas, creatureCanvas, plantsCanvas, activePlantsCanvas];
+  for (var i = 0; i < starsCanvases.length; i++)
+  {
+    canvasToUpdate.push(starsCanvases[i]);
+  }
+
   validateCanvasSize();
   window.addEventListener( "resize", TimingUtil.debounce(onWindowResize, 250) );
 }
@@ -115,13 +123,7 @@ function validateCanvasSize()
   var minScaleV = 600;
   var minScaleH = 400;
 
-  var theCanvases = [skyCanvas, nebulaCanvas, cloudsCanvas, terrainCanvas, effectsCanvas, creatureCanvas, plantsCanvas, activePlantsCanvas];
-  for (var i = 0; i < starsCanvases.length; i++)
-  {
-    theCanvases.push(starsCanvases[i]);
-  }
-
-  return CanvasScaler.updateCanvasSize( theCanvases, maxScale, minScaleV, minScaleH );
+  return CanvasScaler.updateCanvasSize( canvasToUpdate, maxScale, minScaleV, minScaleH );
 }
 
 function onWindowResize()

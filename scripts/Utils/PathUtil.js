@@ -42,7 +42,7 @@ PathUtil.createBezierCurve = function( points, thePath, tension, offsetPoints, d
 
   if (points.length < 2)
   {
-    console.log("We can't create a curve with < 2 points.")
+    console.log("We can't create a curve with < 2 points.");
     return thePath;
   }
 

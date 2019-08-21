@@ -3,9 +3,25 @@ var offscreenCanvas, offscreenCtx;
 var bgCanvas, bgCtx;
 var activeCanvas, activeCtx;
 
+var canvasToUpdate;
+var nActiveCanvases = 1; // between 1 and misc arbitrary number.
+
 var maxParticles          = 300;
 var particles;
 var particlePool;
+
+var nDrawBotsNoise;
+var nDrawBotsNoiseScale   = 0.0001;
+var nDrawBotsMax          = 3;
+var nDrawBotsMin          = 1;
+var drawBots;
+var drawBotsPool;
+var drawBotNParticles     = 3;
+
+var drawBotNoise;
+var drawBotCurl;
+var drawBotNoiseScale     = 0.002;
+var botParticlesForce     = 10;
 
 var noise;
 var curl;
@@ -13,7 +29,7 @@ var noiseScale          = 0.004;
 var drawBgNoise         = false;
 
 var mousePos;
-var dragParticlesForce  = 24;
+var dragParticlesForce  = 25;
 var minMouseRadius      = 6;
 var maxMouseRadius      = 20;
 var mouseDragTimer      = 0;
@@ -25,6 +41,7 @@ var mouseClickParticles = 33;
 var mouseParticlesForce = 10;
 var currMouseColor;
 
+var bDoDrop           = false;
 var dropParticlesMin  = 25;
 var dropParticlesMax  = 50;
 var dropFrequency     = 2.5;
@@ -55,7 +72,8 @@ function init()
   var includes = [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve',
     'Utils/TimingUtil', 'Utils/CurlNoise', 'Utils/ObjectPool', 'Utils/ColorUtil',
-    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'FullScreenEffects/MouseParticles/Particle'
+    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
+    'FullScreenEffects/MouseParticles/Particle', 'FullScreenEffects/MouseParticles/DrawBot'
   ];
   CommonElementsCreator.appendScripts(includes);
 }
@@ -66,16 +84,38 @@ function start()
   function getNoise(x,y) { return noise.scaledNoise(x,y) };
   curl  = new CurlNoise( getNoise, noiseScale, 0.2 );
 
+  nDrawBotsNoise  = new SimplexNoise();
+  drawBotNoise    = new SimplexNoise();
+  function getDrawBotNoise(x,y) { return drawBotNoise.scaledNoise(x,y) };
+  drawBotCurl = new CurlNoise( getDrawBotNoise, drawBotNoiseScale, 0.2 );
+  drawBotsPool = new ObjectPool();
+
   initCanvas();
 
   particles = [];
   particlePool = new ObjectPool();
 
+  drawBots = [];
+
   ColorUtil.setGlobalColorPallete( ColorUtil.generateColorPallete( 3, 30 ) );
 
   //background
-  bgCanvas.style.webkitFilter = "brightness(80%)";
-  bgCanvas.style.filter = "brightness(80%)";
+  var brightness = 80;
+  bgCanvas.style.webkitFilter = "brightness("+brightness+"%)";
+  bgCanvas.style.filter = "brightness("+brightness+"%)";
+
+  if (nActiveCanvases > 1)
+  {
+    for (var c = 1; c < nActiveCanvases; c++)
+    {
+      var n = c / (nActiveCanvases-1);
+      var canvasBrightness = brightness + ((100 - brightness) * n);
+      console.log("c :"+c +", n: "+n +", brightness: "+canvasBrightness);
+      activeCanvas[c].style.webkitFilter = "brightness("+canvasBrightness+"%)";
+      activeCanvas[c].style.filter = "brightness("+canvasBrightness+"%)";
+    }
+  }
+
   drawBackgroundColor();
 }
 
@@ -153,11 +193,19 @@ function initCanvas()
   offscreenCanvas = document.createElement('canvas');
   offscreenCtx    = offscreenCanvas.getContext('2d');
 
-  activeCanvas  = CommonElementsCreator.createCanvas();
-  activeCtx     = activeCanvas.getContext('2d');
+  activeCanvas = [];
+  activeCtx = [];
+  for ( var i = 0; i < nActiveCanvases; i++ )
+  {
+    activeCanvas.push( CommonElementsCreator.createCanvas() );
+    activeCtx.push( activeCanvas[i].getContext('2d') );
+  }
 
   bgCanvas      = CommonElementsCreator.createCanvas();
   bgCtx         = bgCanvas.getContext('2d');
+
+  canvasToUpdate = activeCanvas;
+  canvasToUpdate.push (bgCanvas);
 
   validateCanvasSize();
   setOffscreenCanvasSize();
@@ -166,7 +214,7 @@ function initCanvas()
 
 function validateCanvasSize()
 {
-  return CanvasScaler.updateCanvasSize( [bgCanvas, activeCanvas] );
+  return CanvasScaler.updateCanvasSize( canvasToUpdate );
 }
 
 function setOffscreenCanvasSize()
@@ -189,8 +237,8 @@ function onWindowResize()
 
     activeAreaXMin = 0;
     activeAreaYMin = 0;
-    activeAreaXMax = activeCanvas.width;
-    activeAreaYMax = activeCanvas.height;
+    activeAreaXMax = activeCanvas[0].width;
+    activeAreaYMax = activeCanvas[0].height;
 
     drawBackgroundColor();
     resetParticles();
@@ -212,6 +260,7 @@ function resetParticles()
 //------------------------------------------------
 function update()
 {
+  updateNDrawBots();
   spawnParticles();
 
   var bUpdate = false;
@@ -242,11 +291,11 @@ function update()
     }
     if (activeAreaXMax == undefined)
     {
-      activeAreaXMax = activeCanvas.width;
+      activeAreaXMax = activeCanvas[0].width;
     }
     if (activeAreaYMax == undefined)
     {
-      activeAreaYMax = activeCanvas.height;
+      activeAreaYMax = activeCanvas[0].height;
     }
 
     var activeAreaXDelta = activeAreaXMax - activeAreaXMin;
@@ -254,12 +303,12 @@ function update()
 
     //clear prev frame
     offscreenCtx.clearRect( activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta );
-    activeCtx.clearRect( activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta );
+    activeCtx[0].clearRect( activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta );
 
-    activeAreaXMin = activeCanvas.width * 0.5;
-    activeAreaYMin = activeCanvas.height * 0.5;
-    activeAreaXMax = activeCanvas.width * 0.5;
-    activeAreaYMax = activeCanvas.height * 0.5;
+    activeAreaXMin = activeCanvas[0].width * 0.5;
+    activeAreaYMin = activeCanvas[0].height * 0.5;
+    activeAreaXMax = activeCanvas[0].width * 0.5;
+    activeAreaYMax = activeCanvas[0].height * 0.5;
   }
 
   if (bDraw || bUpdate)
@@ -267,8 +316,8 @@ function update()
     var l = particles.length;
     var particle;
 
-    var canvasW = activeCanvas.width;
-    var canvasH = activeCanvas.height;
+    var canvasW = activeCanvas[0].width;
+    var canvasH = activeCanvas[0].height;
 
     if (l > 0)
     {
@@ -299,14 +348,14 @@ function update()
               activeAreaYMin = particle.position.y - particle.scale;
             }
           }
-          if (activeAreaXMax < activeCanvas.width)
+          if (activeAreaXMax < activeCanvas[0].width)
           {
             if ( particle.position.x + particle.scale > activeAreaXMax )
             {
               activeAreaXMax = particle.position.x + particle.scale;
             }
           }
-          if (activeAreaYMax < activeCanvas.height)
+          if (activeAreaYMax < activeCanvas[0].height)
           {
             if ( particle.position.y + particle.scale > activeAreaYMax )
             {
@@ -336,41 +385,98 @@ function update()
         {
           activeAreaYMin = 0;
         }
-        if (activeAreaXMax > activeCanvas.width)
+        if (activeAreaXMax > activeCanvas[0].width)
         {
-          activeAreaXMax = activeCanvas.width;
+          activeAreaXMax = activeCanvas[0].width;
         }
-        if (activeAreaYMax > activeCanvas.height)
+        if (activeAreaYMax > activeCanvas[0].height)
         {
-          activeAreaYMax = activeCanvas.height;
+          activeAreaYMax = activeCanvas[0].height;
         }
 
         var activeAreaXDelta = activeAreaXMax - activeAreaXMin;
         var activeAreaYDelta = activeAreaYMax - activeAreaYMin;
 
         //update the data and put it back
-        var imageData = offscreenCtx.getImageData( activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta );
-        var pix = imageData.data;
-        var pixL = pix.length;
-
-        for (var i = 0; i < pixL; i += 4)
+        if (activeAreaXDelta > 0 && activeAreaYDelta > 0)
         {
-          if(pix[i+3] < metaballsThreshold)
+          var imageData = offscreenCtx.getImageData( activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta );
+          var pix = imageData.data;
+          var pixL = pix.length;
+
+          for (var i = 0; i < pixL; i += 4)
           {
-            pix[i+3] = 0;
+            if(pix[i+3] < metaballsThreshold)
+            {
+              pix[i+3] = 0;
+            }
+            else
+            {
+              //pix[i+3] *= 1.2;
+              pix[i+3] = 255;
+            }
           }
-          else
+
+          activeCtx[0].putImageData(imageData, activeAreaXMin, activeAreaYMin);
+
+          if (nActiveCanvases > 1)
           {
-            //pix[i+3] *= 1.2;
-            pix[i+3] = 255;
+            for (var c = 1; c < nActiveCanvases; c++)
+            {
+              activeCtx[c].clearRect( 0, 0, activeCanvas[c].width, activeCanvas[c].height );
+              activeCtx[c].drawImage(activeCanvas[c-1], 0, 0);
+            }
           }
+
+          bgCtx.drawImage(activeCanvas[0], activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta,
+            activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta );
         }
-
-        activeCtx.putImageData(imageData, activeAreaXMin, activeAreaYMin);
-
-        bgCtx.drawImage(activeCanvas, activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta,
-          activeAreaXMin, activeAreaYMin, activeAreaXDelta, activeAreaYDelta );
       }
+    }
+  }
+
+}
+
+function updateNDrawBots()
+{
+  var nDrawBots = nDrawBotsNoise.scaledNoise(GameLoop.currentTime * nDrawBotsNoiseScale, 0);
+  nDrawBots = Math.scaleNormal( nDrawBots, nDrawBotsMin, nDrawBotsMax );
+  while (drawBots.length < nDrawBots)
+  {
+    var theBot = drawBotsPool.getItem();
+    if (theBot == null)
+    {
+      theBot = new DrawBot( drawBotCurl.noise );
+    }
+    drawBots.push( theBot );
+
+    //TODO: set initial pos and color less randomly (ones that're more central & not already picked respectively)
+    var theColor = getRandomColor();
+    var xPos = activeCanvas[0].width * (0.2 + (Math.random() * 0.8));
+    var yPos = activeCanvas[0].height * (0.2 + (Math.random() * 0.8));
+    theBot.spawn(xPos, yPos, theColor);
+  }
+
+  while (drawBots.length > nDrawBots)
+  {
+    var theBot = drawBots.pop();
+
+    theBot.despawn();
+    drawBotsPool.addToPool(theBot);
+  }
+
+  //update them and spawn some particles
+  var theBot;
+  for ( var i = 0; i < nDrawBots; i ++ )
+  {
+    theBot = drawBots[i];
+    if (theBot != undefined)
+    {
+      theBot.update( GameLoop.deltaTime, 0, 0, activeCanvas[0].width, activeCanvas[0].height, drawBots, mousePos);
+
+      //TODO: spawn particles around it with better properties.
+      var theLifetime = Math.scaleNormal(Math.random(), 0.6, 0.8);
+      createParticles( drawBotNParticles, theBot.position, theBot.scale, theBot.position, botParticlesForce, theLifetime, theBot.color );
     }
   }
 
@@ -384,13 +490,16 @@ function spawnParticles()
 
 function updateDropParticles()
 {
+  if (bDoDrop == false)
+    return;
+
   dropTimer += GameLoop.deltaTime;
 
   if (dropTimer > dropFrequency)
   {
     dropTimer = 0;
 
-    var thePos = new Vector2D(Math.random() * activeCanvas.width, Math.random() * activeCanvas.height);
+    var thePos = new Vector2D(Math.random() * activeCanvas[0].width, Math.random() * activeCanvas[0].height);
     var nParticles  = Math.scaleNormal(Math.random(), dropParticlesMin, dropParticlesMax);
     var theForce    = Math.scaleNormal(Math.random(), dropForceMin, dropForceMax);
     var lifeTimeN   = Math.scaleNormal(Math.random(), 0, 0.3);
@@ -410,8 +519,8 @@ function spawnMouseParticles()
 {
   if (MouseTracker.mousePos != undefined)
   {
-    var canvasW = activeCanvas.width;
-    var canvasH = activeCanvas.height;
+    var canvasW = activeCanvas[0].width;
+    var canvasH = activeCanvas[0].height;
 
     var currMousePos = new Vector2D(MouseTracker.mousePos.x * canvasW, MouseTracker.mousePos.y * canvasH);
     var particleForce = new Vector2D(0,0);
@@ -455,8 +564,6 @@ function spawnMouseParticles()
 
 function createParticles( nParticles, pos, radius, forceCenter, forceMultip, lifeTimeN, theColor )
 {
-  var twoPI = Math.PI * 2;
-
   for (var i = 0; i < nParticles; i++)
   {
     if (particles.length < maxParticles)
@@ -467,8 +574,8 @@ function createParticles( nParticles, pos, radius, forceCenter, forceMultip, lif
         theParticle = new Particle( particlePool, curl.noise );
       }
 
-      var posX = pos.x + (Math.sin(Math.random() * twoPI) * (Math.random() * radius));
-      var posY = pos.y + (Math.cos(Math.random() * twoPI) * (Math.random() * radius));
+      var posX = pos.x + (Math.sin(Math.random() * Math.TWOPI) * (Math.random() * radius));
+      var posY = pos.y + (Math.cos(Math.random() * Math.TWOPI) * (Math.random() * radius));
 
       if (posX < 0)
       {
@@ -501,8 +608,8 @@ function onMouseUp()
 {
   if (MouseTracker.mousePos != undefined)
   {
-    var canvasW = activeCanvas.width;
-    var canvasH = activeCanvas.height;
+    var canvasW = activeCanvas[0].width;
+    var canvasH = activeCanvas[0].height;
 
     dropTimer = 0;
 

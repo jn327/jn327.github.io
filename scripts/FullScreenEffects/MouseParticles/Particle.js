@@ -38,8 +38,6 @@ function Particle( _objectPool, _noiseFunct )
   var lifeTime      = 0;
   var maxLifeTime   = Math.scaleNormal(Math.random(), 0.6, 0.8);
 
-  var twoPI         = 2 * Math.PI;
-
   this.velocity     = new Vector2D(0,0);
 
   this.spawn = function(x, y, velX, velY, lifeTimeN, theColor)
@@ -123,10 +121,7 @@ function Particle( _objectPool, _noiseFunct )
     var endScale = ((1 - noiseScaleMultip) + (scaleNoise.scaledNoise(lifeTime * scaleNoiseScale, 0) * noiseScaleMultip)) * ageScaleMultip;
 
     this.scale = Math.scaleNormal( endScale, minScale, maxScale );
-    if (this.scale < 0)
-    {
-      this.scale = 0;
-    }
+    this.scale = Math.clamp(this.scale, minScale, maxScale);
 
     var theAlpha = (alpha * ageAlphaMultip);
 
@@ -137,14 +132,23 @@ function Particle( _objectPool, _noiseFunct )
     }
     else
     {
-      var grd = ctx.createRadialGradient(this.position.x, this.position.y, 0, this.position.x, this.position.y, this.scale);
-      grd.addColorStop(0, 'hsla('+this.hue +', '+this.saturation +'%, '+brightness +'%, ' +theAlpha +')');
-      grd.addColorStop(1, 'hsla('+this.hue +', '+this.saturation +'%, '+brightness +'%, 0)');
-      ctx.fillStyle = grd;
+      if ( this.scale != NaN && this.scale != undefined
+        && this.position.x != NaN && this.position.x != undefined && isFinite(this.position.x)
+        && this.position.y != NaN && this.position.y != undefined && isFinite(this.position.y) )
+      {
+        var grd = ctx.createRadialGradient(this.position.x, this.position.y, 0, this.position.x, this.position.y, this.scale);
+        grd.addColorStop(0, 'hsla('+this.hue +', '+this.saturation +'%, '+brightness +'%, ' +theAlpha +')');
+        grd.addColorStop(1, 'hsla('+this.hue +', '+this.saturation +'%, '+brightness +'%, 0)');
+        ctx.fillStyle = grd;
+      }
+      /*else
+      {
+        console.log("the scale is: "+ this.scale +"... the position is: "+this.position.x +", "+this.position.y +"... endScale: "+endScale);
+      }*/
     }
 
     ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, this.scale, 0, twoPI);
+    ctx.arc(this.position.x, this.position.y, this.scale, 0, Math.TWOPI);
     ctx.fill();
   }
 

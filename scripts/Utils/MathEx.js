@@ -1,3 +1,5 @@
+Math.TWOPI = 2 * Math.PI;
+
 //Given a value, will round it to the nearest multiple of multip.
 // so (1, 4) will return 0 and (3, 4) will return 4...
 Math.roundMultip = function(val, multip)
