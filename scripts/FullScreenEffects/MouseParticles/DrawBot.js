@@ -5,7 +5,7 @@ function DrawBot( _noiseFunct )
 
   var active          = false;
 
-  var noiseSpeedMultip= 350;
+  var noiseSpeedMultip= 400;
   var friction        = Math.scaleNormal(Math.random(), 3, 4);
 
   var scaleNoise      = new SimplexNoise();
@@ -20,12 +20,12 @@ function DrawBot( _noiseFunct )
   var cohesionMultip        = 0.2;
   var desiredseparation     = 150;
   var separationScaleMultip = 0;
-  var alignmentDist         = 300;
-  var cohesionDist          = 300;
+  var alignmentDist         = 200;
+  var cohesionDist          = 400;
 
   var destroyOtherDist      = 125;
 
-  var edgeAvoidancePerc     = 0.15;
+  var edgeAvoidancePerc     = 0.2;
   var edgeAvoidanceMultip   = 40;
 
   var mouseAvoidanceVelMultip = 15;
@@ -34,7 +34,7 @@ function DrawBot( _noiseFunct )
   var noiseFunct      = _noiseFunct;
 
   this.lifeTime = 0;
-  var fadeInTime = 1.5;
+  var fadeInTime = 5;
 
   this.color;
 

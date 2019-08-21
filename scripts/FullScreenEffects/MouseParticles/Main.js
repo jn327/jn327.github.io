@@ -12,15 +12,15 @@ var particlePool;
 
 var nDrawBotsNoise;
 var nDrawBotsNoiseScale   = 0.0005;
-var nDrawBotsMax          = 6;
+var nDrawBotsMax          = 4;
 var nDrawBotsMin          = 2;
 var drawBots;
 var drawBotsPool;
-var drawBotNParticles     = 3;
+var drawBotNParticles     = 2;
 
 var drawBotNoise;
 var drawBotCurl;
-var drawBotNoiseScale     = 0.003;
+var drawBotNoiseScale     = 0.002;
 var botParticlesForce     = 10;
 
 var noise;
@@ -477,7 +477,7 @@ function updateNDrawBots()
 
       //spawn particles around it
       var botSpawnN = theBot.getFadeInNormal();
-      var theLifetime = Math.scaleNormal(1 - botSpawnN, 0.5, 1);
+      var theLifetime = Math.scaleNormal(1 - botSpawnN, 0.05, 0.95);
       createParticles( drawBotNParticles, theBot.position, theBot.scale * botSpawnN, theBot.position, botParticlesForce * botSpawnN, theLifetime, theBot.color );
 
       if (theBot.isActive() == false)
