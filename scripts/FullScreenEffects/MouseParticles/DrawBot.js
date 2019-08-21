@@ -5,27 +5,36 @@ function DrawBot( _noiseFunct )
 
   var active          = false;
 
-  var noiseSpeedMultip= 400;
+  var noiseSpeedMultip= 350;
   var friction        = Math.scaleNormal(Math.random(), 3, 4);
 
   var scaleNoise      = new SimplexNoise();
   var minScale        = 3;
   var maxScale        = 5;
   var scaleNoiseScale = 4;
+  var maxSpeed        = 20;
 
   var boidVelMultip         = 6;
   var separationMultip      = 1;
-  var alignmentMultip       = 0.025;
-  var cohesionMultip        = 0.025;
-  var desiredseparation     = 200;
+  var alignmentMultip       = 0.05;
+  var cohesionMultip        = 0.2;
+  var desiredseparation     = 150;
   var separationScaleMultip = 0;
-  var alignmentDist         = 400;
-  var cohesionDist          = 400;
+  var alignmentDist         = 300;
+  var cohesionDist          = 300;
+
+  var destroyOtherDist      = 125;
+
+  var edgeAvoidancePerc     = 0.15;
+  var edgeAvoidanceMultip   = 40;
 
   var mouseAvoidanceVelMultip = 15;
-  var mouseSeparation         = 175;
+  var mouseSeparation         = 300;
 
   var noiseFunct      = _noiseFunct;
+
+  this.lifeTime = 0;
+  var fadeInTime = 1.5;
 
   this.color;
 
@@ -44,17 +53,20 @@ function DrawBot( _noiseFunct )
     this.velocity.y = 0;
 
     scaleNoiseSeed = Math.random(0, 1000000);
+    this.lifeTime = 0;
 
     active = true;
   }
 
-  this.update = function( deltaTime, xMin, yMin, xMax, yMax, otherParticles, mousePos )
+  this.update = function( deltaTime, xMin, yMin, xMax, yMax, otherParticles, mousePos, mouseHasMoved )
   {
+    this.lifeTime += deltaTime;
+
     var theVel = noiseFunct( this.position.x, this.position.y );
     var boidVel = this.getBoidVel(otherParticles, deltaTime);
 
     var mouseVel = new Vector2D(0, 0);
-    if (mousePos != undefined)
+    if (mousePos != undefined && mouseHasMoved)
     {
       var dist = this.position.distance( mousePos );
       if (dist < mouseSeparation)
@@ -76,31 +88,47 @@ function DrawBot( _noiseFunct )
     this.velocity.x += ((theVel[0] * noiseSpeedMultip) + boidVel.x + mouseVel.x);
     this.velocity.y += ((theVel[1] * noiseSpeedMultip) + boidVel.y + mouseVel.y);
 
-    //TODO: if near bounds, add force away or something.
+    var xDist = (xMax - xMin) * 0.5 * edgeAvoidancePerc;
+    var yDist = (yMax - yMin) * 0.5 * edgeAvoidancePerc;
+    var lowerX = xMin + xDist;
+    var upperX = xMax - xDist;
+    var lowerY = yMin + yDist;
+    var upperY = yMax - yDist;
 
+    if (this.position.x < lowerX)
+    {
+      this.velocity.x += ((lowerX - this.position.x) / xDist) * edgeAvoidanceMultip;
+    }
+
+    if (this.position.x > upperX)
+    {
+      this.velocity.x -= ((this.position.x - upperX) / xDist) * edgeAvoidanceMultip;
+    }
+
+    if (this.position.y < lowerY)
+    {
+      this.velocity.y += ((lowerY - this.position.y) / yDist) * edgeAvoidanceMultip;
+    }
+
+    if (this.position.y > upperY)
+    {
+      this.velocity.y -= ((this.position.y - upperY) / yDist) * edgeAvoidanceMultip;
+    }
+
+    //max velocity
+    if (this.velocity.magnitude() > maxSpeed)
+    {
+      this.velocity.normalize();
+      this.velocity.multiply( maxSpeed );
+    }
 
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
-    if (this.position.x < xMin)
+    if (this.position.x < xMin || this.position.y < yMin
+     || this.position.x > xMax || this.position.y > yMax)
     {
-      //this.position.x = xMin;
-      this.position.x = xMax;
-    }
-    if (this.position.y < yMin)
-    {
-      //this.position.y = yMin;
-      this.position.y = yMax;
-    }
-    if (this.position.x > xMax)
-    {
-      //this.position.x = xMax;
-      this.position.x = xMin;
-    }
-    if (this.position.y > yMax)
-    {
-      //this.position.y = yMax;
-      this.position.y = yMin;
+      this.despawn();
     }
 
     //apply friction
@@ -119,6 +147,11 @@ function DrawBot( _noiseFunct )
       this.scale = 0;
     }
 
+  }
+
+  this.getFadeInNormal = function()
+  {
+    return Math.clamp(this.lifeTime / fadeInTime, 0, 1);
   }
 
   this.isActive = function()
@@ -157,6 +190,11 @@ function DrawBot( _noiseFunct )
 
       if (dist > 0)
       {
+        if (dist < destroyOtherDist)
+        {
+          this.despawn();
+        }
+
         // ==== Separation ====
         // For every boid in the system, check if it's too close
         var separationDist = (desiredseparation + ((this.scale + otherParticle.scale) * separationScaleMultip));

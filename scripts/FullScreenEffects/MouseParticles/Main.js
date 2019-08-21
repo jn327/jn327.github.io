@@ -11,16 +11,16 @@ var particles;
 var particlePool;
 
 var nDrawBotsNoise;
-var nDrawBotsNoiseScale   = 0.0001;
-var nDrawBotsMax          = 3;
-var nDrawBotsMin          = 1;
+var nDrawBotsNoiseScale   = 0.0005;
+var nDrawBotsMax          = 6;
+var nDrawBotsMin          = 2;
 var drawBots;
 var drawBotsPool;
 var drawBotNParticles     = 3;
 
 var drawBotNoise;
 var drawBotCurl;
-var drawBotNoiseScale     = 0.002;
+var drawBotNoiseScale     = 0.003;
 var botParticlesForce     = 10;
 
 var noise;
@@ -28,6 +28,7 @@ var curl;
 var noiseScale          = 0.004;
 var drawBgNoise         = false;
 
+var mouseHasMoved       = false;
 var mousePos;
 var dragParticlesForce  = 25;
 var minMouseRadius      = 6;
@@ -450,10 +451,9 @@ function updateNDrawBots()
     }
     drawBots.push( theBot );
 
-    //TODO: set initial pos and color less randomly (ones that're more central & not already picked respectively)
     var theColor = getRandomColor();
-    var xPos = activeCanvas[0].width * (0.2 + (Math.random() * 0.8));
-    var yPos = activeCanvas[0].height * (0.2 + (Math.random() * 0.8));
+    var xPos = activeCanvas[0].width * Math.scaleNormal(Math.random(), 0.1, 0.9);
+    var yPos = activeCanvas[0].height * Math.scaleNormal(Math.random(), 0.1, 0.9);
     theBot.spawn(xPos, yPos, theColor);
   }
 
@@ -467,16 +467,26 @@ function updateNDrawBots()
 
   //update them and spawn some particles
   var theBot;
-  for ( var i = 0; i < nDrawBots; i ++ )
+  var l = nDrawBots;
+  for ( var i = 0; i < l; i ++ )
   {
     theBot = drawBots[i];
     if (theBot != undefined)
     {
-      theBot.update( GameLoop.deltaTime, 0, 0, activeCanvas[0].width, activeCanvas[0].height, drawBots, mousePos);
+      theBot.update( GameLoop.deltaTime, 0, 0, activeCanvas[0].width, activeCanvas[0].height, drawBots, mousePos, mouseHasMoved);
 
-      //TODO: spawn particles around it with better properties.
-      var theLifetime = Math.scaleNormal(Math.random(), 0.6, 0.8);
-      createParticles( drawBotNParticles, theBot.position, theBot.scale, theBot.position, botParticlesForce, theLifetime, theBot.color );
+      //spawn particles around it
+      var botSpawnN = theBot.getFadeInNormal();
+      var theLifetime = Math.scaleNormal(1 - botSpawnN, 0.5, 1);
+      createParticles( drawBotNParticles, theBot.position, theBot.scale * botSpawnN, theBot.position, botParticlesForce * botSpawnN, theLifetime, theBot.color );
+
+      if (theBot.isActive() == false)
+      {
+        drawBots.splice(i, 1);
+        drawBotsPool.addToPool(theBot);
+        i--;
+        l--;
+      }
     }
   }
 
@@ -529,7 +539,7 @@ function spawnMouseParticles()
       mousePos = currMousePos;
     }
 
-    var mouseHasMoved = mousePos.x != currMousePos.x || mousePos.y != currMousePos.y;
+    mouseHasMoved = mousePos.x != currMousePos.x || mousePos.y != currMousePos.y;
     if ( mouseHasMoved )
     {
       if (currMouseColor == undefined)
