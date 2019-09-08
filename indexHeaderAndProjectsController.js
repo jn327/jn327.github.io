@@ -80,21 +80,24 @@ function initProjects()
     {
       title       : "Planet Coaster",
       bgImage     : "images/projects/PlanCo.jpg",
-      video       : "images/projects/PlanCo",
+      //bgImage     : "images/projects/PlanCo_firstFrame.jpg",
+      //video       : "images/projects/PlanCo",
       videoFormats: ["webm","mp4"],
       description : "UI developer"
     },
     {
       title       : "Jurassic World Evolution",
       bgImage     : "images/projects/Jwe.jpg",
-      video       : "images/projects/Jwe",
+      //bgImage     : "images/projects/Jwe_firstFrame.jpg",
+      //video       : "images/projects/Jwe",
       videoFormats: ["webm","mp4"],
       description : "UI developer"
     },
     {
       title       : "Planet Zoo",
       bgImage     : "images/projects/PlanZoo.jpg",
-      video       : "images/projects/PlanZoo",
+      //bgImage     : "images/projects/PlanZoo_firstFrame.jpg",
+      //video       : "images/projects/PlanZoo",
       videoFormats: ["webm","mp4"],
       description : "UI developer"
     }
@@ -105,7 +108,8 @@ function initProjects()
     {
       title       : "Duel",
       bgImage     : "images/projects/Duel.jpg",
-      video       : "images/projects/Duel",
+      //bgImage     : "images/projects/Duel_firstFrame.jpg",
+      //video       : "images/projects/Duel",
       videoFormats: ["webm","mp4"],
       description : "Programmer for a small game made with some friends",
       link        : "https://gamejolt.com/games/duel/305917"
@@ -113,7 +117,8 @@ function initProjects()
     {
       title       : "Abandoned Earth",
       bgImage     : "images/projects/AE.jpg",
-      video       : "images/projects/AE",
+      //bgImage     : "images/projects/AE_firstFrame.jpg",
+      //video       : "images/projects/AE",
       videoFormats: ["webm","mp4"],
       description : "Programmer for a game made while a student",
       link        : "https://gamejolt.com/games/abandoned-earth/81441"
@@ -121,10 +126,23 @@ function initProjects()
     {
       title       : "Space Hole Initiation Training",
       bgImage     : "images/projects/SpaceHole.jpg",
-      video       : "images/projects/SpaceHole",
+      //bgImage     : "images/projects/3dPrinter_firstFrame.jpg",
+      //video       : "images/projects/SpaceHole",
       videoFormats: ["webm","mp4"],
-      description : "Programmer for the Brains Eden 2014 winning game",
+      description : "Brains Eden 2014 winning game",
       link        : "https://gamejolt.com/games/space-hole-initiation-training/81466"
+    },
+    {
+      title       : "ToyBox",
+      bgImage     : "images/projects/Toybox.jpg",
+      description : "2nd year university video games development project",
+      link        : "https://gamejolt.com/games/toybox/81461"
+    },
+    {
+      title       : "Marching madness",
+      bgImage     : "images/projects/MarchingMadness.jpg",
+      description : "Brains Eden 2015 game, lemmings but with terrible physics",
+      link        : "https://gamejolt.com/games/marching-madness/167312"
     }
   ];
 
@@ -133,25 +151,35 @@ function initProjects()
     {
       title       : "RichRap 3dr delta printer",
       bgImage     : "images/projects/3dPrinter.jpg",
-      video       : "images/projects/3dPrinter",
+      //bgImage     : "images/projects/3dPrinter_firstFrame.jpg",
+      //video       : "images/projects/3dPrinter",
       videoFormats: ["webm","mp4"],
-      imgFit      : "contain",
+      //imgFit      : "contain",
       description : "Assembled 3D printer and setup Marlin on an Arduino."
     },
     {
       title       : "LED curtain",
       bgImage     : "images/projects/Leds.jpg",
-      video       : "images/projects/Leds",
+      //bgImage     : "images/projects/Leds_firstFrame.jpg",
+      //video       : "images/projects/Leds",
       videoFormats: ["webm","mp4"],
-      description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."
+      description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network.",
+      link        : "https://twitter.com/JoshuaNewland/status/1036053996388134912",
     },
     {
-      title       : "HTML 5 Canvas",
-      bgImage     : "images/projects/HTMLCanvas.jpg",
-      video       : "images/projects/HTMLCanvas",
+      title       : "HTML 5 Canvas desert scene",
+      bgImage     : "images/projects/HTMLDesert.jpg",
+      //bgImage     : "images/projects/HTMLDesert_firstFrame.jpg",
+      //video       : "images/projects/HTMLDesert",
       videoFormats: ["webm","mp4"],
       description : "Procedural scene with HTML Canvas",
       link        : "pages/proceduralGarden.html"
+    },
+    {
+      title       : "HTML 5 Canvas particles",
+      bgImage     : "images/projects/HTMLParticles.jpg",
+      description : "Particles with HTML Canvas",
+      link        : "pages/mouseParticles.html"
     },
     {
       title       : "2000 origami cranes",
@@ -159,7 +187,7 @@ function initProjects()
       description : "Lots of origami cranes"
     },
     {
-      title       : "2d world map creator",
+      title       : "2d procedural world",
       bgImage     : "images/projects/ProceduralMap.jpg",
       description : "Procedural map creator",
       link        : "https://jn327.itch.io/2d-procedural-world"
@@ -174,7 +202,6 @@ function initProjects()
 function createProjectElements( gridId, itemsData )
 {
   var grid = document.getElementById(gridId);
-
   var theData;
   var container;
   var img;
