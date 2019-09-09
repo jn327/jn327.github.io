@@ -59,7 +59,7 @@ html, body
   border-radius       : 6px;
 
   height              : auto;
-  width               : calc(100% - 70px);
+  width               : calc(100% - 400px);
   max-height          : calc(100% - 120px);
 
   padding             : 0px;
@@ -241,8 +241,16 @@ html, body
 }
 
 /*-------------------------------------------------------------
-                    Responsive (width < 600)
+                    Responsive (width < 1000 & 600)
 -------------------------------------------------------------*/
+@media screen and (max-width: 1000px)
+{
+  .labelsContainer, .labelsContainer-active
+  {
+    width             : calc(100% - 200px);
+  }
+}
+
 @media screen and (max-width: 600px)
 {
   .labelsContainer, .labelsContainer-active
