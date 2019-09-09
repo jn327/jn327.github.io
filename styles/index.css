@@ -59,7 +59,7 @@ html, body
   border-radius       : 6px;
 
   height              : auto;
-  width               : calc(100% - 400px);
+  width               : calc(100% - 450px);
   max-height          : calc(100% - 120px);
 
   padding             : 0px;
@@ -162,20 +162,19 @@ html, body
 
 .projects-grid
 {
-  display               : grid;
-  align-items           : center;
-  grid-template-columns : repeat(auto-fit, minmax(320px, 1fr));
-  grid-template-rows    : auto;
-  grid-gap              : 16px;
-  grid-auto-flow        : dense;
+  display               : flex;
+  flex-wrap             : wrap;
 
   margin                : 0px;
-  padding               : 16px;
+  padding               : 8px;
 
 }
 
 .projects-grid > li
 {
+  flex              : 1 1 250px;
+  margin            : 8px;
+
   height            : 200px;
   background-color  : rgba(0, 0, 0, 1);
   background-repeat : no-repeat;
@@ -224,7 +223,7 @@ html, body
   height          : auto;
   margin          : 0px;
   padding         : 6px 0px 6px 0px;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.75);
 
   font-size       : 20px;
 
@@ -235,7 +234,7 @@ html, body
 .projects-grid > li:hover > .projects-gridTitle
 {
   padding         : 12px 0px 12px 0px;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.85);
 
   font-size       : 24px;
 }
@@ -264,7 +263,7 @@ html, body
     margin-top          : 47px;
   }
 
-  .projects-grid
+  .projects-grid > li
   {
-    grid-template-columns : repeat(auto-fit, minmax(200px, 1fr));
+    flex              : 1 1 200px;
   }
