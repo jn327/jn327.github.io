@@ -53,13 +53,14 @@ html, body
 
   opacity             : 0;
 
-  background-color    : rgba(45, 44, 51, 1);
+  background-color    : rgba(255, 255, 255, 1);
+  color               : rgba(97, 97, 97, 1);
   box-shadow          : 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12), 0 3px 5px -1px rgba(0,0,0,0.20);
 
   border-radius       : 6px;
 
   height              : auto;
-  width               : calc(100% - 450px);
+  width               : calc(100% - 350px);
   max-height          : calc(100% - 120px);
 
   padding             : 0px;
@@ -89,15 +90,16 @@ html, body
   max-height          : 100%;
   overflow-y          : scroll;
   padding             : 12px;
-  background-color    : rgba(0, 0, 0, 0.5);
+  background-color    : rgba(0, 0, 0, 0.1);
   border-radius       : 0px 0px 6px 6px;
 }
 
 .headerLabel
 {
-  font-weight     : 500;
   font-size       : 32px;
   text-align      : center;
+
+  color           : rgba(33, 33, 33, 1);
 
   margin          : 0px 0px 0px 0px;
   padding         : 0px;
@@ -105,15 +107,13 @@ html, body
 
 .gridHeaderLabel
 {
-  font-weight         : 500;
   font-size           : 22px;
-  text-align          : center;
+  text-align          : left;
+
+  color               : rgba(33, 33, 33, 1);
 
   margin              : 0px 0px 0px 0px;
-  padding             : 4px;
-
-  border-radius       : 4px;
-  box-shadow          : 0 1px 1px 0 rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.20);
+  padding             : 0px 0px 0px 12px;
 }
 
 .gridContainer
@@ -122,9 +122,6 @@ html, body
   width               : 100%;
   height              : auto;
   padding             : 0px;
-  background-color    : rgba(0, 0, 0, 0.33);
-  border-radius       : 4px 4px 4px 4px;
-  box-shadow          : 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
 }
 
 .standardButton, .standardButton-close
@@ -134,12 +131,12 @@ html, body
 
   width               : auto;
 
-  color               : rgba(225, 225, 225, 1);
+  color               : rgba(33, 33, 33, 1);
   padding             : 8px;
 
-  border              : 1px solid rgba(225, 225, 225, 0.5);
+  border              : 1px solid rgba(33, 33, 33, 0.5);
   border-radius       : 2px;
-  background-color    : rgba(0, 0, 0, 0);
+  background-color    : rgba(33, 33, 33, 0);
 
   -webkit-transition  : background-color 0.15s linear 0s, color 0.15s linear 0s;
   transition          : background-color 0.15s linear 0s, color 0.15s linear 0s;
@@ -147,8 +144,8 @@ html, body
 
 .standardButton:hover, .standardButton-close:hover
 {
-  color             : rgba(0, 0, 0, 1);
-  background-color  : rgba(225, 225, 225, 1);
+  color             : rgba(255, 255, 255, 1);
+  background-color  : rgba(33, 33, 33, 1);
 }
 
 .standardButton-close
@@ -164,88 +161,75 @@ html, body
 {
   display               : flex;
   flex-wrap             : wrap;
+  //align-items           : center;
+  justify-content       : center;
 
-  margin                : 0px;
-  padding               : 8px;
-
+  margin                : 6px;
+  padding               : 0px;
 }
 
 .projects-grid > li
 {
   flex                : 1 1 250px;
-  margin              : 8px;
+  margin              : 6px;
+  max-width           : 350px;
 
-  height              : 200px;
-  background-color    : rgba(0, 0, 0, 1);
+  display             : flex;
+  flex-direction      : column;
+  align-items         : center;
+  justify-content     : top;
+
+  height              : auto;
+  border              : 1px solid rgba(97, 97, 97, 0.5);
+  border-radius       : 6px;
+  background-color    : rgba(255, 255, 255, 0.15);
+  //box-shadow          : 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   background-repeat   : no-repeat;
   background-position : center;
-  background-size     : 100% 100%;
-  border              : 0px solid rgba(225, 225, 225, 0.5);
-  overflow            : hidden;
   position            : relative;
-  border-radius       : 4px;
-  box-shadow          : 0 1px 1px 0 rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.20);
-
-  -webkit-transition  : background-size 0.15s ease-out 0s;
-  transition          : background-size 0.15s ease-out 0s;
+  overflow            : hidden;
+  padding-bottom      : 12px;
 }
 
+.projects-gridImage,
 .projects-gridVideo
 {
   width             : 100%;
-  height            : 100%;
-
-  -webkit-transition  : width 0.15s linear 0s, height 0.15s linear 0s;
-  transition          : width 0.15s linear 0s, height 0.15s linear 0s;
-}
-
-.projects-gridImage
-{
-  width               : 100%;
-  height              : 100%;
-
-  background-position : center;
-  background-repeat   : no-repeat;
-}
-
-.projects-gridLink
-{
-  position          : absolute;
-  width             : 100%;
-  height            : 100%;
-  left              : 0px;
-  right             : 0px;
+  height            : auto;
+  max-height        : 250px;
 }
 
 .projects-gridTitle
 {
+  box-sizing      : border-box;
   pointer-events  : none;
-  position        : absolute;
-  left            : 0px;
-  bottom          : 0px;
   width           : 100%;
   height          : auto;
   margin          : 0px;
-  padding         : 6px 0px 6px 0px;
-  background-color: rgba(0, 0, 0, 0.75);
+  padding         : 12px 12px 0px 12px;
 
-  font-size       : 20px;
-
-  -webkit-transition  : background-color 0.1s linear 0s, padding 0.1s ease-out 0s, font-size 0.1s ease-out 0s;
-  transition          : background-color 0.1s linear 0s, padding 0.1s ease-out 0s, font-size 0.1s ease-out 0s;
+  font-size       : 18px;
+  color           : rgba(33, 33, 33, 1);
 }
 
-.projects-grid > li:hover
+.projects-gridSpacer
 {
-  background-size     : 110% 110%;
+  flex-grow       : 1;
 }
 
-.projects-grid > li:hover > .projects-gridTitle
+.projects-gridDescription
 {
-  //padding         : 12px 0px 12px 0px;
-  background-color: rgba(0, 0, 0, 0.85);
+  box-sizing      : border-box;
+  text-align      : left;
 
-  //font-size       : 24px;
+  pointer-events  : none;
+  width           : 100%;
+  height          : auto;
+  margin          : 0px;
+  //flex-grow       : 1;
+  padding         : 6px 12px 0px 12px;
+
+  font-size       : 14px;
 }
 
 /*-------------------------------------------------------------
@@ -267,12 +251,12 @@ html, body
     max-height        : calc(100% - 132px);
   }
 
+  .projects-grid > li
+  {
+    max-width           : 450px;
+  }
+
   .labelsContainer-active
   {
     margin-top          : 47px;
-  }
-
-  .projects-grid > li
-  {
-    flex              : 1 1 200px;
   }

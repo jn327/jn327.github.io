@@ -8,16 +8,16 @@ html, body, main
   margin          : 0;
   background      : #000;
 
-  font-family     : Roboto, Verdana, Geneva, sans-serif;
+  font-family     : Roboto, sans-serif;
   font-weight     : 400;
   font-size       : 14px;
-  color           : rgba(225, 225, 225, 1);
+  color           : rgba(97, 97, 97, 1);
   text-align      : center;
 }
 
 a, a:visited
 {
-  color           : rgba(225, 225, 225, 1);
+  color           : rgba(97, 97, 97, 1);
 }
 
 .defaultCanvas

@@ -79,27 +79,27 @@ function initProjects()
   [
     {
       title       : "Planet Coaster",
-      bgImage     : "images/projects/PlanCo.jpg",
+      image       : "images/projects/PlanCo.jpg",
       //bgImage     : "images/projects/PlanCo_firstFrame.jpg",
       //video       : "images/projects/PlanCo",
       videoFormats: ["webm","mp4"],
-      description : "UI developer"
+      description : ["UI developer", "Worked on from late pre production to post release.", "Used Animate to develop the info panel, bottom HUD bar, scenario editor, park management, color picker, display sequencer, options menu and various other little bits."]
     },
     {
       title       : "Jurassic World Evolution",
-      bgImage     : "images/projects/Jwe.jpg",
+      image       : "images/projects/Jwe.jpg",
       //bgImage     : "images/projects/Jwe_firstFrame.jpg",
       //video       : "images/projects/Jwe",
       videoFormats: ["webm","mp4"],
-      description : "UI developer"
+      description : ["UI developer.", "Worked on from mid to late production. Developed the mission and contract UI, context sensitive info tooltip and did some work on the front end saving, loading and options."]
     },
     {
       title       : "Planet Zoo",
-      bgImage     : "images/projects/PlanZoo.jpg",
+      image       : "images/projects/PlanZoo.jpg",
       //bgImage     : "images/projects/PlanZoo_firstFrame.jpg",
       //video       : "images/projects/PlanZoo",
       videoFormats: ["webm","mp4"],
-      description : "UI developer"
+      description : ["UI developer.", "Worked on from late pre production to early production, made some improvements to codebase, set up a few shared components and worked on early implementation of color picker and info panels."]
     }
   ];
 
@@ -107,41 +107,41 @@ function initProjects()
   [
     {
       title       : "Duel",
-      bgImage     : "images/projects/Duel.jpg",
+      image       : "images/projects/Duel.jpg",
       //bgImage     : "images/projects/Duel_firstFrame.jpg",
       //video       : "images/projects/Duel",
       videoFormats: ["webm","mp4"],
-      description : "Programmer for a small game made with some friends",
+      description : ["One of 2 programmers for a small Unity game made with some friends.", "This one originally started out as a game jam game, we've since showcased it at a couple of gaming events."],
       link        : "https://gamejolt.com/games/duel/305917"
     },
     {
       title       : "Abandoned Earth",
-      bgImage     : "images/projects/AE.jpg",
+      image       : "images/projects/AE.jpg",
       //bgImage     : "images/projects/AE_firstFrame.jpg",
       //video       : "images/projects/AE",
       videoFormats: ["webm","mp4"],
-      description : "Programmer for a game made while a student",
+      description : ["Solo programmer for a Unity game made while a student."],
       link        : "https://gamejolt.com/games/abandoned-earth/81441"
     },
     {
       title       : "Space Hole Initiation Training",
-      bgImage     : "images/projects/SpaceHole.jpg",
+      image       : "images/projects/SpaceHole.jpg",
       //bgImage     : "images/projects/3dPrinter_firstFrame.jpg",
       //video       : "images/projects/SpaceHole",
       videoFormats: ["webm","mp4"],
-      description : "Brains Eden 2014 winning game",
+      description : ["One of 2 programmers for a 48h game jam (Brains Eden 2014).", "Made in Unity.", "This ended up being the winning game"],
       link        : "https://gamejolt.com/games/space-hole-initiation-training/81466"
     },
     {
       title       : "ToyBox",
-      bgImage     : "images/projects/Toybox.jpg",
-      description : "2nd year university video games development project",
+      image       : "images/projects/Toybox.jpg",
+      description : ["2nd year university video games development project, made in Unity.", "I was one of 3 programmers for this one and worked on the UI, the level falling apart, hooking up the animations and most of the pickups."],
       link        : "https://gamejolt.com/games/toybox/81461"
     },
     {
       title       : "Marching madness",
-      bgImage     : "images/projects/MarchingMadness.jpg",
-      description : "Brains Eden 2015 game, lemmings but with terrible physics",
+      image       : "images/projects/MarchingMadness.jpg",
+      description : ["One of 2 programmers for a 48h games jam (Brains Eden 2015).", "This game is Lemmings but with terrible physics, made in Unity.", "I worked on the AI, the players dragging ability, tutorials and UI."],
       link        : "https://gamejolt.com/games/marching-madness/167312"
     }
   ];
@@ -150,46 +150,46 @@ function initProjects()
   [
     {
       title       : "RichRap 3dr delta printer",
-      bgImage     : "images/projects/3dPrinter.jpg",
+      image       : "images/projects/3dPrinter.jpg",
       //bgImage     : "images/projects/3dPrinter_firstFrame.jpg",
       //video       : "images/projects/3dPrinter",
       videoFormats: ["webm","mp4"],
       //imgFit      : "contain",
-      description : "Assembled 3D printer and setup Marlin on an Arduino."
+      description : ["Assembled a 3D printer and setup Marlin on an Arduino."]
     },
     {
       title       : "LED curtain",
-      bgImage     : "images/projects/Leds.jpg",
+      image       : "images/projects/Leds.jpg",
       //bgImage     : "images/projects/Leds_firstFrame.jpg",
       //video       : "images/projects/Leds",
       videoFormats: ["webm","mp4"],
-      description : "Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network.",
+      description : ["Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."],
       link        : "https://twitter.com/JoshuaNewland/status/1036053996388134912",
     },
     {
       title       : "HTML 5 Canvas desert scene",
-      bgImage     : "images/projects/HTMLDesert.jpg",
+      image       : "images/projects/HTMLDesert.jpg",
       //bgImage     : "images/projects/HTMLDesert_firstFrame.jpg",
       //video       : "images/projects/HTMLDesert",
       videoFormats: ["webm","mp4"],
-      description : "Procedural scene with HTML Canvas",
+      description : ["Procedural scene with HTML Canvas."],
       link        : "pages/proceduralGarden.html"
     },
     {
       title       : "HTML 5 Canvas particles",
-      bgImage     : "images/projects/HTMLParticles.jpg",
-      description : "Particles with HTML Canvas",
+      image       : "images/projects/HTMLParticles.jpg",
+      description : ["Particles with HTML Canvas."],
       link        : "pages/mouseParticles.html"
     },
     {
       title       : "2000 origami cranes",
-      bgImage     : "images/projects/Origami.jpg",
-      description : "Lots of origami cranes"
+      image       : "images/projects/Origami.jpg",
+      description : ["Over 2000 origami cranes made over a few months."]
     },
     {
       title       : "2d procedural world",
-      bgImage     : "images/projects/ProceduralMap.jpg",
-      description : "Procedural map creator",
+      image       : "images/projects/ProceduralMap.jpg",
+      description : ["Procedural 2d world made in Unity."],
       link        : "https://jn327.itch.io/2d-procedural-world"
     }
   ];
@@ -208,26 +208,12 @@ function createProjectElements( gridId, itemsData )
   var vid;
   var source;
   var label;
-  var theParent;
+  var description;
   for (var j = 0; j < itemsData.length; j++)
   {
     theData = itemsData[j];
 
     container = document.createElement('li');
-
-    if (theData.link)
-    {
-      var linkItem = document.createElement('a');
-      linkItem.className  = "projects-gridLink";
-      linkItem.href       = theData.link;
-      linkItem.setAttribute('aria-label', theData.title);
-      container.appendChild(linkItem);
-      theParent = linkItem;
-    }
-    else
-    {
-      theParent = container;
-    }
 
     if (theData.bgImage)
     {
@@ -245,7 +231,8 @@ function createProjectElements( gridId, itemsData )
       img.src             = theData.image;
       img.alt             = "Image file not found: " +theData.image;
       img.style.objectFit = theData.imgFit || "cover";
-      theParent.appendChild(img);
+
+      container.appendChild(img);
     }
 
     if (theData.video)
@@ -259,7 +246,7 @@ function createProjectElements( gridId, itemsData )
       vid.playsinline     = true;
       vid.preload         = "none";
       vid.style.objectFit = theData.imgFit || "cover";
-      theParent.appendChild(vid);
+      container.appendChild(vid);
 
       if (theData.videoFormats)
       {
@@ -282,6 +269,34 @@ function createProjectElements( gridId, itemsData )
     label.className     = "projects-gridTitle";
     label.textContent   = theData.title;
     container.appendChild(label);
+
+    if (theData.description)
+    {
+      for (var l = 0; l < theData.description.length; l++)
+      {
+        description = document.createElement('p');
+        description.className     = "projects-gridDescription";
+        description.textContent   = theData.description[l];
+        container.appendChild(description);
+      }
+    }
+
+    if (theData.link)
+    {
+      var spacerItem = document.createElement('div');
+      spacerItem.className  = "projects-gridSpacer";
+      container.appendChild(spacerItem);
+
+      var linkItem = document.createElement('a');
+      linkItem.className  = "standardButton";
+      linkItem.href       = theData.link;
+      linkItem.textContent= "More info";
+      linkItem.target="_blank";
+      linkItem.rel="noopener";
+      linkItem.style.marginTop = "12px";
+      linkItem.setAttribute('aria-label', theData.title);
+      container.appendChild(linkItem);
+    }
 
     grid.appendChild(container);
   }
