@@ -232,7 +232,10 @@ function createProjectElements( gridId, itemsData )
     if (theData.bgImage)
     {
       container.style.backgroundImage = "url('"+theData.bgImage+"')";
-      container.style.backgroundSize = theData.imgFit || "cover";
+      if (theData.imgFit)
+      {
+        container.style.backgroundSize = theData.imgFit || "cover";
+      }
     }
 
     if (theData.image)

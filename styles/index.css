@@ -172,18 +172,22 @@ html, body
 
 .projects-grid > li
 {
-  flex              : 1 1 250px;
-  margin            : 8px;
+  flex                : 1 1 250px;
+  margin              : 8px;
 
-  height            : 200px;
-  background-color  : rgba(0, 0, 0, 1);
-  background-repeat : no-repeat;
-  background-position: center;
-  border            : 0px solid rgba(225, 225, 225, 0.5);
-  overflow          : hidden;
-  position          : relative;
-  border-radius     : 4px;
-  box-shadow        : 0 1px 1px 0 rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.20);
+  height              : 200px;
+  background-color    : rgba(0, 0, 0, 1);
+  background-repeat   : no-repeat;
+  background-position : center;
+  background-size     : 100% 100%;
+  border              : 0px solid rgba(225, 225, 225, 0.5);
+  overflow            : hidden;
+  position            : relative;
+  border-radius       : 4px;
+  box-shadow          : 0 1px 1px 0 rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.20);
+
+  -webkit-transition  : background-size 0.15s ease-out 0s;
+  transition          : background-size 0.15s ease-out 0s;
 }
 
 .projects-gridVideo
@@ -229,6 +233,11 @@ html, body
 
   -webkit-transition  : background-color 0.1s linear 0s, padding 0.1s ease-out 0s, font-size 0.1s ease-out 0s;
   transition          : background-color 0.1s linear 0s, padding 0.1s ease-out 0s, font-size 0.1s ease-out 0s;
+}
+
+.projects-grid > li:hover
+{
+  background-size     : 110% 110%;
 }
 
 .projects-grid > li:hover > .projects-gridTitle
