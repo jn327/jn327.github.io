@@ -242,10 +242,10 @@ html, body
 
 .projects-grid > li:hover > .projects-gridTitle
 {
-  padding         : 12px 0px 12px 0px;
+  //padding         : 12px 0px 12px 0px;
   background-color: rgba(0, 0, 0, 0.85);
 
-  font-size       : 24px;
+  //font-size       : 24px;
 }
 
 /*-------------------------------------------------------------
