@@ -163,7 +163,7 @@ function initProjects()
       //bgImage     : "images/projects/Leds_firstFrame.jpg",
       //video       : "images/projects/Leds",
       videoFormats: ["webm","mp4"],
-      description : ["Connected some LED strips up to a Raspberry PI using fadeCandy boards to control the LEDs via web browser on the local network."],
+      description : ["Connected around 1400 12v LEDs up to a Raspberry PI using fadeCandy boards to control the screen via web browser on the local network."],
       link        : "https://twitter.com/JoshuaNewland/status/1036053996388134912",
     },
     {
@@ -172,13 +172,13 @@ function initProjects()
       //bgImage     : "images/projects/HTMLDesert_firstFrame.jpg",
       //video       : "images/projects/HTMLDesert",
       videoFormats: ["webm","mp4"],
-      description : ["Procedural scene with HTML Canvas."],
+      description : ["Procedural scene made with HTML Canvas and javascript."],
       link        : "pages/proceduralGarden.html"
     },
     {
       title       : "HTML 5 Canvas particles",
       image       : "images/projects/HTMLParticles.jpg",
-      description : ["Particles with HTML Canvas."],
+      description : ["Particles with HTML Canvas, mostly an excuse to mess with vector fields."],
       link        : "pages/mouseParticles.html"
     },
     {
@@ -189,7 +189,7 @@ function initProjects()
     {
       title       : "2d procedural world",
       image       : "images/projects/ProceduralMap.jpg",
-      description : ["Procedural 2d world made in Unity."],
+      description : ["Final year student project.", "Procedural 2d game world made in Unity."],
       link        : "https://jn327.itch.io/2d-procedural-world"
     }
   ];
