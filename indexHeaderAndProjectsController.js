@@ -78,7 +78,8 @@ function initProjects()
   var projectsData =
   [
     {
-      title  : "Frontier Developments - UI Developer",
+      title     : "Frontier Developments - UI Developer - 2015 to 2018",
+      subTitle  : "I Developed and maintained data driven UI elements from designs provided to me by our UI designers.<br>Implementation was done in Animate CC in Actionscript, my UI usually took in JSON data from a SetData(someData) call and displayed info based on this, granular updates where often supported with a setDataById function.<br>I also wrote a lot of test & example data in Lua to help Gameplay programmers with integrating and using my UI.",
       items  :
       [
         {
@@ -87,7 +88,7 @@ function initProjects()
           //bgImage     : "images/projects/PlanCo_firstFrame.jpg",
           //video       : "images/projects/PlanCo",
           videoFormats: ["webm","mp4"],
-          description : ["UI developer.", "Worked on from late pre production to post release.", "Used Animate to develop the info panel, bottom HUD bar, scenario editor, park management, color picker, display sequencer, options menu and various other little bits."]
+          description : ["Worked on from late pre production to post release.", "Developed the info panel, bottom HUD bar, scenario editor, park management, color picker, display sequencer, options menu and various other little bits."]
         },
         {
           title       : "Jurassic World Evolution",
@@ -95,7 +96,7 @@ function initProjects()
           //bgImage     : "images/projects/Jwe_firstFrame.jpg",
           //video       : "images/projects/Jwe",
           videoFormats: ["webm","mp4"],
-          description : ["UI developer.", "Worked on from mid to late production. Developed the mission and contract UI, context sensitive info tooltip and did some work on the front end saving, loading and options."]
+          description : ["Worked on from mid to late production. Developed the mission and contract UI, context sensitive info tooltip and did some work on the front end saving, loading and options."]
         },
         {
           title       : "Planet Zoo",
@@ -103,7 +104,7 @@ function initProjects()
           //bgImage     : "images/projects/PlanZoo_firstFrame.jpg",
           //video       : "images/projects/PlanZoo",
           videoFormats: ["webm","mp4"],
-          description : ["UI developer.", "Worked on from late pre production to early production, made some improvements to codebase, set up a few shared components and worked on early implementation of color picker and info panels."]
+          description : ["Worked on from late pre production to early production, made some improvements to codebase, set up a few shared components and worked on early implementation of color picker and info panels."]
         }
       ]
     },
