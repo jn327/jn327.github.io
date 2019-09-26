@@ -96,7 +96,7 @@ function initProjects()
           //bgImage     : "images/projects/Jwe_firstFrame.jpg",
           //video       : "images/projects/Jwe",
           videoFormats: ["webm","mp4"],
-          description : ["Worked on from mid to late production. Developed the mission and contract UI, context sensitive info tooltip and did some work on the front end saving, loading and options."]
+          description : ["Worked on from mid to late production. Developed the mission and contract UI, context sensitive info tooltip and front end saving, loading and options menus."]
         },
         {
           title       : "Planet Zoo",

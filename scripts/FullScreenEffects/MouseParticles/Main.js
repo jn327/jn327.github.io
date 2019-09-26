@@ -4,16 +4,16 @@ var bgCanvas, bgCtx;
 var activeCanvas, activeCtx;
 
 var canvasToUpdate;
-var nActiveCanvases = 1; // between 1 and misc arbitrary number.
+var nActiveCanvases = 1; // between 1 and arbitrary number.
 
-var maxParticles          = 300;
+var maxParticles          = 250;
 var particles;
 var particlePool;
 
 var nDrawBotsNoise;
 var nDrawBotsNoiseScale   = 0.0005;
-var nDrawBotsMax          = 4;
-var nDrawBotsMin          = 2;
+var nDrawBotsMax          = 3;
+var nDrawBotsMin          = 1;
 var drawBots;
 var drawBotsPool;
 var drawBotNParticles     = 2;
