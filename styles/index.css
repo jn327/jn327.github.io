@@ -108,7 +108,6 @@ html, body
 
 .gridHeaderLabel
 {
-  will-change         : transform;
   font-size           : 22px;
   text-align          : left;
 
@@ -120,7 +119,6 @@ html, body
 
 .gridSubHeaderLabel
 {
-  will-change         : transform;
   text-align          : left;
 
   margin              : 0px 0px 0px 0px;
@@ -129,6 +127,7 @@ html, body
 
 .gridContainer
 {
+  //will-change         : transform;
   box-sizing          : border-box;
   width               : 100%;
   height              : auto;
@@ -170,7 +169,6 @@ html, body
 
 .projects-grid
 {
-  //will-change           : transform;
   display               : flex;
   flex-wrap             : wrap;
   //align-items           : center;
@@ -207,7 +205,7 @@ html, body
 .projects-gridImage,
 .projects-gridVideo
 {
-  will-change       : transform;
+  //will-change       : transform;
   width             : 100%;
   height            : auto;
   max-height        : 250px;
@@ -215,7 +213,6 @@ html, body
 
 .projects-gridTitle
 {
-  will-change     : transform;
   box-sizing      : border-box;
   pointer-events  : none;
   width           : 100%;
@@ -234,7 +231,6 @@ html, body
 
 .projects-gridDescription
 {
-  will-change     : transform;
   box-sizing      : border-box;
   text-align      : left;
 
