@@ -192,7 +192,7 @@ function createTodSlider()
   todSliderInput.style.position = "absolute";
   todSliderInput.style.bottom   = "10px";
   todSliderInput.style.right    = "10px";
-  
+
   parentElement.appendChild( todSliderInput );
   todSliderInput.addEventListener('input', onTodSliderChange);
 }

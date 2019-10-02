@@ -62,8 +62,6 @@ function setSelectedHeaderItem( index )
   }
   window.location.hash = index >= 0 ? "#"+headerIds[index] : noHeaderHash
 
-  canvasContainer.className = index >= 0 ? "blurred" : "toBlur";
-
   visHeaderItemIndex = index;
   for (var j = 0; j < headerElements.length; j++)
   {

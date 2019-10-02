@@ -9,61 +9,16 @@
 
   <title>Coin mining test</title>
   <!-- imports  CSS definitions with media queries-->
-  <link rel= "stylesheet" href ="../styles/slider.css">
-  <style type="text/css" >
-    .contentContainer
-    {
-      height          : 100%;
-      width           : 100%;
-
-      position        : fixed;
-      display         : flex;
-      flex-direction  : column;
-      align-items     : center;
-      justify-content : center;
-    }
-
-    .labelsContainer
-    {
-      box-sizing          : border-box;
-      position            : fixed;
-      display             : flex;
-      flex-direction      : column;
-      align-items         : center;
-      justify-content     : center;
-      overflow            : hidden;
-
-      height              : auto;
-      width               : 100%;
-    }
-
-    .headerLabel
-    {
-      font-size       : 20px;
-    }
-  </style>
 
 </head>
 
 <body>
   <main>
-    <div class="contentContainer" >
-      <div class="labelsContainer" >
-        <p id="statusHeader" class="headerLabel">Pool status:</p>
-        <p id="statusValue"></p>
-        <p id="hashesHeader" class="headerLabel">Total hashes:</p>
-        <p id="hashesValue"></p>
-
-        <p id="throttleHeader" class="headerLabel">Throttling:</p>
-        <input id="throttleValue" class="slider" type="range" min="0" max="100" value="0" >
-
-        <p id="errorHeader" class="headerLabel"></p>
-      </div>
-    </div>
+    <div id="minerInfoContainer" > </div>
   </main>
+
+  <!-- scripts -->
   <script src="../scripts/CommonElementsCreator.js"></script>
+  <script src="../scripts/CoinMiner.js"> </script>
 </body>
-
-<script src="../scripts/CoinMiner.js"> </script>
-
 </html>

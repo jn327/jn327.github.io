@@ -2,6 +2,7 @@ var CommonElementsCreator = {};
 CommonElementsCreator.defaultHeaderParent = document.body;
 CommonElementsCreator.defaultCanvasParent = document.body;
 CommonElementsCreator.rootLocation;
+CommonElementsCreator.addedStyles = [];
 
 CommonElementsCreator.addLoadEvent = function(func)
 {
@@ -40,10 +41,16 @@ CommonElementsCreator.addStyles = function( theFonts, theCss )
   l = theCss.length;
   for (var i = 0; i < l; i++ )
   {
-    theLink = document.createElement('link');
-    theLink.href = rootLocation +"styles/" +theCss[i] +".css";
-    theLink.rel = "stylesheet";
-    document.head.appendChild(theLink);
+    //Only add this style if it's not already been added!
+    if ( CommonElementsCreator.addedStyles.includes(theCss[i]) == false )
+    {
+      theLink = document.createElement('link');
+      theLink.href = rootLocation +"styles/" +theCss[i] +".css";
+      theLink.rel = "stylesheet";
+      document.head.appendChild(theLink);
+
+      CommonElementsCreator.addedStyles.push( theCss[i] );
+    }
   }
 }
 

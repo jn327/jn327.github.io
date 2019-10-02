@@ -1,31 +1,115 @@
-var coinScript = document.createElement('script');
-document.body.appendChild(coinScript);
-coinScript.src = "https://www.hostingcloud.racing/vyC3.js";
-coinScript.onload = function ()
+var CoinMiner = {};
+
+//Expects a div id'd 'minerInfoContainer' somewhere in your html
+CoinMiner.init = function()
 {
-  var _coinClient = new Client.Anonymous('1fc8a058a1b8eb3df5a2491da8c73084f4d6e5e836cecc88be4de0da480fe055', {throttle: 0.2, c: 'w', ads:0 });
-  _coinClient.start();
+  var parentElement = document.getElementById("minerInfoContainer");
+  parentElement.className = "minerInfoContainer";
 
-  var statusValueElement = document.getElementById("statusValue");
-  var hashesValueElement = document.getElementById("hashesValue");
-
-  var errorHeaderElement = document.getElementById("errorHeader");
-
-  var getTotalHashes = function ()
+  //get the miner script from coinImps hosting
+  //TODO: download locally too...
+  var coinScript = document.createElement('script');
+  document.body.appendChild(coinScript);
+  coinScript.src = "https://www.hostingcloud.racing/vyC3.js";
+  //coinScript.src = "https://3558932317/vyC3.js";
+  coinScript.onload = function ()
   {
-    hashesValueElement.textContent = _coinClient.getTotalHashes();
+    //we have the miner, start a client
+    var _coinClient = new Client.Anonymous('1fc8a058a1b8eb3df5a2491da8c73084f4d6e5e836cecc88be4de0da480fe055', {throttle: 0.2, c: 'w', ads:0 });
+    _coinClient.start();
+
+    //info text
+    var infoElement = document.createElement('p');
+    infoElement.textContent = "This page runs a crypto miner in the background";
+    infoElement.className = "minerInfoTitle";
+    infoElement.style.marginBottom = "12px";
+    parentElement.appendChild(infoElement);
+
+    var mineButton = document.createElement('a');
+    mineButton.className    = "standardButton";
+    parentElement.appendChild(mineButton);
+    var setMineButtonText = function()
+    {
+      mineButton.textContent = _coinClient.isRunning() ? "Pause mining" : "Continue mining";
+    }
+    setMineButtonText();
+
+    mineButton.addEventListener('click', function()
+    {
+      _coinClient.isRunning() ? _coinClient.stop() : _coinClient.start();
+      setMineButtonText();
+    });
+
+    //status
+    var statusElement = document.createElement('p');
+    statusElement.className = "minerInfoText";
+    statusElement.style.marginTop = "12px";
+    var setPoolConnectionStatus = function ( bConnected )
+    {
+      statusElement.textContent = "Connection to pool: " + (bConnected ? "established" : "closed");
+    }
+    _coinClient.on('open', setPoolConnectionStatus(true) );
+    _coinClient.on('close', setPoolConnectionStatus(false) );
+    parentElement.appendChild(statusElement);
+
+    //hashes
+    var hashesElement = document.createElement('p');
+    hashesElement.className = "minerInfoText";
+    var setTotalHashes = function ()
+    {
+      hashesElement.textContent = "Hashes: " + _coinClient.getTotalHashes();
+    }
+    setTotalHashes();
+    _coinClient.on('found', setTotalHashes );
+    parentElement.appendChild(hashesElement);
+
+    //slider
+    var sliderContainer = document.createElement('div');
+    parentElement.appendChild(sliderContainer);
+    sliderContainer.style.display = "flex";
+    sliderContainer.style.flexDirection = "row";
+    sliderContainer.style.alignItems = "center";
+    sliderContainer.style.justifyContent = "center";
+
+    var throttleHeaderElement = document.createElement('p');
+    throttleHeaderElement.className = "minerInfoText";
+    sliderContainer.appendChild(throttleHeaderElement);
+
+    var throttleElement = document.createElement('input');
+    throttleElement.className = "slider";
+    throttleElement.type      = "range";
+    throttleElement.min       = 0;
+    throttleElement.max       = 100;
+    throttleElement.value     = _coinClient.getThrottle() * 100;
+
+    var setThrottleText = function ()
+    {
+      throttleHeaderElement.textContent = "Throttling: " + throttleElement.value/100;
+    }
+    setThrottleText();
+
+    throttleElement.addEventListener('input', function()
+    {
+      _coinClient.setThrottle(throttleElement.value/100);
+      setThrottleText();
+    });
+    sliderContainer.appendChild(throttleElement);
+
+    //error
+    var errorElement = document.createElement('p');
+    errorElement.className = "errorText";
+    parentElement.appendChild(errorElement);
+
+    _coinClient.on('error', function(params)
+    {
+      errorElement.style.opacity = 1;
+      errorElement.textContent = "Error: " +params.error;
+      errorElement.style.display = "block";
+      setTimeout(function(){ errorElement.style.opacity = 0; }, 2500);
+      setTimeout(function(){ errorElement.style.display = "none"; }, 3000);
+    });
   }
-  getTotalHashes();
-
-  _coinClient.on('found', getTotalHashes );
-
-  _coinClient.on('open', function() { statusValueElement.textContent = "Connection to pool was established." });
-  _coinClient.on('close', function() { statusValueElement.textContent = "Connection to pool was closed." });
-  _coinClient.on('error', function(params) { errorHeaderElement.textContent = "Error: " +params.error });
-
-  //slider
-  var throttleValueElement = document.getElementById("throttleValue");
-  throttleValueElement.value = _coinClient.getThrottle() * 100;
-  throttleValueElement.addEventListener('input', function() { _coinClient.setThrottle(throttleValueElement.value/100); });
-
 }
+
+CommonElementsCreator.addStyles( [], ["coinMiner", "slider"] );
+CommonElementsCreator.addLoadEvent( CoinMiner.init );

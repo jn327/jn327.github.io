@@ -4,18 +4,18 @@
   appearance        : none;
   width             : 200px;
   height            : 6px;
-  border            : 1px solid rgba(225, 225, 225, 1);
+  border            : 1px solid rgba(97, 97, 97, 1);
   border-radius     : 3px;
-  background-color  : rgba(225, 225, 225, 0.25);
+  background-color  : rgba(97, 97, 97, 0.33);
   outline: none;
-  opacity           : 0.75;
-  -webkit-transition: opacity 0.2s;
-  transition        : opacity 0.2s;
+
+  -webkit-transition: background-color 0.2s;
+  transition        : background-color 0.2s;
 }
 
 .slider:hover
 {
-  opacity: 1;
+  background-color  : rgba(97, 97, 97, 0.66);
 }
 
 .slider::-webkit-slider-thumb
@@ -27,7 +27,7 @@
   cursor                : pointer;
 
   border-radius         : 50%;
-  background-color      : rgba(225, 225, 225, 1);
+  background-color      : rgba(97, 97, 97, 1);
 }
 
 .slider::-moz-range-thumb
@@ -37,5 +37,5 @@
   cursor              : pointer;
 
   border-radius       : 50%;
-  background-color    : rgba(225, 225, 225, 1);
+  background-color    : rgba(97, 97, 97, 1);
 }
