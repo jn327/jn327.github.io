@@ -14,8 +14,14 @@
 
 <body>
   <main>
-    <p id="hashesHeader" > Total hashes: </p>
-    <p id="hashesValue" > 0 </p>
+    <div style="height: 100%; width: 100%; position: fixed; display: flex; flex-direction: column; align-items: center; justify-content: center;" >
+      <div style=" height: auto; position: fixed; display: flex; flex-direction: column; align-items : center; justify-content : center; overflow : hidden;" >
+        <p id="statusHeader" style="font-size: 32px;" > Status: </p>
+        <p id="statusValue" > Disconnected </p>
+        <p id="hashesHeader" style="font-size: 32px;" > Total hashes: </p>
+        <p id="hashesValue" > 0 </p>
+      </div>
+    </div>
   </main>
   <script src="../scripts/CommonElementsCreator.js"></script>
 </body>
