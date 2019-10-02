@@ -189,6 +189,10 @@ function createTodSlider()
   todSliderInput.max        = 100;
   todSliderInput.value      = 0;
   todSliderInput.className  = "slider";
+  todSliderInput.style.position = "absolute";
+  todSliderInput.style.bottom   = "10px";
+  todSliderInput.style.right    = "10px";
+  
   parentElement.appendChild( todSliderInput );
   todSliderInput.addEventListener('input', onTodSliderChange);
 }

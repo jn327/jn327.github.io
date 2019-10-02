@@ -9,6 +9,7 @@
 
   <title>Coin mining test</title>
   <!-- imports  CSS definitions with media queries-->
+  <link rel= "stylesheet" href ="../styles/slider.css">
   <style type="text/css" >
     .contentContainer
     {
@@ -32,6 +33,9 @@
       align-items         : center;
       justify-content     : center;
       overflow            : hidden;
+
+      height             : auto;
+      width              : 100%;
     }
 
     .headerLabel
@@ -51,6 +55,10 @@
         <p id="statusValue"></p>
         <p id="hashesHeader" class="headerLabel">Total hashes:</p>
         <p id="hashesValue"></p>
+
+        <input id="throttleValue" class="slider" type= "range" min= 0 max= 1 value= 0 >
+
+        <p id="errorHeader" class="headerLabel"></p>
       </div>
     </div>
   </main>

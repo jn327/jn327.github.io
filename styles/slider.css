@@ -1,9 +1,5 @@
 .slider
 {
-  position          : absolute;
-  bottom            : 10px;
-  right             : 10px;
-
   -webkit-appearance: none;
   appearance        : none;
   width             : 200px;
