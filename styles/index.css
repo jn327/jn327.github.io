@@ -120,39 +120,6 @@ html, body
   padding             : 0px;
 }
 
-.standardButton, .standardButton-close
-{
-  cursor              : pointer;
-  text-decoration     : none;
-
-  width               : auto;
-
-  color               : rgba(97, 97, 97, 1);
-  padding             : 8px;
-
-  border              : 1px solid rgba(97, 97, 97, 0.5);
-  border-radius       : 2px;
-  background-color    : rgba(97, 97, 97, 0.1);
-
-  -webkit-transition  : background-color 0.15s linear 0s, color 0.15s linear 0s;
-  transition          : background-color 0.15s linear 0s, color 0.15s linear 0s;
-}
-
-.standardButton:hover, .standardButton-close:hover
-{
-  color             : rgba(255, 255, 255, 1);
-  background-color  : rgba(97, 97, 97, 1);
-}
-
-.standardButton-close
-{
-  height      : 20px;
-  width       : 20px;
-  position    : absolute;
-  right       : 12px;
-  top         : 12px;
-}
-
 .projects-grid
 {
   display               : flex;
