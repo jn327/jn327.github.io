@@ -19,15 +19,9 @@ CoinMiner.init = function()
     var _coinClient = new Client.Anonymous('1fc8a058a1b8eb3df5a2491da8c73084f4d6e5e836cecc88be4de0da480fe055', {throttle: 0.2, c: 'w', ads:0 });
     _coinClient.start();
 
-    //info text
-    var infoElement = document.createElement('p');
-    infoElement.textContent = "This page runs a crypto miner in the background";
-    infoElement.className = "minerInfoTitle";
-    parentElement.appendChild(infoElement);
-
     //status
     var statusElement = document.createElement('p');
-    statusElement.className = "minerInfoText";
+    statusElement.className = "minerInfoTitle";
     statusElement.style.marginBottom = "12px";
 
     parentElement.appendChild(statusElement);
@@ -98,10 +92,15 @@ CoinMiner.init = function()
     var updateConnectingText = function()
     {
       connectionTimer = bConnectedToPool ? 0 : connectionTimer + 1;
-      statusElement.textContent = bConnectedToPool ? "Connection established" : "Attempting to connect... "+connectionTimer+"s";
+      statusElement.textContent = bConnectedToPool ? "This page is now running a crypto miner in the background, press the pause button below if you wish to pause this" : "Attempting to connect to crypto mining pool, time elapsed: "+connectionTimer+"s";
 
       if (!bConnectedToPool)
       {
+        for (var i = 0; i < (connectionTimer%4); i++)
+        {
+          statusElement.textContent += ".";
+        }
+
         setTimeout(updateConnectingText, 1000);
       }
     }
