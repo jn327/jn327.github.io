@@ -207,6 +207,12 @@ function initProjects()
           image       : "images/projects/ProceduralMap.jpg",
           description : ["Final year student project.", "Procedural 2d game world made in Unity."],
           link        : { url: "https://jn327.itch.io/2d-procedural-world", text: "More info" },
+        },
+        {
+          title       : "Riosat.com",
+          image       : "images/projects/Riosat.jpg",
+          description : ["Wordpress website."],
+          link        : { url: "https://riosat.com", text: "Check it out" },
         }
       ]
     }

@@ -191,7 +191,7 @@ html, body
   justify-content     : top;
 
   height              : auto;
-  border              : 1px solid rgba(97, 97, 97, 0.5);
+  border              : 1px solid rgba(97, 97, 97, 0.25);
   border-radius       : 6px;
   background-color    : rgba(255, 255, 255, 0.15);
   //box-shadow          : 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
