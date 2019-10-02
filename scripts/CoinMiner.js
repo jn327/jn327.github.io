@@ -28,7 +28,7 @@ coinScript.onload = function ()
 
   //slider
   var throttleValueElement = document.getElementById("throttleValue");
-  throttleValueElement.value = _coinClient.getThrottle();
-  throttleValueElement.addEventListener('input', function() { _coinClient.setThrottle(throttleValueElement.value); });
+  throttleValueElement.value = _coinClient.getThrottle() * 100;
+  throttleValueElement.addEventListener('input', function() { _coinClient.setThrottle(throttleValueElement.value/100); });
 
 }

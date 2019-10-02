@@ -26,7 +26,6 @@
     .labelsContainer
     {
       box-sizing          : border-box;
-      pointer-events      : none;
       position            : fixed;
       display             : flex;
       flex-direction      : column;
@@ -34,8 +33,8 @@
       justify-content     : center;
       overflow            : hidden;
 
-      height             : auto;
-      width              : 100%;
+      height              : auto;
+      width               : 100%;
     }
 
     .headerLabel
@@ -56,7 +55,8 @@
         <p id="hashesHeader" class="headerLabel">Total hashes:</p>
         <p id="hashesValue"></p>
 
-        <input id="throttleValue" class="slider" type= "range" min= 0 max= 1 value= 0 >
+        <p id="throttleHeader" class="headerLabel">Throttling:</p>
+        <input id="throttleValue" class="slider" type="range" min="0" max="100" value="0" >
 
         <p id="errorHeader" class="headerLabel"></p>
       </div>
