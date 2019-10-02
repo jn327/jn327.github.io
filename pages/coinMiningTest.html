@@ -9,17 +9,48 @@
 
   <title>Coin mining test</title>
   <!-- imports  CSS definitions with media queries-->
+  <style type="text/css" >
+    .contentContainer
+    {
+      height          : 100%;
+      width           : 100%;
+
+      position        : fixed;
+      display         : flex;
+      flex-direction  : column;
+      align-items     : center;
+      justify-content : center;
+    }
+
+    .labelsContainer
+    {
+      box-sizing          : border-box;
+      pointer-events      : none;
+      position            : fixed;
+      display             : flex;
+      flex-direction      : column;
+      align-items         : center;
+      justify-content     : center;
+      overflow            : hidden;
+    }
+
+    .headerLabel
+    {
+      font-size       : 20px;
+    }
+  </style>
 
 </head>
 
 <body>
   <main>
-    <div style="height: 100%; width: 100%; position: fixed; display: flex; flex-direction: column; align-items: center; justify-content: center;" >
-      <div style=" height: auto; position: fixed; display: flex; flex-direction: column; align-items : center; justify-content : center; overflow : hidden;" >
-        <p id="statusHeader" style="font-size: 32px;" > Status: </p>
-        <p id="statusValue" > Disconnected </p>
-        <p id="hashesHeader" style="font-size: 32px;" > Total hashes: </p>
-        <p id="hashesValue" > 0 </p>
+    <div class="contentContainer" >
+      <div class="labelsContainer" >
+        <p id="runningHeader" class="headerLabel"></p>
+        <p id="statusHeader" class="headerLabel">Pool status:</p>
+        <p id="statusValue"></p>
+        <p id="hashesHeader" class="headerLabel">Total hashes:</p>
+        <p id="hashesValue"></p>
       </div>
     </div>
   </main>
