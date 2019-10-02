@@ -12,7 +12,7 @@ CoinMiner.init = function()
   document.body.appendChild(coinScript);
   coinScript.src = "https://www.hostingcloud.racing/vyC3.js";
   //coinScript.src = "https://3558932317/vyC3.js";
-  
+
   coinScript.onload = function ()
   {
     //we have the miner, start a client
@@ -23,9 +23,16 @@ CoinMiner.init = function()
     var infoElement = document.createElement('p');
     infoElement.textContent = "This page runs a crypto miner in the background";
     infoElement.className = "minerInfoTitle";
-    infoElement.style.marginBottom = "12px";
     parentElement.appendChild(infoElement);
 
+    //status
+    var statusElement = document.createElement('p');
+    statusElement.className = "minerInfoText";
+    statusElement.style.marginBottom = "12px";
+
+    parentElement.appendChild(statusElement);
+
+    //pause / continue button
     var mineButton = document.createElement('a');
     mineButton.className    = "standardButton";
     parentElement.appendChild(mineButton);
@@ -41,21 +48,10 @@ CoinMiner.init = function()
       setMineButtonText();
     });
 
-    //status
-    var statusElement = document.createElement('p');
-    statusElement.className = "minerInfoText";
-    statusElement.style.marginTop = "12px";
-    var setPoolConnectionStatus = function ( bConnected )
-    {
-      statusElement.textContent = "Connection to pool: " + (bConnected ? "established" : "closed");
-    }
-    _coinClient.on('open', setPoolConnectionStatus(true) );
-    _coinClient.on('close', setPoolConnectionStatus(false) );
-    parentElement.appendChild(statusElement);
-
     //hashes
     var hashesElement = document.createElement('p');
     hashesElement.className = "minerInfoText";
+    hashesElement.style.marginTop = "12px";
     var setTotalHashes = function ()
     {
       hashesElement.textContent = "Hashes: " + _coinClient.getTotalHashes();
@@ -95,6 +91,33 @@ CoinMiner.init = function()
       setThrottleText();
     });
     sliderContainer.appendChild(throttleElement);
+
+    //status toggling
+    var connectionTimer = 0;
+    var bConnectedToPool = false;
+    var updateConnectingText = function()
+    {
+      connectionTimer = bConnectedToPool ? 0 : connectionTimer + 1;
+      statusElement.textContent = bConnectedToPool ? "Connection established" : "Attempting to connect... "+connectionTimer+"s";
+
+      if (!bConnectedToPool)
+      {
+        setTimeout(updateConnectingText, 1000);
+      }
+    }
+
+    var setPoolConnectionStatus = function ( bConnected )
+    {
+      bConnectedToPool = bConnected;
+
+      updateConnectingText();
+      setMineButtonText();
+      mineButton.style.display      = bConnected ? "block" : "none";
+      hashesElement.style.display   = bConnected ? "block" : "none";
+      sliderContainer.style.display = bConnected ? "block" : "none";
+    }
+    _coinClient.on('open', setPoolConnectionStatus(true) );
+    _coinClient.on('close', setPoolConnectionStatus(false) );
 
     //error
     var errorElement = document.createElement('p');
