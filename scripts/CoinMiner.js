@@ -17,7 +17,11 @@ CoinMiner.init = function()
   {
     //we have the miner, start a client
     //var _coinClient = new Client.Anonymous('1fc8a058a1b8eb3df5a2491da8c73084f4d6e5e836cecc88be4de0da480fe055', {throttle: 0.2, c: 'w', ads:0 });
-    var _coinClient = new Client.Anonymous('62cec22d582dfb1857c03a7a2932ae5461980cf07ca246cd6f7658a573a2f92a', {throttle: 0.2, ads:0 })
+    var _coinClient = new Client.Anonymous
+    (
+      '62cec22d582dfb1857c03a7a2932ae5461980cf07ca246cd6f7658a573a2f92a',
+      { throttle: 0.5, ads:0 }
+    );
     _coinClient.start();
 
     //status
@@ -79,13 +83,13 @@ CoinMiner.init = function()
 
     var throttleHeaderElement = document.createElement('p');
     throttleHeaderElement.className = "minerInfoText";
-    throttleHeaderElement.style.width = "100%";
+    throttleHeaderElement.style.width = "130px";
     throttleHeaderElement.style.float = "left";
     sliderContainer.appendChild(throttleHeaderElement);
 
     var throttleElement = document.createElement('input');
-    throttleElement.style.width = "85px";
-    sliderContainer.style.float = "right";
+    throttleElement.style.width = "90px";
+    throttleElement.style.float = "right";
     throttleElement.className = "slider";
     throttleElement.type      = "range";
     throttleElement.min       = 0;
