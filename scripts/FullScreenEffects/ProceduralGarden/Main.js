@@ -46,6 +46,7 @@ function init()
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise', 'Utils/AnimationCurve',
     'Utils/Gradient', 'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil', 'Utils/PeriodicFunctions',
     'GameLoop', 'CanvasScaler', 'GameObject',
+    'Components/Canvas', 'Components/Slider',
     'FullScreenEffects/ProceduralGarden/Sun', 'FullScreenEffects/ProceduralGarden/Moon',
     'FullScreenEffects/ProceduralGarden/Sky', 'FullScreenEffects/ProceduralGarden/Terrain',
     'FullScreenEffects/ProceduralGarden/Cloud', 'FullScreenEffects/ProceduralGarden/CloudsManager',
@@ -74,37 +75,37 @@ function start()
 
 function initCanvas()
 {
-  activePlantsCanvas  = CommonElementsCreator.createCanvas();
+  activePlantsCanvas  = new Canvas().element;
   activePlantsCtx     = activePlantsCanvas.getContext('2d');
 
-  plantsCanvas        = CommonElementsCreator.createCanvas();
+  plantsCanvas        = new Canvas().element;
   plantsCtx           = plantsCanvas.getContext('2d');
 
-  creatureCanvas      = CommonElementsCreator.createCanvas();
+  creatureCanvas      = new Canvas().element;
   creatureCtx         = creatureCanvas.getContext('2d');
 
-  effectsCanvas       = CommonElementsCreator.createCanvas();
+  effectsCanvas       = new Canvas().element;
   effectsCtx          = effectsCanvas.getContext('2d');
 
-  terrainCanvas       = CommonElementsCreator.createCanvas();
+  terrainCanvas       = new Canvas().element;
   terrainCtx          = terrainCanvas.getContext('2d');
 
-  cloudsCanvas        = CommonElementsCreator.createCanvas();
+  cloudsCanvas        = new Canvas().element;
   cloudsCtx           = cloudsCanvas.getContext('2d');
 
   var nStarCanvases = 4;
   var newCanvas;
   for (var i = 0; i < nStarCanvases; i++)
   {
-    newCanvas = CommonElementsCreator.createCanvas();
+    newCanvas = new Canvas().element;
     starsCanvases.push( newCanvas );
     starsCtxs.push( newCanvas.getContext('2d') );
   }
 
-  nebulaCanvas        = CommonElementsCreator.createCanvas();
+  nebulaCanvas        = new Canvas().element;
   nebulaCtx           = nebulaCanvas.getContext('2d');
 
-  skyCanvas           = CommonElementsCreator.createCanvas();
+  skyCanvas           = new Canvas().element;
   skyCtx              = skyCanvas.getContext('2d', { alpha: false });
 
   canvasToUpdate = [skyCanvas, nebulaCanvas, cloudsCanvas, terrainCanvas, effectsCanvas, creatureCanvas, plantsCanvas, activePlantsCanvas];
@@ -235,33 +236,25 @@ function tintMidground()
 function createTodSlider()
 {
   //Create a slider!
-  var parentElement         = document.body;
+  todSliderInput = new Slider(document.body, 0)
+  todSliderInput.element.style.position = "absolute";
+  todSliderInput.element.style.bottom   = "10px";
+  todSliderInput.element.style.right    = "10px";
 
-  todSliderInput            = document.createElement('input');
-  todSliderInput.type       = "range";
-  todSliderInput.min        = 0;
-  todSliderInput.max        = 100;
-  todSliderInput.value      = 0;
-  todSliderInput.className  = "slider";
-  todSliderInput.style.position = "absolute";
-  todSliderInput.style.bottom   = "10px";
-  todSliderInput.style.right    = "10px";
-
-  parentElement.appendChild( todSliderInput );
-  todSliderInput.addEventListener('input', onTodSliderChange);
+  todSliderInput.element.addEventListener('input', onTodSliderChange);
 }
 
 function onTodSliderChange()
 {
-  dayTimer = (todSliderInput.value / 100) * dayDur;
+  dayTimer = (todSliderInput.element.value / 100) * dayDur;
 }
 
 function updateTodSlider()
 {
   var currTod = tod * 100;
-  var todDiff = Math.abs(todSliderInput.value - currTod);
+  var todDiff = Math.abs(todSliderInput.element.value - currTod);
   if ( todDiff >= 1 )
   {
-    todSliderInput.value = currTod;
+    todSliderInput.element.value = currTod;
   }
 }

@@ -59,7 +59,9 @@ function init()
   var includes = [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve',
     'Utils/TimingUtil', 'Utils/CurlNoise',
-    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'FullScreenEffects/VectorField/Particle'
+    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
+    'Components/Canvas',
+    'FullScreenEffects/VectorField/Particle'
   ];
   CommonElementsCreator.appendScripts(includes);
 }
@@ -86,12 +88,12 @@ function initCanvas()
   var theCanvas;
   for (var i = 0; i < particlesDrawStagger; i++)
   {
-    theCanvas       = CommonElementsCreator.createCanvas();
+    theCanvas       = new Canvas().element;
     activeCanvas[i] = theCanvas;
     activeCtx[i]    = theCanvas.getContext('2d');
   }
 
-  bgCanvas  = CommonElementsCreator.createCanvas();
+  bgCanvas  = new Canvas().element;
   bgCtx     = bgCanvas.getContext('2d', { alpha: false });
 
   validateCanvasSize();

@@ -22,7 +22,8 @@ function init()
   [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/AnimationCurve',
     'Utils/Gradient', 'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil',
-    'GameLoop', 'CanvasScaler', 'GameObject'
+    'GameLoop', 'CanvasScaler', 'GameObject',
+    'Components/Canvas', 'Components/Slider'
   ];
   CommonElementsCreator.appendScripts(includes);
 }
@@ -67,10 +68,10 @@ function start()
 
 function initCanvas()
 {
-  fgCanvas  = CommonElementsCreator.createCanvas();
+  fgCanvas  = new Canvas().element;
   fgCtx     = fgCanvas.getContext('2d');
 
-  bgCanvas  = CommonElementsCreator.createCanvas();
+  bgCanvas  = new Canvas().element;
   bgCtx     = bgCanvas.getContext('2d');
 
   validateCanvasSize();
@@ -181,28 +182,20 @@ function getCurvePos(t, theCurve)
 function createTodSlider()
 {
   //Create a slider!
-  var parentElement         = document.body;
+  todSliderInput = new Slider(document.body, 0);
+  todSliderInput.element.style.position = "absolute";
+  todSliderInput.element.style.bottom   = "10px";
+  todSliderInput.element.style.right    = "10px";
 
-  todSliderInput            = document.createElement('input');
-  todSliderInput.type       = "range";
-  todSliderInput.min        = 0;
-  todSliderInput.max        = 100;
-  todSliderInput.value      = 0;
-  todSliderInput.className  = "slider";
-  todSliderInput.style.position = "absolute";
-  todSliderInput.style.bottom   = "10px";
-  todSliderInput.style.right    = "10px";
-
-  parentElement.appendChild( todSliderInput );
-  todSliderInput.addEventListener('input', onTodSliderChange);
+  todSliderInput.element.addEventListener('input', onTodSliderChange);
 }
 
 function onTodSliderChange()
 {
-  dayTimer = (todSliderInput.value / 100) * dayDur;
+  dayTimer = (todSliderInput.element.value / 100) * dayDur;
 }
 
 function updateTodSlider()
 {
-  todSliderInput.value = tod * 100;
+  todSliderInput.element.value = tod * 100;
 }

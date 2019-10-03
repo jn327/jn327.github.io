@@ -139,6 +139,7 @@ a.headerLink-active
   text-align        : center;
 
   background-color  : rgba(0, 0, 0, 0);
+  color             : rgba(255, 255, 255, 1);
 
   /* Position the tooltip */
   position          : absolute;

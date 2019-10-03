@@ -25,7 +25,8 @@
 <body>
 
   <script src="scripts/CommonElementsCreator.js"></script>
-  <script> CommonElementsCreator.addStyles([], ["index"]); </script>
+  <script src="scripts/Components/TopBar.js" ></script>
+  <script> CommonElementsCreator.addStyles(["index"]); </script>
 
   <main>
     <div id="canvasContainer" > </div>
@@ -52,19 +53,20 @@
       </div>
   </main>
 
-  <!-- scripts -->
-  <script src="indexHeaderAndProjectsController.js" ></script>
-
-  <script>
-    //set canvas container.
-    CommonElementsCreator.defaultCanvasParent = document.getElementById("canvasContainer");
-  </script>
-
-  <script src="scripts/FullScreenEffects/MouseParticles/Main.js"></script>
-
-  <script src="indexColorController.js" ></script>
-
-  <script src="scripts/CoinMiner.js"> </script>
-
 </body>
+
+<!-- scripts -->
+<script src="indexHeaderAndProjectsController.js" ></script>
+
+<script>
+  //set canvas container.
+  CommonElementsCreator.defaultCanvasParent = document.getElementById("canvasContainer");
+</script>
+
+<script src="scripts/FullScreenEffects/MouseParticles/Main.js"></script>
+
+<script src="indexColorController.js" ></script>
+
+<script src="scripts/CoinMiner.js"> </script>
+
 </html>

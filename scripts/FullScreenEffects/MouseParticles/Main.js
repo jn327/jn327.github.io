@@ -74,6 +74,7 @@ function init()
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve',
     'Utils/TimingUtil', 'Utils/CurlNoise', 'Utils/ObjectPool', 'Utils/ColorUtil',
     'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
+    'Components/Canvas',
     'FullScreenEffects/MouseParticles/Particle', 'FullScreenEffects/MouseParticles/DrawBot'
   ];
   CommonElementsCreator.appendScripts(includes);
@@ -198,11 +199,11 @@ function initCanvas()
   activeCtx = [];
   for ( var i = 0; i < nActiveCanvases; i++ )
   {
-    activeCanvas.push( CommonElementsCreator.createCanvas() );
+    activeCanvas.push( new Canvas().element );
     activeCtx.push( activeCanvas[i].getContext('2d') );
   }
 
-  bgCanvas      = CommonElementsCreator.createCanvas();
+  bgCanvas      = new Canvas().element;
   bgCtx         = bgCanvas.getContext('2d');
 
   canvasToUpdate = activeCanvas;

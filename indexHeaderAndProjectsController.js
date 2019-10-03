@@ -28,7 +28,7 @@ function initHeaders()
   }
 
   //creating the header
-  headerBtns = CommonElementsCreator.addLinksToHeader( [ "About me", "Projects" ] );
+  headerBtns = TopBar.addLinks( [ "About me", "Projects" ] );
 
   //set the selected item.
   setSelectedHeaderItem(urlHeaderIndex);
