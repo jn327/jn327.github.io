@@ -26,6 +26,20 @@ CoinMiner.init = function()
 
     parentElement.appendChild(statusElement);
 
+    //error
+    var errorElement = document.createElement('p');
+    errorElement.className = "errorText";
+    parentElement.appendChild(errorElement);
+
+    _coinClient.on('error', function(params)
+    {
+      errorElement.style.opacity = 1;
+      errorElement.textContent = "Error: " +params.error;
+      errorElement.style.display = "block";
+      setTimeout(function(){ errorElement.style.opacity = 0; }, 2500);
+      setTimeout(function(){ errorElement.style.display = "none"; }, 3000);
+    });
+
     //pause / continue button
     var mineButton = document.createElement('a');
     mineButton.className    = "standardButton";
@@ -69,7 +83,7 @@ CoinMiner.init = function()
     sliderContainer.appendChild(throttleHeaderElement);
 
     var throttleElement = document.createElement('input');
-    throttleElement.style.width = "100px";
+    throttleElement.style.width = "85px";
     throttleElement.className = "slider";
     throttleElement.type      = "range";
     throttleElement.min       = 0;
@@ -126,20 +140,6 @@ CoinMiner.init = function()
     setPoolConnectionStatus(false);
     _coinClient.on('open', function() { setPoolConnectionStatus(true); } );
     _coinClient.on('close', function() { setPoolConnectionStatus(false); } );
-
-    //error
-    var errorElement = document.createElement('p');
-    errorElement.className = "errorText";
-    parentElement.appendChild(errorElement);
-
-    _coinClient.on('error', function(params)
-    {
-      errorElement.style.opacity = 1;
-      errorElement.textContent = "Error: " +params.error;
-      errorElement.style.display = "block";
-      setTimeout(function(){ errorElement.style.opacity = 0; }, 2500);
-      setTimeout(function(){ errorElement.style.display = "none"; }, 3000);
-    });
   }
 }
 
