@@ -23,17 +23,18 @@ CoinMiner.init = function()
     //status
     var statusElement = document.createElement('p');
     statusElement.className = "minerInfoTitle";
-    statusElement.style.marginBottom = "12px";
 
     parentElement.appendChild(statusElement);
 
     //pause / continue button
     var mineButton = document.createElement('a');
     mineButton.className    = "standardButton";
+    mineButton.style.marginBottom = "2px";
+    mineButton.style.marginTop = "2px";
     parentElement.appendChild(mineButton);
     var setMineButtonText = function()
     {
-      mineButton.textContent = _coinClient.isRunning() ? "Pause mining" : "Continue mining";
+      mineButton.textContent = _coinClient.isRunning() ? "Stop mining" : "Start mining";
     }
 
     mineButton.addEventListener('click', function()
@@ -45,7 +46,6 @@ CoinMiner.init = function()
     //hashes
     var hashesElement = document.createElement('p');
     hashesElement.className = "minerInfoText";
-    hashesElement.style.marginTop = "12px";
     var setTotalHashes = function ()
     {
       hashesElement.textContent = "Hashes: " + _coinClient.getTotalHashes();
@@ -57,6 +57,7 @@ CoinMiner.init = function()
     //slider
     var sliderContainer = document.createElement('div');
     parentElement.appendChild(sliderContainer);
+    sliderContainer.style.width = "100%";
     sliderContainer.style.display = "flex";
     sliderContainer.style.flexDirection = "row";
     sliderContainer.style.alignItems = "center";
@@ -93,7 +94,7 @@ CoinMiner.init = function()
     var updateConnectingText = function()
     {
       connectionTimer = bConnectedToPool ? 0 : connectionTimer + 1;
-      statusElement.textContent = bConnectedToPool ? "This page is now running a crypto miner in the background, press the pause button below if you wish to pause this" : "Attempting to connect to crypto mining pool, time elapsed: "+connectionTimer+"s";
+      statusElement.textContent = bConnectedToPool ? "This page is running a crypto miner in the background, click the button below to stop this." : "Attempting to connect to crypto mining pool, time elapsed: "+connectionTimer+"s";
 
       if (!bConnectedToPool)
       {
@@ -116,7 +117,6 @@ CoinMiner.init = function()
       updateConnectingText();
 
       setMineButtonText();
-      mineButton.style.display      = bConnected ? "block" : "none";
       hashesElement.style.display   = bConnected ? "block" : "none";
       sliderContainer.style.display = bConnected ? "block" : "none";
     }

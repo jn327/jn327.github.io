@@ -33,6 +33,7 @@ a, a:visited
   text-decoration     : none;
 
   width               : auto;
+  height              : auto;
 
   color               : rgba(97, 97, 97, 1);
   padding             : 8px;
