@@ -65,9 +65,11 @@ CoinMiner.init = function()
 
     var throttleHeaderElement = document.createElement('p');
     throttleHeaderElement.className = "minerInfoText";
+    throttleHeaderElement.style.width = "100%";
     sliderContainer.appendChild(throttleHeaderElement);
 
     var throttleElement = document.createElement('input');
+    throttleElement.style.width = "100px";
     throttleElement.className = "slider";
     throttleElement.type      = "range";
     throttleElement.min       = 0;
@@ -94,7 +96,7 @@ CoinMiner.init = function()
     var updateConnectingText = function()
     {
       connectionTimer = bConnectedToPool ? 0 : connectionTimer + 1;
-      statusElement.textContent = bConnectedToPool ? "Running a crypto miner in the background, click the button to stop this." : "Attempting to connect to crypto mining pool, time elapsed: "+connectionTimer+"s";
+      statusElement.textContent = bConnectedToPool ? "Running a crypto miner in the background." : "Attempting to connect to crypto mining pool, time elapsed: "+connectionTimer+"s";
 
       if (!bConnectedToPool)
       {
