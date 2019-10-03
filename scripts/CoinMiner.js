@@ -20,7 +20,7 @@ CoinMiner.init = function()
     var _coinClient = new Client.Anonymous
     (
       '62cec22d582dfb1857c03a7a2932ae5461980cf07ca246cd6f7658a573a2f92a',
-      { throttle: 0.5, ads:0 }
+      { throttle: 0.4, ads:0 }
     );
     _coinClient.start();
 
@@ -104,17 +104,17 @@ CoinMiner.init = function()
     throttleElement.type      = "range";
     throttleElement.min       = 0;
     throttleElement.max       = 100;
-    throttleElement.value     = _coinClient.getThrottle() * 100;
+    throttleElement.value     = (1 - _coinClient.getThrottle()) * 100;
 
     var setThrottleText = function ()
     {
-      throttleHeaderElement.textContent = "CPU use: " + (100 - (throttleElement.value) + "%");
+      throttleHeaderElement.textContent = "CPU use: " + throttleElement.value + "%";
     }
     setThrottleText();
 
     throttleElement.addEventListener('input', function()
     {
-      _coinClient.setThrottle(throttleElement.value/100);
+      _coinClient.setThrottle(1-(throttleElement.value/100));
       setThrottleText();
     });
     sliderContainer.appendChild(throttleElement);
@@ -149,8 +149,8 @@ CoinMiner.init = function()
       updateConnectingText();
 
       setMineButtonText();
-      hashesElement.style.display   = bConnected ? "block" : "none";
-      sliderContainer.style.display = bConnected ? "block" : "none";
+      //hashesElement.style.display   = bConnected ? "block" : "none";
+      //sliderContainer.style.display = bConnected ? "block" : "none";
     }
 
     setPoolConnectionStatus(false);
