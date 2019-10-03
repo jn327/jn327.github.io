@@ -35,13 +35,25 @@ CoinMiner.init = function()
     errorElement.className = "errorText";
     parentElement.appendChild(errorElement);
 
+    var errorHideTimeout = undefined;
+    var errorClearTimeout = undefined;
+
     _coinClient.on('error', function(params)
     {
       errorElement.style.opacity = 1;
       errorElement.textContent = "Error: " +params.error;
       errorElement.style.display = "block";
-      setTimeout(function(){ errorElement.style.opacity = 0; }, 2500);
-      setTimeout(function(){ errorElement.style.display = "none"; }, 3000);
+
+      if (errorHideTimeout != undefined)
+      {
+        clearTimeout(errorHideTimeout);
+      }
+      if (errorClearTimeout != undefined)
+      {
+        clearTimeout(errorClearTimeout);
+      }
+      errorHideTimeout = setTimeout(function(){ errorElement.style.opacity = 0; }, 2500);
+      errorClearTimeout = setTimeout(function(){ errorElement.style.display = "none"; }, 3000);
     });
 
     //pause / continue button
@@ -95,7 +107,7 @@ CoinMiner.init = function()
 
     var setThrottleText = function ()
     {
-      throttleHeaderElement.textContent = "Throttling: " + throttleElement.value/100;
+      throttleHeaderElement.textContent = "CPU use: " + (100 - (throttleElement.value) + "%");
     }
     setThrottleText();
 
