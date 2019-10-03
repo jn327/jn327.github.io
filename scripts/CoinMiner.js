@@ -83,12 +83,12 @@ CoinMiner.init = function()
 
     var throttleHeaderElement = document.createElement('p');
     throttleHeaderElement.className = "minerInfoText";
-    throttleHeaderElement.style.width = "130px";
+    throttleHeaderElement.style.width = "120px";
     throttleHeaderElement.style.float = "left";
     sliderContainer.appendChild(throttleHeaderElement);
 
     var throttleElement = document.createElement('input');
-    throttleElement.style.width = "90px";
+    throttleElement.style.width = "80px";
     throttleElement.style.float = "right";
     throttleElement.className = "slider";
     throttleElement.type      = "range";
