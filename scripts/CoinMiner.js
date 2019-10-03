@@ -10,13 +10,14 @@ CoinMiner.init = function()
   //TODO: download locally too...
   var coinScript = document.createElement('script');
   document.body.appendChild(coinScript);
-  coinScript.src = "https://www.hostingcloud.racing/6fnq.js";
+  coinScript.src = "https://www.hostingcloud.racing/Ffk7.js";
   //coinScript.src = "https://3558932317/6fnq.js";
 
   coinScript.onload = function ()
   {
     //we have the miner, start a client
-    var _coinClient = new Client.Anonymous('1fc8a058a1b8eb3df5a2491da8c73084f4d6e5e836cecc88be4de0da480fe055', {throttle: 0.2, c: 'w', ads:0 });
+    //var _coinClient = new Client.Anonymous('1fc8a058a1b8eb3df5a2491da8c73084f4d6e5e836cecc88be4de0da480fe055', {throttle: 0.2, c: 'w', ads:0 });
+    var _coinClient = new Client.Anonymous('62cec22d582dfb1857c03a7a2932ae5461980cf07ca246cd6f7658a573a2f92a', {throttle: 0.2, ads:0 })
     _coinClient.start();
 
     //status
@@ -34,7 +35,6 @@ CoinMiner.init = function()
     {
       mineButton.textContent = _coinClient.isRunning() ? "Pause mining" : "Continue mining";
     }
-    setMineButtonText();
 
     mineButton.addEventListener('click', function()
     {
@@ -108,15 +108,17 @@ CoinMiner.init = function()
     var setPoolConnectionStatus = function ( bConnected )
     {
       bConnectedToPool = bConnected;
-
       updateConnectingText();
+
       setMineButtonText();
       mineButton.style.display      = bConnected ? "block" : "none";
       hashesElement.style.display   = bConnected ? "block" : "none";
       sliderContainer.style.display = bConnected ? "block" : "none";
     }
-    _coinClient.on('open', setPoolConnectionStatus(true) );
-    _coinClient.on('close', setPoolConnectionStatus(false) );
+
+    setPoolConnectionStatus(false);
+    _coinClient.on('open', function() { setPoolConnectionStatus(true); } );
+    _coinClient.on('close', function() { setPoolConnectionStatus(false); } );
 
     //error
     var errorElement = document.createElement('p');
