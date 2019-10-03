@@ -4,10 +4,11 @@
   appearance        : none;
   width             : 200px;
   height            : 6px;
+  margin            : 12px 0px;
   border            : 1px solid rgba(97, 97, 97, 1);
   border-radius     : 3px;
   background-color  : rgba(97, 97, 97, 0.33);
-  outline: none;
+  outline           : none;
 
   -webkit-transition: background-color 0.2s;
   transition        : background-color 0.2s;
