@@ -126,14 +126,14 @@ CoinMiner.init = function()
     var updateConnectingText = function()
     {
       connectionTimer += 1;
-      statusElement.innerText = bConnectedToPool ? "Running crypto miner in the background.\r\nTime elapsed: " +connectionTimer +"s." : "Crypto miner disconnected.\r\nPress start to do some monero mining.";
+      statusElement.innerText = bConnectedToPool ? "Running crypto miner in the background.\r\nTime elapsed: " +connectionTimer +"s" : "Crypto miner disconnected.\r\nPress start to do some monero mining.";
 
-      if (!bConnectedToPool)
+      if (bConnectedToPool)
       {
-        //for (var i = 0; i < (connectionTimer%4); i++)
-        //{
-        //  statusElement.textContent += ".";
-        //}
+        for (var i = 0; i < (connectionTimer%4); i++)
+        {
+          statusElement.textContent += ".";
+        }
 
         if (updateTimeout != undefined)
         {
