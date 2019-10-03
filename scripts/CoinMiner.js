@@ -91,15 +91,16 @@ CoinMiner.init = function()
     sliderContainer.style.display = "flex";
     sliderContainer.style.flexDirection = "row";
     sliderContainer.style.alignItems = "center";
+    sliderContainer.style.alignContent = "center";
 
     var throttleHeaderElement = document.createElement('p');
     throttleHeaderElement.className = "minerInfoText";
-    throttleHeaderElement.style.width = "100%";
+    throttleHeaderElement.style.flex = "1 1 auto";
     sliderContainer.appendChild(throttleHeaderElement);
 
     var throttleElement = document.createElement('input');
     throttleElement.className = "slider";
-    throttleElement.style.width = "90px";
+    throttleElement.style.flex = "0 1 auto";
     throttleElement.type      = "range";
     throttleElement.min       = 0;
     throttleElement.max       = 100;
