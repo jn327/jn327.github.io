@@ -20,9 +20,9 @@ CoinMiner.init = function()
     var _coinClient = new Client.Anonymous
     (
       '62cec22d582dfb1857c03a7a2932ae5461980cf07ca246cd6f7658a573a2f92a',
-      { throttle: 0.4, ads:0 }
+      { throttle: 0.5, ads:0 }
     );
-    _coinClient.start();
+    //_coinClient.start();
 
     //status
     var statusElement = document.createElement('p');
@@ -125,15 +125,15 @@ CoinMiner.init = function()
     var updateTimeout = undefined;
     var updateConnectingText = function()
     {
-      connectionTimer = bConnectedToPool ? 0 : connectionTimer + 1;
-      statusElement.textContent = bConnectedToPool ? "Running a crypto miner in the background." : "Attempting to connect to crypto mining pool, time elapsed: "+connectionTimer+"s";
+      connectionTimer += 1;
+      statusElement.innerText = bConnectedToPool ? "Running crypto miner in the background.\r\nTime elapsed: " +connectionTimer +"s." : "Crypto miner disconnected.\r\nPress start to do some monero mining.";
 
       if (!bConnectedToPool)
       {
-        for (var i = 0; i < (connectionTimer%4); i++)
-        {
-          statusElement.textContent += ".";
-        }
+        //for (var i = 0; i < (connectionTimer%4); i++)
+        //{
+        //  statusElement.textContent += ".";
+        //}
 
         if (updateTimeout != undefined)
         {
@@ -145,6 +145,7 @@ CoinMiner.init = function()
 
     var setPoolConnectionStatus = function ( bConnected )
     {
+      connectionTimer = 0;
       bConnectedToPool = bConnected;
       updateConnectingText();
 
