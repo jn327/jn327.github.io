@@ -89,6 +89,7 @@ CoinMiner.init = function()
     //status toggling
     var connectionTimer = 0;
     var bConnectedToPool = false;
+    var updateTimeout = undefined;
     var updateConnectingText = function()
     {
       connectionTimer = bConnectedToPool ? 0 : connectionTimer + 1;
@@ -101,7 +102,11 @@ CoinMiner.init = function()
           statusElement.textContent += ".";
         }
 
-        setTimeout(updateConnectingText, 1000);
+        if (updateTimeout != undefined)
+        {
+          clearTimeout(updateTimeout);
+        }
+        updateTimeout = setTimeout(updateConnectingText, 1000);
       }
     }
 
