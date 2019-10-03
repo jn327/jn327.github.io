@@ -149,8 +149,8 @@ CoinMiner.init = function()
       updateConnectingText();
 
       setMineButtonText();
-      //hashesElement.style.display   = bConnected ? "block" : "none";
-      //sliderContainer.style.display = bConnected ? "block" : "none";
+      hashesElement.style.display   = bConnected ? "block" : "none";
+      sliderContainer.style.display = bConnected ? "block" : "none";
     }
 
     setPoolConnectionStatus(false);
