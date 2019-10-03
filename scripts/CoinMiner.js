@@ -132,7 +132,7 @@ CoinMiner.init = function()
       {
         for (var i = 0; i < (connectionTimer%4); i++)
         {
-          statusElement.textContent += ".";
+          statusElement.innerText += ".";
         }
 
         if (updateTimeout != undefined)
