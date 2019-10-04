@@ -1,4 +1,7 @@
 var CoinMiner = {};
+CoinMiner.defaultInfoParent = document.getElementsByTagName("main")[0];
+CoinMiner.defaultThrottle = 0.5;
+CoinMiner.runOnLoad = false;
 
 CommonElementsCreator.appendScripts(
 [
@@ -27,11 +30,10 @@ CommonElementsCreator.addLoadEvent( function()
   var webchainMiner = new CurrencyMiner("Webchain", '1fc8a058a1b8eb3df5a2491da8c73084f4d6e5e836cecc88be4de0da480fe055', 'w');
   miners.push(webchainMiner);
 
-  var _defaultThrottle = 0.5;
   var _currMiner = undefined;
   var _clientIndex = 0;
 
-  var parentElement = document.getElementById("minerInfoContainer");
+  var parentElement = CoinMiner.defaultInfoParent;
   parentElement.className = "minerInfoContainer";
 
   //status
@@ -97,7 +99,7 @@ CommonElementsCreator.addLoadEvent( function()
   throttleHeaderElement.style.flex = "1 1 auto";
   sliderContainer.appendChild(throttleHeaderElement);
 
-  var throttleElement = new Slider(sliderContainer, (1 - _defaultThrottle) * 100).element;
+  var throttleElement = new Slider(sliderContainer, (1 - CoinMiner.defaultThrottle) * 100).element;
   throttleElement.style.flex = "0 1 auto";
 
   var setThrottleText = function ()
@@ -266,5 +268,11 @@ CommonElementsCreator.addLoadEvent( function()
         _currMiner.start();
       }
     }
+  }
+
+  if (CoinMiner.runOnLoad)
+  {
+    setupMiner();
+    _currMiner.start();
   }
 });
