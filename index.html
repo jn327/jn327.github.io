@@ -35,7 +35,7 @@
 
     <div id="contentContainer">
       <div id="about" class="labelsContainer" style="padding:38px;">
-        <a class="standardButton-close" id="close-about" >x</a>
+        <a class="standardButton-close" id="close-about" >&times;</a>
 
         <p class="headerLabel" >Hi, I'm Josh Newland</p>
         <p class="descriptionLabel" style="padding-bottom:12px;" >I'm a sofware developer from the UK, principally interested in games, user interfaces, web technologies, algorithmically generated content & digital storytelling.
@@ -45,9 +45,10 @@
       </div>
 
       <div id="projects" class="labelsContainer">
-        <!-- <p id="projectsHeader" class="headerLabel" style="width:100%; z-index: 99; box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23); padding-bottom: 12px; padding-top: 12px;" >Projects</p> -->
-        <p id="projectsHeader" class="headerLabel" style="width:100%; z-index: 99; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); padding-bottom: 12px; padding-top: 12px;" >Projects</p>
-        <a class="standardButton-close" id="close-projects" style="z-index: 99;" >x</a>
+        <a class="standardButton" id="projects-goBack" style="z-index: 99; position :absolute; left :12px; top :12px;" >Back</a>
+        <!-- <p id="projectsHeader" class="headerLabel" style="width:100%; box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23); padding-bottom: 12px; padding-top: 12px;" >Projects</p> -->
+        <p id="projectsHeader" class="headerLabel" style="width:100%; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); padding-bottom: 12px; padding-top: 12px;" >Projects</p>
+        <a class="standardButton-close" id="close-projects" style="z-index: 99;" >&times;</a>
 
         <div class="scrollContainer" id="projectsScrollContainer" />
       </div>
@@ -57,11 +58,6 @@
 
 <!-- scripts -->
 <script src="indexHeaderAndProjectsController.js" ></script>
-<script src="scripts/CoinMiner.js"> </script>
-<script>
-  CoinMiner.defaultThrottle = 0.8;
-  CoinMiner.runOnLoad = true;
-</script>
 
 <script>
   //set canvas container.

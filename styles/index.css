@@ -81,6 +81,15 @@ html, body
   border-radius       : 0px 0px 6px 6px;
 }
 
+.projectsSectionContainer
+{
+  will-change         : transform;
+  width               : 100%;
+  height              : auto;
+  max-height          : 100%;
+  //background-color    : rgba(255, 255, 0, 0.5);
+}
+
 .headerLabel
 {
   font-size       : 32px;
@@ -133,10 +142,10 @@ html, body
 
 .projects-grid > li
 {
-  will-change         : transform;
+  //will-change         : transform;
   flex                : 1 1 250px;
-  margin              : 6px;
   max-width           : 350px;
+  margin              : 6px;
 
   display             : flex;
   flex-direction      : column;
@@ -153,6 +162,21 @@ html, body
   position            : relative;
   overflow            : hidden;
   padding-bottom      : 12px;
+}
+
+.projects-grid > li.defaultGridItem
+{
+}
+
+.projects-grid > li.smallGridItem
+{
+  max-width           : 300px;
+}
+
+.projects-grid > li.largeGridItem
+{
+  flex                : 1 1 400px;
+  max-width           : 400px;
 }
 
 .projects-gridImage,
@@ -219,6 +243,11 @@ html, body
   .projects-grid > li
   {
     max-width           : 450px;
+  }
+
+  .projects-grid > li.smallGridItem
+  {
+    max-width           : 300px;
   }
 
   .labelsContainer-active
