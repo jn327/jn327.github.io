@@ -94,6 +94,7 @@ function bindClickToIndex(i)
 
 function onHeaderCloseButton()
 {
+  currProjectSectionId = projectSectionIds[0];
   setSelectedHeaderItem(-1);
 }
 
