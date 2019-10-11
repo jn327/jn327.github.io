@@ -362,7 +362,7 @@ function initProjects()
               //bgImage     : "images/projects/PlanCo_infoPanel_firstFrame.jpg",
               //video       : "images/projects/planCo/PlanCo_objectives",
               //videoFormats: [/*"webm",*/"mp4"],
-              image       : "images/projects/PlanCo/PlanCo_objectives.jpg",
+              image       : "images/projects/planCo/PlanCo_objectives.jpg",
               description : ["Objectives panel & HUD bottom bar"],
               //className   : "smallGridItem",
               //className   : "largeGridItem",
