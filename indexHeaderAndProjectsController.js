@@ -94,7 +94,6 @@ function bindClickToIndex(i)
 
 function onHeaderCloseButton()
 {
-  currProjectSectionId = projectSectionIds[0];
   setSelectedHeaderItem(-1);
 }
 
@@ -112,6 +111,10 @@ function setSelectedHeaderItem( index )
   if (index == 1)
   {
     setCurrentProjectSection(currProjectSectionId);
+  }
+  else
+  {
+    currProjectSectionId = projectSectionIds[0];
   }
 
   visHeaderItemIndex = index;
