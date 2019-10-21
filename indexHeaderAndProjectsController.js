@@ -82,6 +82,11 @@ function initHeaders()
   {
     headerBtns[i].addEventListener( "click", bindClickToIndex(i) );
   }
+
+  //another button to open the projects page.
+  var openProjectsBtn = document.getElementById("open-projects");
+  openProjectsBtn.addEventListener( "click", bindClickToIndex(1) );
+
 }
 
 function bindClickToIndex(i)
@@ -190,7 +195,7 @@ function initProjects()
                 {
                   setCurrentProjectSection(projectSectionIds[1], projectSectionIds[0]);
                 },
-                text: "See some gifs"
+                text: "See some of my work"
               },
             },
             {
@@ -206,7 +211,7 @@ function initProjects()
                 {
                   setCurrentProjectSection(projectSectionIds[2], projectSectionIds[0]);
                 },
-                text: "See some gifs"
+                text: "See some of my work"
               },
             },
             {
@@ -230,8 +235,8 @@ function initProjects()
               //bgImage     : "images/projects/Duel_firstFrame.jpg",
               //video       : "images/projects/Duel",
               videoFormats: ["webm","mp4"],
-              description : ["One of 2 programmers for a small Unity game made with some friends.", "This one originally started out as a game jam game, we've since showcased it at a couple of gaming events."],
-              link        : { url: "https://gamejolt.com/games/duel/305917", text: "Check it out" },
+              description : ["One of 2 programmers for a small Unity game made with some friends.", "This one originally started out as a game jam game, we've since showcased it at a couple of gaming events.", "My main contributions to this project were an iceburg level generator that falls apart as the game progresses, fighting AI bots, scarf physics and various UI and particle improvements."],
+              link        : { url: "https://gamejolt.com/games/duel/305917", text: "Check it out", isExternal: true },
             },
             {
               title       : "Abandoned Earth",
@@ -240,7 +245,7 @@ function initProjects()
               //video       : "images/projects/AE",
               videoFormats: ["webm","mp4"],
               description : ["Solo programmer for a Unity game made while a student."],
-              link        : { url: "https://gamejolt.com/games/abandoned-earth/81441", text: "Check it out" },
+              link        : { url: "https://gamejolt.com/games/abandoned-earth/81441", text: "Check it out", isExternal: true },
             },
             {
               title       : "Space Hole Initiation Training",
@@ -249,24 +254,24 @@ function initProjects()
               //video       : "images/projects/SpaceHole",
               videoFormats: ["webm","mp4"],
               description : ["One of 2 programmers for a 48h game jam (Brains Eden 2014).", "Made in Unity.", "This ended up being the winning game"],
-              link        : { url: "https://gamejolt.com/games/space-hole-initiation-training/81466", text: "Check it out" },
+              link        : { url: "https://gamejolt.com/games/space-hole-initiation-training/81466", text: "Check it out", isExternal: true },
             },
             {
               title       : "ToyBox",
               image       : "images/projects/Toybox.jpg",
               description : ["2nd year university video games development project, made in Unity.", "I was one of 3 programmers for this one and worked on the UI, the level falling apart, hooking up the animations and most of the pickups."],
-              link        : { url: "https://gamejolt.com/games/toybox/81461", text: "Check it out" },
+              link        : { url: "https://gamejolt.com/games/toybox/81461", text: "Check it out", isExternal: true },
             },
             {
               title       : "Marching madness",
               image       : "images/projects/MarchingMadness.jpg",
               description : ["One of 2 programmers for a 48h games jam (Brains Eden 2015).", "This game is Lemmings but with terrible physics, made in Unity.", "I worked on the AI, the players dragging ability, tutorials and UI."],
-              link        : { url: "https://gamejolt.com/games/marching-madness/167312", text: "Check it out" },
+              link        : { url: "https://gamejolt.com/games/marching-madness/167312", text: "Check it out", isExternal: true },
             }
           ]
         },
         {
-          title   : "HTML Canvas experiments",
+          title   : "HTML Canvas & Javascript experiments",
           items   :
           [
             {
@@ -275,14 +280,20 @@ function initProjects()
               //bgImage     : "images/projects/HTMLDesert_firstFrame.jpg",
               //video       : "images/projects/HTMLDesert",
               videoFormats: ["webm","mp4"],
-              description : ["Procedural scene made with HTML Canvas and javascript."],
+              description : ["Procedural scene made with HTML Canvas & Javascript."],
               link        : { url: "pages/proceduralGarden.html", text: "Check it out" },
             },
             {
               title       : "HTML 5 Canvas particles",
               image       : "images/projects/HTMLParticles.jpg",
-              description : ["Particles with HTML Canvas, mostly an excuse to mess with vector fields."],
+              description : ["Particles with HTML Canvas & Javascript, mostly an excuse to mess with vector fields."],
               link        : { url: "pages/mouseParticles.html", text: "Check it out" },
+            },
+            {
+              title       : "HTML 5 Canvas asteroids",
+              image       : "images/projects/HTMLAsteroids.jpg",
+              description : ["Small asteroids game made with HTML Canvas & Javascript.", "Made as a uni project."],
+              link        : { url: "pages/Asteroids/main.html", text: "Check it out" },
             },
           ]
         },
@@ -306,7 +317,7 @@ function initProjects()
               //video       : "images/projects/Leds",
               videoFormats: ["webm","mp4"],
               description : ["Connected around 1400 12v LEDs up to a Raspberry PI using fadeCandy boards to control the screen via web browser on the local network."],
-              link        : { url: "https://twitter.com/JoshuaNewland/status/1036053996388134912", text: "More info" },
+              link        : { url: "https://twitter.com/JoshuaNewland/status/1036053996388134912", text: "More info", isExternal: true },
             },
             {
               title       : "2000 origami cranes",
@@ -317,14 +328,20 @@ function initProjects()
               title       : "2d procedural world",
               image       : "images/projects/ProceduralMap.jpg",
               description : ["Final year student project.", "Procedural 2d game world made in Unity."],
-              link        : { url: "https://jn327.itch.io/2d-procedural-world", text: "More info" },
+              link        : { url: "https://jn327.itch.io/2d-procedural-world", text: "More info", isExternal: true },
             },
             {
               title       : "Riosat.com",
               image       : "images/projects/Riosat.jpg",
               description : ["Wordpress website."],
-              link        : { url: "https://riosat.com", text: "Check it out" },
-            }
+              link        : { url: "https://riosat.com", text: "Check it out", isExternal: true },
+            },
+            {
+              title       : "C# console roguelike",
+              image       : "images/projects/ConsoleRoguelike.jpg",
+              description : ["Roguelike made as a uni project in visual studio."],
+              link        : { url: "files/ConsoleRoguelike.exe", text: "Download ConsoleRoguelike.exe", isDownload: true },
+            },
           ]
         }
       ]
@@ -669,6 +686,22 @@ function createProjectElements( parent, itemData )
       if (theData.link.url)
       {
         linkItem.href = theData.link.url;
+      }
+
+      if (theData.link.isExternal)
+      {
+        var externalIcon = document.createElement('img');
+        externalIcon.className  = "standardButton-indicator";
+        externalIcon.src        = "images/external_32.png";
+        linkItem.appendChild(externalIcon);
+      }
+
+      if (theData.link.isDownload)
+      {
+        var downloadIcon = document.createElement('img');
+        downloadIcon.className  = "standardButton-indicator";
+        downloadIcon.src        = "images/download_32.png";
+        linkItem.appendChild(downloadIcon);
       }
 
       if (theData.link.onClick)

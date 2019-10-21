@@ -18,6 +18,7 @@ html, body, main
 a, a:visited
 {
   color           : rgba(97, 97, 97, 1);
+  font-weight     : 500;
 }
 
 .defaultCanvas
@@ -31,6 +32,7 @@ a, a:visited
 {
   cursor              : pointer;
   text-decoration     : none;
+  //font-weight         : 400;
 
   width               : auto;
   height              : auto;
@@ -59,4 +61,26 @@ a, a:visited
   position    : absolute;
   right       : 12px;
   top         : 12px;
+}
+
+.standardButton-indicator
+{
+  width       : 16px;
+  height      : 16px;
+  padding-left: 8px;
+
+  opacity     : 0.33;
+
+  -webkit-filter: brightness(0%);
+  filter        : brightness(0%);
+
+  -webkit-transition  : -webkit-filter 0.15s linear 0s, filter 0.15s linear 0s, opacity 0.15s linear 0s;
+  transition          : -webkit-filter 0.15s linear 0s, filter 0.15s linear 0s, opacity 0.15s linear 0s;
+}
+
+.standardButton:hover > .standardButton-indicator
+{
+  opacity       : 1;
+  -webkit-filter: brightness(100%);
+  filter        : brightness(100%);
 }
