@@ -281,19 +281,19 @@ function initProjects()
               //video       : "images/projects/HTMLDesert",
               videoFormats: ["webm","mp4"],
               description : ["Procedural scene made with HTML Canvas & Javascript."],
-              link        : { url: "pages/proceduralGarden.html", text: "Check it out" },
+              link        : { url: "pages/proceduralGarden.html", text: "Check it out", isExternal: true },
             },
             {
               title       : "HTML 5 Canvas particles",
               image       : "images/projects/HTMLParticles.jpg",
               description : ["Particles with HTML Canvas & Javascript, mostly an excuse to mess with vector fields."],
-              link        : { url: "pages/mouseParticles.html", text: "Check it out" },
+              link        : { url: "pages/mouseParticles.html", text: "Check it out", isExternal: true },
             },
             {
               title       : "HTML 5 Canvas asteroids",
               image       : "images/projects/HTMLAsteroids.jpg",
               description : ["Small asteroids game made with HTML Canvas & Javascript.", "Made as a uni project."],
-              link        : { url: "pages/Asteroids/main.html", text: "Check it out" },
+              link        : { url: "https://jn327.github.io/HTML5-Asteroids/", text: "Check it out", isExternal: true },
             },
           ]
         },
