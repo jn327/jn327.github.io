@@ -83,7 +83,7 @@ a.headerLink-active
   display             : inline-block;
 }
 
-.imageLink
+.imageLinkNoHover, .imageLink
 {
   margin        : 0px 10px;
   padding-top   : 4px;
@@ -91,8 +91,11 @@ a.headerLink-active
   height        : auto;
 
   position      : relative;
-  display       : inline-block;
+  display       : inline-block
+}
 
+.imageLink
+{
   -webkit-transition  : padding-top 0.3s ease-out 0.1s, margin 0.3s ease-out 0.1s;
   transition          : padding-top 0.3s ease-out 0.1s, margin 0.3s ease-out 0.1s;
 }
@@ -152,7 +155,7 @@ a.headerLink-active
   transition        : opacity 0.2s linear 0.05s, margin-top 0.25s ease-out 0s;
 }
 
-.imageLink:hover > .toolTip
+a:hover > .toolTip
 {
   visibility      : visible;
   opacity         : 1;

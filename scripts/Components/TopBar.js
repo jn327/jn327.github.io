@@ -78,6 +78,7 @@ TopBar.init = function( parentElement )
 
   var linkItem;
   var toolTipItem;
+  var imgItem;
   var theData;
   var li;
   for (var j = 0; j < links.length; j++)
@@ -98,7 +99,7 @@ TopBar.init = function( parentElement )
     toolTipItem.className = 'toolTip';
     toolTipItem.textContent = theData.title;
 
-    var imgItem = document.createElement('img');
+    imgItem = document.createElement('img');
     imgItem.className = 'imageLinkIcon';
     imgItem.src = (rootLocation+"images/"+theData.source+".png");
     imgItem.alt = "Image file not found: " +theData.source;
@@ -107,6 +108,24 @@ TopBar.init = function( parentElement )
     linkItem.appendChild(toolTipItem);
     li.appendChild(linkItem);
   }
+
+  //codewars badge
+  linkItem = document.createElement('a');
+  linkItem.className = 'imageLinkNoHover';
+  linkItem.href = "https://www.codewars.com/users/jn327/"
+  linkItem.target = '_blank';
+  linkItem.rel = 'noopener';
+
+  //<span class="tooltiptext">Tooltip text</span>
+  toolTipItem = document.createElement('span');
+  toolTipItem.className = 'toolTip';
+  toolTipItem.textContent = "Codewars";
+
+  var imgItem = document.createElement('img');
+  imgItem.src ="https://www.codewars.com/users/jn327/badges/micro";
+  linkItem.appendChild(imgItem);
+  linkItem.appendChild(toolTipItem);
+  li.appendChild(linkItem);
 }
 
 TopBar.addLinks = function( labels, selectedIndex )
