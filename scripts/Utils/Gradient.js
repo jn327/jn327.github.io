@@ -11,7 +11,7 @@ function Gradient()
 {
 	this.keyFrames = [];
 
-	//add a point along the curve, similar usage as grd.addColorStop
+	//add a point along the curve.
 	this.addKeyFrame = function(t, value, easingFunct)
   {
 		if (easingFunct == undefined)
@@ -31,7 +31,6 @@ function Gradient()
 				if (t == theFrame.t)
 				{
 					console.error("Gradient: addkeyFrame: there is already a keyframe at t = "+t);
-					//if replacing should be a thing, then look at the 2nd arg of https://www.w3schools.com/jsref/jsref_splice.asp
 				}
 
 				//if this keyframe is further along than the frame we're about to add, then insert before this keyframe.
@@ -39,7 +38,6 @@ function Gradient()
 				{
 					sortedIndex = i;
 
-					//no point looping anymore
 					i = l;
 				}
 			}
@@ -70,7 +68,7 @@ function Gradient()
 				var currT			= t - prevFrame.t;
 				var deltaT		= theFrame.t - prevFrame.t;
 
-				// t: current time, b: beginning value, c: change in value, d: duration ---- function (t, b, c, d)
+				// t: current time, b: beginning value, c: change in value, d: duration - function (t, b, c, d)
 				var easedVal = theFrame.easing( currT, 0, 1, deltaT );
 
         return ColorUtil.lerp(easedVal, prevFrame.endValue, theFrame.endValue);
@@ -80,7 +78,6 @@ function Gradient()
 			prevFrame = this.keyFrames[i];
 		}
 
-		//if we never did any easing.... Then we should probably tell someone we're out of bounds!
 		console.error("Gradient: evaluate: t ("+t +") is out of bounds.")
 	}
 }

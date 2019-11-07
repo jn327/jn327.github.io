@@ -21,7 +21,7 @@ function init()
   var includes =
   [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/AnimationCurve',
-    'Utils/Gradient', 'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil',
+    'Utils/Gradient', 'Utils/EasingUtil', 'Utils/BezierUtil', 'Utils/TimingUtil', 'Utils/PathUtil',
     'GameLoop', 'CanvasScaler', 'GameObject',
     'Components/Canvas', 'Components/Slider'
   ];
@@ -42,10 +42,12 @@ function start()
   //init curves
   animCurves[0] = new AnimationCurve();
   animCurves[0].addKeyFrame(0, 0);
+  //animCurves[0].addKeyFrame(1, 1);
   animCurves[0].addKeyFrame(1, 1, EasingUtil.easeInExpo);
 
   animCurves[1] = new AnimationCurve();
   animCurves[1].addKeyFrame(0, 0);
+  //animCurves[1].addKeyFrame(1, 0);
   animCurves[1].addKeyFrame(1, 1, EasingUtil.easeInOutSine);
 
   animCurves[2] = new AnimationCurve();
@@ -54,15 +56,26 @@ function start()
 
   animCurves[3] = new AnimationCurve();
   animCurves[3].addKeyFrame(0, 0);
+  //animCurves[3].addKeyFrame(0.5, 1);
+  //animCurves[3].addKeyFrame(1, 0);
   animCurves[3].addKeyFrame(0.5, 1, EasingUtil.easeInSine);
   animCurves[3].addKeyFrame(1, 0, EasingUtil.easeOutSine);
 
   animCurves[4] = new AnimationCurve();
   animCurves[4].addKeyFrame(0, 0);
+  //animCurves[4].addKeyFrame(0.25, 1);
+  //animCurves[4].addKeyFrame(0.5, 0);
+  //animCurves[4].addKeyFrame(0.75, 1);
+  //animCurves[4].addKeyFrame(1, 0);
   animCurves[4].addKeyFrame(0.25, 1, EasingUtil.easeInSine);
   animCurves[4].addKeyFrame(0.5, 0, EasingUtil.easeOutSine);
   animCurves[4].addKeyFrame(0.75, 1, EasingUtil.easeInSine);
   animCurves[4].addKeyFrame(1, 0, EasingUtil.easeOutSine);
+
+  animCurves[5] = new AnimationCurve();
+  animCurves[5].addKeyFrame(0, 0);
+  animCurves[5].addKeyFrame(0.5, 1, undefined, 0.75, 0.25);
+
   drawCurves();
 }
 

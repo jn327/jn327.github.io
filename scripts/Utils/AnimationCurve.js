@@ -1,23 +1,12 @@
-//Requires 'Utils/EasingUtil'
-
-//Lets you define a list of keyframes with calls to addKeyFrame.
-//You can then evaluate the curve for a given point and it'll return a lerped and eased value for the curve at said point.
-//this is basically just a list of points and we esentially ride on the back of the easing functions to do all the lerping.
-//one oddity is that the first keyframe added can have an easing function defined for it but it'll be meaningless
-//list of keyframes should always be ordered from lowest t to highest t.
-//bear in mind that you cant add two keyframes at the same point, why would you want to do this?...
+//Lets you define a list of keyframes with calls to addKeyFrame, use evaluate to get the value of the curve at a given point
+//one oddity is that the first keyframe added can have an easing function but it'll be meaningless
+//list of keyframes should always be ordered from lowest t to highest t and two keyframes can't be added at the same point.
 function AnimationCurve()
 {
 	this.keyFrames = [];
 
-	//add a point along the curve, similar usage as grd.addColorStop
-	this.addKeyFrame = function(t, value, easingFunct)
+	this.addKeyFrame = function(t, value, easingFunct, controlP1, controlP2)
   {
-		if (easingFunct == undefined)
-		{
-			easingFunct = EasingUtil.easeNone;
-		}
-
 		var l = this.keyFrames.length;
 		var sortedIndex = l;
 		if (l >= 1)
@@ -30,21 +19,18 @@ function AnimationCurve()
 				if (t == theFrame.t)
 				{
 					console.error("AnimationCurve: addkeyFrame: there is already a keyframe at t = "+t);
-					//if replacing should be a thing, then look at the 2nd arg of https://www.w3schools.com/jsref/jsref_splice.asp
 				}
 
 				//if this keyframe is further along than the frame we're about to add, then insert before this keyframe.
 				if (theFrame.t > t)
 				{
 					sortedIndex = i;
-
-					//no point looping anymore
 					i = l;
 				}
 			}
 		}
 
-    this.keyFrames.splice( sortedIndex, 0, { easing:easingFunct, t:t, endValue:value } );
+    this.keyFrames.splice( sortedIndex, 0, { easing:easingFunct, t:t, endValue:value, control1:controlP1, control2:controlP2 } );
   }
 
 	this.evaluate = function (t)
@@ -55,7 +41,7 @@ function AnimationCurve()
 			console.error("AnimationCurve: evaluate: number of keyframes must be 2 or more, cannot evaluate");
 		}
 
-		//find stop at t and do the easing function....
+		//find stop at t.
 		var prevFrame = this.keyFrames[0];
 		var theFrame;
 		for (var i = 1; i < l; i++)
@@ -67,19 +53,37 @@ function AnimationCurve()
 			 	t <= prevFrame.t && t >= theFrame.t )
 			{
 				var prevVal		= prevFrame.endValue;
-				var deltaVal	= theFrame.endValue - prevVal;
+				var currVal		= theFrame.endValue;
 				var currT			= t - prevFrame.t;
 				var deltaT		= theFrame.t - prevFrame.t;
+				var tNormal		= currT / deltaT;
 
-				// t: current time, b: beginning value, c: change in value, d: duration ---- function (t, b, c, d)
-				return theFrame.easing( currT, prevVal, deltaVal, deltaT );
+				if (theFrame.easing != undefined)
+				{
+					// t: current time, b: beginning value, c: change in value, d: duration - function (t, b, c, d)
+					tNormal = theFrame.easing( tNormal, 0, 1, 1);
+				}
+
+				var value = 0;
+				if (theFrame.control1 != undefined && theFrame.control2 != undefined)
+				{
+					value = BezierUtil.cubic(prevVal, theFrame.control1, theFrame.control2, currVal, tNormal);
+				}
+				else if (theFrame.control1 != undefined)
+				{
+					value = BezierUtil.quadratic(prevVal, theFrame.control1, currVal, tNormal);
+				}
+				else
+				{
+					value = BezierUtil.linear(prevVal, currVal, tNormal);
+				}
+
+				return value;
 			}
 
-			//update the previous frame.
 			prevFrame = this.keyFrames[i];
 		}
 
-		//if we never did any easing.... Then we should probably tell someone we're out of bounds!
 		console.error("AnimationCurve: evaluate: t ("+t +") is out of bounds.")
 	}
 }
