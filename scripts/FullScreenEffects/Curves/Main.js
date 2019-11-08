@@ -3,7 +3,12 @@ var bgCanvas, bgCtx;
 var fgCanvas, fgCtx;
 
 var todSliderInput;
-var dayDur                   = 45;
+var dropdown;
+var layoutIndex              = 0;
+var nColumns                 = 5;
+var spacing                  = 20;
+
+var dayDur                   = 1;
 var dayTimer                 = dayDur * 0.5;
 var tod                      = 0; //0-1
 
@@ -23,7 +28,7 @@ function init()
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/AnimationCurve',
     'Utils/Gradient', 'Utils/EasingUtil', 'Utils/BezierUtil', 'Utils/TimingUtil', 'Utils/PathUtil',
     'GameLoop', 'CanvasScaler', 'GameObject',
-    'Components/Canvas', 'Components/Slider'
+    'Components/Canvas', 'Components/Slider', 'Components/DropDown'
   ];
   CommonElementsCreator.appendScripts(includes);
 }
@@ -32,54 +37,33 @@ function start()
 {
   initCanvas();
   createTodSlider();
+  createLayoutOptions();
 
   //gradient
   bgGradient = new Gradient();
-  bgGradient.addKeyFrame(0, [198, 0, 0]);
-  bgGradient.addKeyFrame(0.5, [0, 52, 198], EasingUtil.easeInExpo);
-  bgGradient.addKeyFrame(1, [0, 198, 122]);
+  bgGradient.addKeyFrame(0, [84, 108, 117]);
+  bgGradient.addKeyFrame(1, [176, 213, 217]);
 
-  //init curves
-  animCurves[0] = new AnimationCurve();
-  animCurves[0].addKeyFrame(0, 0);
-  animCurves[0].addKeyFrame(1, 1, EasingUtil.easeOutCubic);
+  var easingFunctions =
+  [
+    EasingUtil.easeNone,
+    EasingUtil.easeInBack, EasingUtil.easeInQuad, EasingUtil.easeInSine, EasingUtil.easeInCirc,
+    EasingUtil.easeInExpo, EasingUtil.easeInQuint, EasingUtil.easeInQuart, //EasingUtil.easeInBounce,
+    EasingUtil.easeInCubic, EasingUtil.easeInElastic,
+    EasingUtil.easeOutBack, EasingUtil.easeOutQuad, EasingUtil.easeOutSine, EasingUtil.easeOutCirc,
+    EasingUtil.easeOutExpo, EasingUtil.easeOutQuint, EasingUtil.easeOutQuart, //EasingUtil.easeOutBounce,
+    EasingUtil.easeOutCubic, EasingUtil.easeOutElastic,
+    EasingUtil.easeInOutBack, EasingUtil.easeInOutQuad, EasingUtil.easeInOutSine, EasingUtil.easeInOutCirc,
+    EasingUtil.easeInOutExpo, EasingUtil.easeInOutQuint, EasingUtil.easeInOutQuart, //EasingUtil.easeInOutBounce,
+    EasingUtil.easeInOutCubic, EasingUtil.easeInOutElastic,
+  ];
 
-  animCurves[1] = new AnimationCurve();
-  animCurves[1].addKeyFrame(0, 0);
-  animCurves[1].addKeyFrame(1, 1, EasingUtil.easeInExpo);
-
-  //animCurves[2] = new AnimationCurve();
-  //animCurves[2].addKeyFrame(0, 0);
-  //animCurves[2].addKeyFrame(1, 1, undefined, [1.000, 1.000]);
-  //animCurves[2].addKeyFrame(1, 1, undefined, [new Vector2D(0.190, 1.000), new Vector2D(0.220, 1.000)]);
-  //animCurves[2].addKeyFrame(1, 1, undefined, [new Vector2D(0.950, 0.050), new Vector2D(0.795, 0.035)]);
-
-  animCurves[1] = new AnimationCurve();
-  animCurves[1].addKeyFrame(0, 0);
-  //animCurves[1].addKeyFrame(1, 0);
-  animCurves[1].addKeyFrame(1, 1, EasingUtil.easeInOutSine);
-
-  animCurves[2] = new AnimationCurve();
-  animCurves[2].addKeyFrame(0, 0.5);
-  animCurves[2].addKeyFrame(1, 1, EasingUtil.easeNone);
-
-  animCurves[3] = new AnimationCurve();
-  animCurves[3].addKeyFrame(0, 0);
-  //animCurves[3].addKeyFrame(0.5, 1);
-  //animCurves[3].addKeyFrame(1, 0);
-  animCurves[3].addKeyFrame(0.5, 1, EasingUtil.easeInSine);
-  animCurves[3].addKeyFrame(1, 0, EasingUtil.easeOutSine);
-
-  animCurves[4] = new AnimationCurve();
-  animCurves[4].addKeyFrame(0, 0);
-  //animCurves[4].addKeyFrame(0.25, 1);
-  //animCurves[4].addKeyFrame(0.5, 0);
-  //animCurves[4].addKeyFrame(0.75, 1);
-  //animCurves[4].addKeyFrame(1, 0);
-  animCurves[4].addKeyFrame(0.25, 1, EasingUtil.easeInSine);
-  animCurves[4].addKeyFrame(0.5, 0, EasingUtil.easeOutSine);
-  animCurves[4].addKeyFrame(0.75, 1, EasingUtil.easeInSine);
-  animCurves[4].addKeyFrame(1, 0, EasingUtil.easeOutSine);
+  for (var i = 0; i < easingFunctions.length; i++)
+  {
+    animCurves[i] = new AnimationCurve();
+    animCurves[i].addKeyFrame(0, 0);
+    animCurves[i].addKeyFrame(1, 1, easingFunctions[i]);
+  }
 
   drawCurves();
 }
@@ -131,67 +115,138 @@ function update()
   fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
 
   var l = animCurves.length;
+  var layout = getLayoutObject(l);
   var theCurve;
   var pos;
-  var circleW = 10;
+  var circleW = 5;
+  var iN;
   for (var i = 0; i < l; i++)
   {
-    theCurve = animCurves[i];
-    pos = getCurvePos(tod, theCurve);
+    iN = i/l;
 
-    var theColor = bgGradient.evaluate(1 - (pos.y / fgCanvas.height));
-    fgCtx.fillStyle = "rgba(" +theColor[0] +"," +theColor[1] +"," +theColor[2] +", 0.5)";
+    theCurve = animCurves[i];
+    pos = getCurvePos(tod, theCurve, layout.offsetX, layout.avblWidth, layout.offsetY, layout.avblHeight);
+
+    var curveVal = Math.clamp(theCurve.evaluate(tod), 0, 1);
+    var theColor = bgGradient.evaluate(curveVal);
+    fgCtx.fillStyle = "rgba(" +theColor[0] +"," +theColor[1] +"," +theColor[2] +", 0.75)";
 
     fgCtx.beginPath();
     fgCtx.arc(pos.x, pos.y, circleW, 0, 2 * Math.PI);
     fgCtx.fill();
 
+    layout = updateLayoutObject(layout, i);
   }
 }
 
 function drawCurves()
 {
-  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  bgCtx.fillStyle = "rgba(168, 156, 136,1)";
+  bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
 
   var theCurve;
   var iN;
   var l = animCurves.length;
+  var layout = getLayoutObject(l);
+
+  bgCtx.lineWidth = 2;
 
   for (var i = 0; i < l; i++)
   {
     theCurve = animCurves[i];
 
-    iN = i/l;
-
-    bgCtx.strokeStyle = "hsl("+ (iN * 360) +", 100%, 40%)";
-    bgCtx.lineWidth = 2;
-
-    bgCtx.beginPath();
-
-    var pos;
-    for (var t = 0; t <= 1; t+= curveStep)
+    //draw guides
+    if (i == 0 || layoutIndex == 0)
     {
-      pos = getCurvePos(t, theCurve);
-      if (t == 0)
-      {
-        bgCtx.moveTo(pos.x,pos.y);
-      }
-      else
-      {
-        bgCtx.lineTo(pos.x,pos.y);
-      }
+      bgCtx.beginPath();
+      bgCtx.strokeStyle = "rgba(42, 54, 59, 0.15)";
+      bgCtx.moveTo(layout.offsetX, layout.offsetY);
+      bgCtx.lineTo(layout.offsetX, layout.offsetY + layout.avblHeight);
+      bgCtx.lineTo(layout.offsetX + layout.avblWidth, layout.offsetY + layout.avblHeight);
+      bgCtx.stroke();
+      bgCtx.fillStyle = "rgba(42, 54, 59, 0.02)";
+      bgCtx.fillRect(layout.offsetX, layout.offsetY, layout.avblWidth, layout.avblHeight);
     }
 
-    pos = getCurvePos(1, theCurve);
-    bgCtx.lineTo(pos.x,pos.y);
+    iN = i/l;
 
+    var gradientColor;
+    var pos;
+    var prevVal = new Vector2D(0,0);
+    for (var t = 0; t <= 1; t+= curveStep)
+    {
+      pos = getCurvePos(t, theCurve, layout.offsetX, layout.avblWidth, layout.offsetY, layout.avblHeight);
+      if (t != 0)
+      {
+        bgCtx.beginPath();
+
+        var curveVal = Math.clamp(theCurve.evaluate(t), 0, 1);
+        gradientColor = bgGradient.evaluate(curveVal);
+        bgCtx.strokeStyle = "rgba("+gradientColor[0] +"," +gradientColor[1] +"," +gradientColor[2] +", 0.5)";
+
+        bgCtx.moveTo(prevVal.x,prevVal.y);
+        bgCtx.lineTo(pos.x,pos.y);
+        bgCtx.stroke();
+      }
+
+      prevVal.x = pos.x
+      prevVal.y = pos.y;
+    }
+
+    bgCtx.beginPath();
+    gradientColor = bgGradient.evaluate(1);
+    bgCtx.strokeStyle = "rgba("+gradientColor[0] +"," +gradientColor[1] +"," +gradientColor[2] +", 0.5)";
+
+    pos = getCurvePos(1, theCurve, layout.offsetX, layout.avblWidth, layout.offsetY, layout.avblHeight);
+    bgCtx.moveTo(prevVal.x,prevVal.y);
+    bgCtx.lineTo(pos.x,pos.y);
     bgCtx.stroke();
+
+    layout = updateLayoutObject(layout, i);
   }
 }
 
-function getCurvePos(t, theCurve)
+function getLayoutInitialOffsetX()
 {
-  return new Vector2D(t * bgCanvas.width, (1 - theCurve.evaluate(t)) * bgCanvas.height);
+  return bgCanvas.width * 0.25;
+}
+
+function getLayoutObject(nItems)
+{
+  var obj = {};
+
+  obj.offsetX     = getLayoutInitialOffsetX();
+  obj.avblWidth   = bgCanvas.width * 0.5;
+  obj.offsetY     = bgCanvas.height * 0.2;
+  obj.avblHeight  = bgCanvas.height * 0.6;
+
+  if (layoutIndex == 0)
+  {
+    var nRows = nItems / nColumns;
+    obj.avblWidth   = (obj.avblWidth - ((nColumns-1)*spacing))/nColumns;
+    obj.avblHeight  = (obj.avblHeight - ((nRows-1)*spacing))/nRows;
+  }
+
+  return obj;
+}
+
+function updateLayoutObject(layout, i)
+{
+  if (layoutIndex == 0)
+  {
+    layout.offsetX += layout.avblWidth + spacing;
+    if ((i+1) % nColumns == 0)
+    {
+      layout.offsetX = getLayoutInitialOffsetX();
+      layout.offsetY += layout.avblHeight + spacing;
+    }
+  }
+  return layout;
+}
+
+function getCurvePos(t, theCurve, offsetX, avblWidth, offsetY, avblHeight)
+{
+  return new Vector2D( offsetX+(t*avblWidth), offsetY+((1-theCurve.evaluate(t))*avblHeight) );
 }
 
 //------------------------------------------------
@@ -216,4 +271,39 @@ function onTodSliderChange()
 function updateTodSlider()
 {
   todSliderInput.element.value = tod * 100;
+}
+
+// layout
+function createLayoutOptions()
+{
+  //dropdown
+  var theItems = ["Separate", "Joined"];
+  dropdown = new DropDown(document.body, theItems, "Layout: ", undefined, true);
+  dropdown.element.style.width = "160px";
+  var dropDownItems = dropdown.items;
+
+  for (var l = 0; l < dropDownItems.length; l++)
+  {
+    dropDownItems[l].addEventListener('click', bindClickToIndex(l));
+  }
+
+  function bindClickToIndex(i)
+  {
+    // have to wrap it in a closure as when adding event listeners javascript will
+    //put them to one side then add them later on once the for loop is done and the value of of i has changed.
+    //see https://stackoverflow.com/questions/750486/javascript-closure-inside-loops-simple-practical-example
+    return function() { setSelectedLayout(i); };
+  }
+}
+
+function setSelectedLayout(i)
+{
+  dropdown.setSelectedIndex(i);
+  dropdown.hideItemsContainer();
+
+  if (layoutIndex != i)
+  {
+    layoutIndex = i;
+    drawCurves();
+  }
 }
