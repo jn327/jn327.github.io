@@ -5,7 +5,7 @@ function AnimationCurve()
 {
 	this.keyFrames = [];
 
-	this.addKeyFrame = function(t, value, easingFunct, controlP1, controlP2)
+	this.addKeyFrame = function(t, value, easingFunct, controlP)
   {
 		var l = this.keyFrames.length;
 		var sortedIndex = l;
@@ -30,7 +30,7 @@ function AnimationCurve()
 			}
 		}
 
-    this.keyFrames.splice( sortedIndex, 0, { easing:easingFunct, t:t, endValue:value, control1:controlP1, control2:controlP2 } );
+    this.keyFrames.splice( sortedIndex, 0, { easing:easingFunct, t:t, endValue:value, controlPoints:controlP } );
   }
 
 	this.evaluate = function (t)
@@ -64,21 +64,13 @@ function AnimationCurve()
 					tNormal = theFrame.easing( tNormal, 0, 1, 1);
 				}
 
-				var value = 0;
-				if (theFrame.control1 != undefined && theFrame.control2 != undefined)
+				var points = [ prevVal ];
+				if (theFrame.controlPoints != undefined)
 				{
-					value = BezierUtil.cubic(prevVal, theFrame.control1, theFrame.control2, currVal, tNormal);
+					points = points.concat(theFrame.controlPoints);
 				}
-				else if (theFrame.control1 != undefined)
-				{
-					value = BezierUtil.quadratic(prevVal, theFrame.control1, currVal, tNormal);
-				}
-				else
-				{
-					value = BezierUtil.linear(prevVal, currVal, tNormal);
-				}
-
-				return value;
+				points.push( currVal );
+				return BezierUtil.evaluate(points, tNormal, false);
 			}
 
 			prevFrame = this.keyFrames[i];

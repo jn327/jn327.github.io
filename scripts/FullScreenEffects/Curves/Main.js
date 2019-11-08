@@ -42,8 +42,17 @@ function start()
   //init curves
   animCurves[0] = new AnimationCurve();
   animCurves[0].addKeyFrame(0, 0);
-  //animCurves[0].addKeyFrame(1, 1);
-  animCurves[0].addKeyFrame(1, 1, EasingUtil.easeInExpo);
+  animCurves[0].addKeyFrame(1, 1, EasingUtil.easeOutCubic);
+
+  animCurves[1] = new AnimationCurve();
+  animCurves[1].addKeyFrame(0, 0);
+  animCurves[1].addKeyFrame(1, 1, EasingUtil.easeInExpo);
+
+  //animCurves[2] = new AnimationCurve();
+  //animCurves[2].addKeyFrame(0, 0);
+  //animCurves[2].addKeyFrame(1, 1, undefined, [1.000, 1.000]);
+  //animCurves[2].addKeyFrame(1, 1, undefined, [new Vector2D(0.190, 1.000), new Vector2D(0.220, 1.000)]);
+  //animCurves[2].addKeyFrame(1, 1, undefined, [new Vector2D(0.950, 0.050), new Vector2D(0.795, 0.035)]);
 
   animCurves[1] = new AnimationCurve();
   animCurves[1].addKeyFrame(0, 0);
@@ -71,10 +80,6 @@ function start()
   animCurves[4].addKeyFrame(0.5, 0, EasingUtil.easeOutSine);
   animCurves[4].addKeyFrame(0.75, 1, EasingUtil.easeInSine);
   animCurves[4].addKeyFrame(1, 0, EasingUtil.easeOutSine);
-
-  animCurves[5] = new AnimationCurve();
-  animCurves[5].addKeyFrame(0, 0);
-  animCurves[5].addKeyFrame(0.5, 1, undefined, 0.75, 0.25);
 
   drawCurves();
 }
