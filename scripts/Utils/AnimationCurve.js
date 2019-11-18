@@ -49,8 +49,7 @@ function AnimationCurve()
 			theFrame = this.keyFrames[i];
 
 			//if t is between the previous and next frames.
-			if ( t >= prevFrame.t && t <= theFrame.t ||
-			 	t <= prevFrame.t && t >= theFrame.t )
+			if ( t >= prevFrame.t && t <= theFrame.t )
 			{
 				var prevVal		= prevFrame.endValue;
 				var currVal		= theFrame.endValue;

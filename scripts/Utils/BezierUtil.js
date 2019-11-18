@@ -16,7 +16,7 @@ BezierUtil.evaluate = function(points, t, is2d)
       BezierUtil.quadratic2D(points[0], points[1], points[2], t) :
       BezierUtil.quadratic1D(points[0], points[1], points[2], t);
   }
-  else if (points.length == 3)
+  else if (points.length == 4)
   {
     return is2d ?
       BezierUtil.cubic2D(points[0], points[1], points[2], points[3], t) :
@@ -26,7 +26,7 @@ BezierUtil.evaluate = function(points, t, is2d)
   {
     //Casteljau for evaluating
     var currentPoints = points;
-    itr = 0;
+    var itr = 0;
     while (currentPoints.length > 1 && itr < 6)
     {
       var nextPoints = [];
