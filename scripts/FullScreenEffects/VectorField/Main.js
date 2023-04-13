@@ -11,7 +11,7 @@ var vectorField;
 var vectorFieldMinStr     = 0.5;
 var vectorFieldMaxStr     = 1;
 var vectorFieldStrMultip  = 250;
-var randomiseForceStr     = 10;
+var randomiseForceStr     = 5;
 
 var particlesAlpha  = 0.5;
 
@@ -39,7 +39,7 @@ var hueChangeSpeed        = 50000;
 var hueOffset             = Math.random() * hueChangeSpeed;
 var hueChangeCurve;
 
-var changeFrequency   = 45;
+var changeFrequency   = 60;
 var changeTimer       = 0;
 var bgUpdateFreq      = 0.4;
 var bgUpdateTimer     = 0;
@@ -48,7 +48,9 @@ var renderTimer       = 0;
 var renderIndex       = 0;
 
 var particlesUpdateStagger = 4; //update 1/particlesUpdateStagger of the particles every frame, so like half or a third every frame.
-var particlesDrawStagger = 2;
+var particlesDrawStagger   = 2;
+
+var speedMultip            = 1;
 
 //------------------------------------------------
 //                Initialization
@@ -68,6 +70,8 @@ function init()
 
 function start()
 {
+  createSpeedSlider();
+
   hueChangeCurve = new AnimationCurve();
   hueChangeCurve.addKeyFrame(0, 0);
   hueChangeCurve.addKeyFrame(0.5, 1);
@@ -319,7 +323,7 @@ function updateParticles()
 
       // accelerate the particle
       velocityVector = vectorField[xPos][yPos];
-      particle.addForce( velocityVector.x * deltaTimeMulitp, velocityVector.y * deltaTimeMulitp );
+      particle.addForce( velocityVector.x * deltaTimeMulitp * speedMultip, velocityVector.y * deltaTimeMulitp * speedMultip );
     }
 
     // move the particle
@@ -345,4 +349,23 @@ function drawParticles()
     particle = particles[n];
     particle.draw( theCtx/*, pixelSizeX, pixelSizeY*/ );
   }
+}
+
+//------------------------------------------------
+//                   sliders
+//------------------------------------------------
+function createSpeedSlider()
+{
+  //Create a slider!
+  speedSliderInput = new Slider(document.body, 0);
+  speedSliderInput.element.style.position = "absolute";
+  speedSliderInput.element.style.bottom   = "10px";
+  speedSliderInput.element.style.right    = "10px";
+
+  speedSliderInput.element.addEventListener('input', onSpeedSliderChange);
+}
+
+function onSpeedSliderChange()
+{
+  speedMultip = speedSliderInput.element.value;
 }
