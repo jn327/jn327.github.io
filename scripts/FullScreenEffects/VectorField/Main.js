@@ -58,7 +58,7 @@ function init()
 {
   var includes = [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve',
-    'Utils/TimingUtil', 'Utils/CurlNoise',
+    'Utils/TimingUtil', 'Utils/CurlNoise', 'Utils/BezierUtil',
     'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
     'Components/Canvas',
     'FullScreenEffects/VectorField/Particle'
