@@ -295,6 +295,18 @@ function initProjects()
               description : ["Small asteroids game made with HTML Canvas & Javascript.", "Made as a uni project."],
               link        : { url: "https://jn327.github.io/HTML5-Asteroids/", text: "Check it out", isExternal: true },
             },
+            {
+              title       : "HTML 5 Canvas vector field",
+              //image       : "",
+              //description : ["", ""],
+              link        : { url: "pages/vectorField.html", text: "Check it out", isExternal: true },
+            },
+            {
+              title       : "Easing functions and animation curves tests",
+              //image       : "",
+              //description : ["", ""],
+              link        : { url: "pages/curves.html", text: "Check it out", isExternal: true },
+            },
           ]
         },
         {
