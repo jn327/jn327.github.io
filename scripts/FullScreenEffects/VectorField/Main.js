@@ -315,7 +315,7 @@ function updateParticles()
 
   var mousePos;
   var mouseDist;
-  var bAvoidMouse = /*MouseTracker.bMouseDown &&*/ MouseTracker.mousePos != undefined;
+  var bAvoidMouse = /*MouseTracker.bMouseDown &&*/ MouseTracker.mousePos != undefined && particleMouseAvoidanceDist > 0;
   if (bAvoidMouse)
   {
     mousePos = new Vector2D(MouseTracker.mousePos.x * canvasW, MouseTracker.mousePos.y * canvasH);
@@ -464,7 +464,7 @@ function createNoiseScaleSlider()
 
   noiseScaleSliderInput.element.min = 0.25;
   noiseScaleSliderInput.element.value = noiseScaleMultip;
-  noiseScaleSliderInput.element.min = 10;
+  noiseScaleSliderInput.element.max = 10;
 
   var noiseScaleLabel = new Label(document.body, 0);
   noiseScaleLabel.element.style.position  = "absolute";
@@ -489,6 +489,7 @@ function createMouseAvoidanceDistSlider()
   mouseAvoidanceDistSlider.element.style.right    = "10px";
 
   mouseAvoidanceDistSlider.element.value = particleMouseAvoidanceDist;
+  mouseAvoidanceDistSlider.element.max = 200;
 
   var mouseAvoidanceDistLabel = new Label(document.body, 0);
   mouseAvoidanceDistLabel.element.style.position  = "absolute";
