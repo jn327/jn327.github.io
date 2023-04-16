@@ -5,6 +5,7 @@ var noiseVisCanvas, noiseVisCtx;
 
 var speedSliderInput;
 var noiseScaleSliderInput;
+var mouseAvoidanceDistSlider;
 var displayDropdown;
 var displayIndex = 0;
 
@@ -74,7 +75,7 @@ function init()
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve',
     'Utils/TimingUtil', 'Utils/CurlNoise', 'Utils/BezierUtil',
     'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
-    'Components/Canvas', 'Components/Slider', 'Components/DropDown',
+    'Components/Canvas', 'Components/Slider', 'Components/DropDown',  'Components/Label',
     'FullScreenEffects/VectorField/Particle'
   ];
   CommonElementsCreator.appendScripts(includes);
@@ -84,6 +85,7 @@ function start()
 {
   createSpeedSlider();
   createNoiseScaleSlider();
+  createMouseAvoidanceDistSlider();
   createDisplayOptions();
 
   hueChangeCurve = new AnimationCurve();
@@ -479,6 +481,29 @@ function onNoiseScaleSliderChange()
   changeTimer = changeFrequency;
 }
 
+function createMouseAvoidanceDistSlider()
+{
+  mouseAvoidanceDistSlider = new Slider(document.body, 0);
+  mouseAvoidanceDistSlider.element.style.position = "absolute";
+  mouseAvoidanceDistSlider.element.style.bottom   = "60px";
+  mouseAvoidanceDistSlider.element.style.right    = "10px";
+
+  mouseAvoidanceDistSlider.element.value = particleMouseAvoidanceDist;
+
+  var mouseAvoidanceDistLabel = new Label(document.body, 0);
+  mouseAvoidanceDistLabel.element.style.position  = "absolute";
+  mouseAvoidanceDistLabel.element.style.bottom    = "67px";
+  mouseAvoidanceDistLabel.element.style.right     = "220px";
+  mouseAvoidanceDistLabel.element.innerText       = "mouse avoidance distance";
+
+  mouseAvoidanceDistSlider.element.addEventListener('input', onMouseAvoidanceDistSliderChange);
+}
+
+function onMouseAvoidanceDistSliderChange()
+{
+  particleMouseAvoidanceDist = mouseAvoidanceDistSlider.element.value;
+}
+
 //------------------------------------------------
 //                   
 //------------------------------------------------
@@ -488,7 +513,7 @@ function createDisplayOptions()
   displayDropdown = new DropDown(document.body, theItems, "Display: ", undefined, true);
   displayDropdown.element.style.width     = "160px";
   displayDropdown.element.style.position  = "absolute";
-  displayDropdown.element.style.bottom    = "60px";
+  displayDropdown.element.style.bottom    = "80px";
   displayDropdown.element.style.right     = "10px";
 
   var dropDownItems = displayDropdown.items;
