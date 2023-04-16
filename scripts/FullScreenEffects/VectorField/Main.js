@@ -74,7 +74,7 @@ function init()
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve',
     'Utils/TimingUtil', 'Utils/CurlNoise', 'Utils/BezierUtil',
     'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
-    'Components/Canvas', 'Components/Slider',
+    'Components/Canvas', 'Components/Slider', 'Components/DropDown',
     'FullScreenEffects/VectorField/Particle'
   ];
   CommonElementsCreator.appendScripts(includes);

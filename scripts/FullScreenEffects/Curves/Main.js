@@ -3,6 +3,7 @@ var bgCanvas, bgCtx;
 var fgCanvas, fgCtx;
 
 var todSliderInput;
+var todLabel;
 var dropdown;
 var layoutIndex              = 0;
 var nColumns                 = 5;
@@ -28,7 +29,7 @@ function init()
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/AnimationCurve',
     'Utils/Gradient', 'Utils/EasingUtil', 'Utils/BezierUtil', 'Utils/TimingUtil', 'Utils/PathUtil',
     'GameLoop', 'CanvasScaler', 'GameObject',
-    'Components/Canvas', 'Components/Slider', 'Components/DropDown'
+    'Components/Canvas', 'Components/Slider', 'Components/Label', 'Components/DropDown'
   ];
   CommonElementsCreator.appendScripts(includes);
 }
@@ -261,6 +262,11 @@ function createTodSlider()
   todSliderInput.element.style.right    = "10px";
 
   todSliderInput.element.addEventListener('input', onTodSliderChange);
+
+  todLabel = new Label(document.body, 0);
+  todLabel.element.style.position = "absolute";
+  todLabel.element.style.bottom   = "10px";
+  todLabel.element.style.right    = "15px";
 }
 
 function onTodSliderChange()
@@ -271,6 +277,7 @@ function onTodSliderChange()
 function updateTodSlider()
 {
   todSliderInput.element.value = tod * 100;
+  todLabel.element.innerText   = tod.toString();
 }
 
 // layout
