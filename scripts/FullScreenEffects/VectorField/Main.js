@@ -396,9 +396,8 @@ function updateNoiseVisCanvas()
     {
       if (x % noiseStep == 0 && y % noiseStep == 0)
       {
-        var simplexVal = noise.scaledNoise(x, y);
-        var simplexCol = 255 * simplexVal;
-        noiseVisCtx.fillStyle = 'rgb(' +simplexCol +', ' +simplexCol +', ' +simplexCol +')';
+        var simplexVal = noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip);
+        noiseVisCtx.fillStyle = 'rgba(0, 0, 0, '+simplexVal+')';
         noiseVisCtx.fillRect( x, y, noiseStep, noiseStep );
       }
 
