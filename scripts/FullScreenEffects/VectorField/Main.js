@@ -149,7 +149,7 @@ function onWindowResize()
 function initVectorField()
 {
   noise  = new SimplexNoise();
-  curl = new CurlNoise( getNoise, dirNoiseScale, curlEps );
+  curl = new CurlNoise( noise.scaledNoise, dirNoiseScale, curlEps );
   var vectorStr;
   var dirArr;
   var vectorDir;
@@ -165,7 +165,7 @@ function initVectorField()
 
     for ( var y = 0; y <= theHeight; y+= pixelSizeY )
     {
-      vectorStr = getNoise(x, y); //0-1
+      vectorStr = noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip)
       vectorStr = Math.scaleNormal(vectorStr, vectorFieldMinStr, vectorFieldMaxStr);
 
       dirArr = curl.noise(x, y);
@@ -176,12 +176,6 @@ function initVectorField()
     }
   }
 }
-
-function getNoise(x,y) 
-{ 
-  //return noise.scaledNoise(x,y);
-  return noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip); //0-1
-};
 
 function roundUpToNearestMultip( value, multip )
 {
@@ -390,7 +384,7 @@ function updateNoiseVisCanvas()
     noiseVisCtx.clearRect(0, 0, noiseVisCanvas.width, noiseVisCanvas.height);
   
   var lineStep  = 16;
-  var noiseStep = 8;
+  var noiseStep = 6;
 
   noiseVisCtx.strokeStyle   = 'hotpink';
   noiseVisCtx.lineWidth     = 1;
@@ -402,7 +396,7 @@ function updateNoiseVisCanvas()
     {
       if (x % noiseStep == 0 && y % noiseStep == 0)
       {
-        var simplexVal = noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip);
+        var simplexVal = noise.scaledNoise(x, y);
         var simplexCol = 255 * simplexVal;
         noiseVisCtx.fillStyle = 'rgb(' +simplexCol +', ' +simplexCol +', ' +simplexCol +')';
         noiseVisCtx.fillRect( x, y, noiseStep, noiseStep );
@@ -410,10 +404,7 @@ function updateNoiseVisCanvas()
 
       if (x % lineStep == 0 && y % lineStep == 0)
       {
-        var curlVal     = curl.noise(x, y);
-        var curlVector  = new Vector2D(curlVal[0], curlVal[1]);
-        curlVector.normalize();
-        curlVector.multiply(lineStep);
+        var curlVector  = vectorField[x][y];
 
         var startPoint = new Vector2D(x, y);
         var endPoint = startPoint.getSum(curlVector);
@@ -491,7 +482,7 @@ function createDisplayOptions()
   var dropDownItems = displayDropdown.items;
   for (var l = 0; l < dropDownItems.length; l++)
   {
-    dropDownItems[l].addEventListener('click', () => setSelectedLayout(i));
+    dropDownItems[l].addEventListener('click', () => setSelectedDisplay(i));
   }
 }
 
