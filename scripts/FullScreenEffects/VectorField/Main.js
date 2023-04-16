@@ -486,7 +486,15 @@ function createDisplayOptions()
   var dropDownItems = displayDropdown.items;
   for (var l = 0; l < dropDownItems.length; l++)
   {
-    dropDownItems[l].addEventListener('click', () => setSelectedDisplay(i));
+    dropDownItems[l].addEventListener('click', bindClickToIndex(l));
+  }
+
+  function bindClickToIndex(i)
+  {
+    // have to wrap it in a closure as when adding event listeners javascript will
+    //put them to one side then add them later on once the for loop is done and the value of of i has changed.
+    //see https://stackoverflow.com/questions/750486/javascript-closure-inside-loops-simple-practical-example
+    return function() { setSelectedDisplay(i); };
   }
 }
 
