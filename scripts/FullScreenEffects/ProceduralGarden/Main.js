@@ -44,6 +44,7 @@ function init()
   var includes =
   [
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/ColorUtil', 'Utils/SimplexNoise', 'Utils/AnimationCurve',
+    'Utils/BezierUtil',
     'Utils/Gradient', 'Utils/EasingUtil', 'Utils/TimingUtil', 'Utils/PathUtil', 'Utils/PeriodicFunctions',
     'GameLoop', 'CanvasScaler', 'GameObject',
     'Components/Canvas', 'Components/Slider',
