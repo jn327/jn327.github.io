@@ -334,22 +334,22 @@ function updateParticles()
     xPos = Math.roundMultip(particle.position.x, pixelSizeX);
     yPos = Math.roundMultip(particle.position.y, pixelSizeY);
 
+    //avoid the mouse!!!
+    if (bAvoidMouse)
+    {
+      mouseDist = particle.position.distance( mousePos );
+      if (mouseDist < particleMouseAvoidanceDist)
+      {
+        var mouseStr = (particleMouseAvoidanceDist-mouseDist)/particleMouseAvoidanceDist;
+        var mouseDir = particle.position.getDifference( mousePos );
+
+        mouseDir.multiply( mouseStr * particleMouseAvoidanceStr * deltaTimeMulitp );
+        particle.addForce( mouseDir.x, mouseDir.y );
+      }
+    }
+
     if (xPos >= 0 && yPos >= 0 && xPos <= xMax && yPos <= yMax)
     {
-      //avoid the mouse!!!
-      if (bAvoidMouse)
-      {
-        mouseDist = particle.position.distance( mousePos );
-        if (mouseDist < particleMouseAvoidanceDist)
-        {
-          var mouseStr = (particleMouseAvoidanceDist-mouseDist)/particleMouseAvoidanceDist;
-          var mouseDir = particle.position.getDifference( mousePos );
-
-          mouseDir.multiply( mouseStr * particleMouseAvoidanceStr * deltaTimeMulitp );
-          particle.addForce( mouseDir.x, mouseDir.y );
-        }
-      }
-
       // accelerate the particle
       velocityVector = vectorField[xPos][yPos];
       particle.addForce( velocityVector.x * deltaTimeMulitp * speedMultip, velocityVector.y * deltaTimeMulitp * speedMultip );
@@ -391,7 +391,6 @@ function updateNoiseVisCanvas()
     return;
   }
   
-  var lineStep  = 16;
   var noiseStep = 3;
 
   noiseVisCtx.strokeStyle   = 'hotpink';
@@ -409,31 +408,24 @@ function updateNoiseVisCanvas()
         noiseVisCtx.fillRect( x, y, noiseStep, noiseStep );
       }
 
-      if (x % lineStep == 0 && y % lineStep == 0)
+      if (x % pixelSizeX == 0 && y % pixelSizeY == 0)
       {
         var curlVector  = vectorField[x][y];
 
-        if (curlVector)
-        {
-          var startPoint = new Vector2D(x, y);
-          var endPoint = startPoint.getSum(curlVector);
-          var arrowEdgeDist = curlVector.getMultiplied(0.75); //how far along the arrow starts
-          var arrowEdgePoint = startPoint.getSum(arrowEdgeDist);
-          var perpendicularVector = curlVector.getPerpendicular();
-          perpendicularVector.multiply(0.25); //how wide the arrow is compared to our length
-          var arrowEdgeOne = arrowEdgePoint.getDifference(perpendicularVector);
-          var arrowEdgeTwo = arrowEdgePoint.getSum(perpendicularVector);
+        var startPoint = new Vector2D(x, y);
+        var endPoint = startPoint.getSum(curlVector);
+        var arrowEdgeDist = curlVector.getMultiplied(0.75); //how far along the arrow starts
+        var arrowEdgePoint = startPoint.getSum(arrowEdgeDist);
+        var perpendicularVector = curlVector.getPerpendicular();
+        perpendicularVector.multiply(0.25); //how wide the arrow is compared to our length
+        var arrowEdgeOne = arrowEdgePoint.getDifference(perpendicularVector);
+        var arrowEdgeTwo = arrowEdgePoint.getSum(perpendicularVector);
 
-          noiseVisCtx.moveTo(startPoint.x, startPoint.y);
-          noiseVisCtx.lineTo(endPoint.x, endPoint.y);
-          noiseVisCtx.lineTo(arrowEdgeOne.x, arrowEdgeOne.y);
-          noiseVisCtx.moveTo(endPoint.x, endPoint.y);
-          noiseVisCtx.lineTo(arrowEdgeTwo.x, arrowEdgeTwo.y);
-        }
-        else
-        {
-          console.warn('updateNoiseVisCanvas: Vector field value not found at ('+x +', '+y+')');
-        }
+        noiseVisCtx.moveTo(startPoint.x, startPoint.y);
+        noiseVisCtx.lineTo(endPoint.x, endPoint.y);
+        noiseVisCtx.lineTo(arrowEdgeOne.x, arrowEdgeOne.y);
+        noiseVisCtx.moveTo(endPoint.x, endPoint.y);
+        noiseVisCtx.lineTo(arrowEdgeTwo.x, arrowEdgeTwo.y);
       }
     }
   }
