@@ -485,7 +485,7 @@ function createMouseAvoidanceDistSlider()
 {
   mouseAvoidanceDistSlider = new Slider(document.body, 0);
   mouseAvoidanceDistSlider.element.style.position = "absolute";
-  mouseAvoidanceDistSlider.element.style.bottom   = "60px";
+  mouseAvoidanceDistSlider.element.style.bottom   = "50px";
   mouseAvoidanceDistSlider.element.style.right    = "10px";
 
   mouseAvoidanceDistSlider.element.value = particleMouseAvoidanceDist;
@@ -493,7 +493,7 @@ function createMouseAvoidanceDistSlider()
 
   var mouseAvoidanceDistLabel = new Label(document.body, 0);
   mouseAvoidanceDistLabel.element.style.position  = "absolute";
-  mouseAvoidanceDistLabel.element.style.bottom    = "67px";
+  mouseAvoidanceDistLabel.element.style.bottom    = "57px";
   mouseAvoidanceDistLabel.element.style.right     = "220px";
   mouseAvoidanceDistLabel.element.innerText       = "mouse avoidance distance";
 
