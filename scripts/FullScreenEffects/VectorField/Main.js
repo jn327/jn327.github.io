@@ -397,14 +397,14 @@ function updateNoiseVisCanvas()
   {
     for (var y = 0; y < noiseVisCanvas.height; y++)
     {
-      if (x % noiseStep == 0 && y % noiseStep == 0)
+      if (x % noiseStep == 0 && y % noiseStep == 0 && (displayIndex == 3 || displayIndex == 1))
       {
         var simplexVal = noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip);
         noiseVisCtx.fillStyle = 'rgba(0, 0, 0, '+simplexVal+')';
         noiseVisCtx.fillRect( x, y, noiseStep, noiseStep );
       }
 
-      if (x % pixelSizeX == 0 && y % pixelSizeY == 0)
+      if (x % pixelSizeX == 0 && y % pixelSizeY == 0 && (displayIndex == 3 || displayIndex == 2))
       {
         var curlVector  = vectorField[x][y];
 
@@ -462,9 +462,9 @@ function createNoiseScaleSlider()
   noiseScaleSliderInput.element.style.bottom    = "30px";
   noiseScaleSliderInput.element.style.right     = "10px";
 
-  noiseScaleSliderInput.element.min = 0.25;
+  noiseScaleSliderInput.element.min = 0.2;
   noiseScaleSliderInput.element.value = noiseScaleMultip;
-  noiseScaleSliderInput.element.max = 10;
+  noiseScaleSliderInput.element.max = 5;
 
   var noiseScaleLabel = new Label(document.body, 0);
   noiseScaleLabel.element.style.position  = "absolute";
@@ -510,7 +510,7 @@ function onMouseAvoidanceDistSliderChange()
 //------------------------------------------------
 function createDisplayOptions()
 {
-  var theItems = ["Normal", "Debug"];
+  var theItems = ["Normal", "Noise", "Flow", 'All'];
   displayDropdown = new DropDown(document.body, theItems, "Display: ", undefined, true);
   displayDropdown.element.style.width     = "160px";
   displayDropdown.element.style.position  = "absolute";
