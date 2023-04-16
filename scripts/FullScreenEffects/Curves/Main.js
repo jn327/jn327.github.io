@@ -265,8 +265,8 @@ function createTodSlider()
 
   todLabel = new Label(document.body, 0);
   todLabel.element.style.position = "absolute";
-  todLabel.element.style.bottom   = "10px";
-  todLabel.element.style.right    = "240px";
+  todLabel.element.style.bottom   = "17px";
+  todLabel.element.style.right    = "220px";
 }
 
 function onTodSliderChange()

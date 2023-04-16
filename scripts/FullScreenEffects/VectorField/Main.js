@@ -180,7 +180,7 @@ function initVectorField()
 function getNoise(x,y) 
 { 
   return noise.scaledNoise(x,y);
-};
+}
 
 function roundUpToNearestMultip( value, multip )
 {
