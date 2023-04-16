@@ -277,11 +277,6 @@ function update()
 
 }
 
-function doChange()
-{
-  changeTimer = changeFrequency;
-}
-
 function updateBgCanvas()
 {
   hueValue = ((GameLoop.currentTime+hueOffset) % hueChangeSpeed) / hueChangeSpeed;
@@ -384,12 +379,11 @@ function drawParticles()
 }
 
 function updateNoiseVisCanvas()
-{
+{    
+  noiseVisCtx.clearRect(0, 0, noiseVisCanvas.width, noiseVisCanvas.height);
+
   if (displayIndex == 0)
-  {
-    noiseVisCtx.clearRect(0, 0, noiseVisCanvas.width, noiseVisCanvas.height);
     return;
-  }
   
   var noiseStep = 3;
 
@@ -464,13 +458,13 @@ function createNoiseScaleSlider()
   noiseScaleSliderInput.element.value = noiseScaleMultip;
   noiseScaleSliderInput.element.min = 10;
 
-  noiseScaleSliderInput.element.addEventListener('input', onNoiseScaleSliderChange);
+  noiseScaleSliderInput.element.addEventListener('input', TimingUtil.debounce(onNoiseScaleSliderChange, 250));
 }
 
 function onNoiseScaleSliderChange()
 {
   noiseScaleMultip = noiseScaleSliderInput.element.value;
-  TimingUtil.debounce(doChange, 250)
+  changeTimer = changeFrequency;
 }
 
 //------------------------------------------------
