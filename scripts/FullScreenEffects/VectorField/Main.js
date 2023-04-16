@@ -23,7 +23,6 @@ var randomiseForceStr     = 5;
 
 var particlesAlphaMin  = 0.5;
 var particlesAlphaMax  = 0.75;
-var particleAlphaChangeSpeed = 0.04;
 
 var bgSaturation  = 60; //0-100 (percent)
 var bgBrightness  = 20;
@@ -349,9 +348,6 @@ function updateParticles()
       // accelerate the particle
       velocityVector = vectorField[xPos][yPos];
       particle.addForce( velocityVector.x * deltaTimeMulitp * speedMultip, velocityVector.y * deltaTimeMulitp * speedMultip );
-
-      particle.alpha += particleAlphaChangeSpeed * (velocityVector.x + velocityVector.y);
-      particle.alpha = Math.clamp(particle.alpha, particlesAlphaMin, particlesAlphaMax);
     }
 
     // move the particle
