@@ -386,7 +386,10 @@ function drawParticles()
 function updateNoiseVisCanvas()
 {
   if (displayIndex == 0)
+  {
     noiseVisCtx.clearRect(0, 0, noiseVisCanvas.width, noiseVisCanvas.height);
+    return;
+  }
   
   var lineStep  = 16;
   var noiseStep = 3;
