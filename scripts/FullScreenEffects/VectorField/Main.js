@@ -389,15 +389,15 @@ function updateNoiseVisCanvas()
     noiseVisCtx.clearRect(0, 0, noiseVisCanvas.width, noiseVisCanvas.height);
   
   var lineStep  = 16;
-  var noiseStep = 6;
+  var noiseStep = 3;
 
   noiseVisCtx.strokeStyle   = 'hotpink';
   noiseVisCtx.lineWidth     = 1;
   noiseVisCtx.beginPath();
 
-  for (var x = 0; x < bgCanvas.width; x++)
+  for (var x = 0; x < noiseVisCanvas.width; x++)
   {
-    for (var y = 0; y < bgCanvas.height; y++)
+    for (var y = 0; y < noiseVisCanvas.height; y++)
     {
       if (x % noiseStep == 0 && y % noiseStep == 0)
       {
@@ -410,20 +410,27 @@ function updateNoiseVisCanvas()
       {
         var curlVector  = vectorField[x][y];
 
-        var startPoint = new Vector2D(x, y);
-        var endPoint = startPoint.getSum(curlVector);
-        var arrowEdgeDist = curlVector.getMultiplied(0.75); //how far along the arrow starts
-        var arrowEdgePoint = startPoint.getSum(arrowEdgeDist);
-        var perpendicularVector = curlVector.getPerpendicular();
-        perpendicularVector.multiply(0.25); //how wide the arrow is compared to our length
-        var arrowEdgeOne = arrowEdgePoint.getDifference(perpendicularVector);
-        var arrowEdgeTwo = arrowEdgePoint.getSum(perpendicularVector);
+        if (curlVector)
+        {
+          var startPoint = new Vector2D(x, y);
+          var endPoint = startPoint.getSum(curlVector);
+          var arrowEdgeDist = curlVector.getMultiplied(0.75); //how far along the arrow starts
+          var arrowEdgePoint = startPoint.getSum(arrowEdgeDist);
+          var perpendicularVector = curlVector.getPerpendicular();
+          perpendicularVector.multiply(0.25); //how wide the arrow is compared to our length
+          var arrowEdgeOne = arrowEdgePoint.getDifference(perpendicularVector);
+          var arrowEdgeTwo = arrowEdgePoint.getSum(perpendicularVector);
 
-        noiseVisCtx.moveTo(startPoint.x, startPoint.y);
-        noiseVisCtx.lineTo(endPoint.x, endPoint.y);
-        noiseVisCtx.lineTo(arrowEdgeOne.x, arrowEdgeOne.y);
-        noiseVisCtx.moveTo(endPoint.x, endPoint.y);
-        noiseVisCtx.lineTo(arrowEdgeTwo.x, arrowEdgeTwo.y);
+          noiseVisCtx.moveTo(startPoint.x, startPoint.y);
+          noiseVisCtx.lineTo(endPoint.x, endPoint.y);
+          noiseVisCtx.lineTo(arrowEdgeOne.x, arrowEdgeOne.y);
+          noiseVisCtx.moveTo(endPoint.x, endPoint.y);
+          noiseVisCtx.lineTo(arrowEdgeTwo.x, arrowEdgeTwo.y);
+        }
+        else
+        {
+          console.warn('updateNoiseVisCanvas: Vector field value not found at ('+x +', '+y+')');
+        }
       }
     }
   }
