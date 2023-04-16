@@ -439,6 +439,12 @@ function createSpeedSlider()
 
   speedSliderInput.element.value = speedMultip;
 
+  var noiseScaleLabel = new Label(document.body, 0);
+  noiseScaleLabel.element.style.position  = "absolute";
+  noiseScaleLabel.element.style.bottom    = "17px";
+  noiseScaleLabel.element.style.right     = "220px";
+  noiseScaleLabel.element.innerText       = "speed multiplier";
+
   speedSliderInput.element.addEventListener('input', onSpeedSliderChange);
 }
 
@@ -457,6 +463,12 @@ function createNoiseScaleSlider()
   noiseScaleSliderInput.element.min = 0.25;
   noiseScaleSliderInput.element.value = noiseScaleMultip;
   noiseScaleSliderInput.element.min = 10;
+
+  var noiseScaleLabel = new Label(document.body, 0);
+  noiseScaleLabel.element.style.position  = "absolute";
+  noiseScaleLabel.element.style.bottom    = "37px";
+  noiseScaleLabel.element.style.right     = "220px";
+  noiseScaleLabel.element.innerText       = "noise scale";
 
   noiseScaleSliderInput.element.addEventListener('input', TimingUtil.debounce(onNoiseScaleSliderChange, 250));
 }
