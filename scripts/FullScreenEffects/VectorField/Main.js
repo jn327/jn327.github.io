@@ -149,7 +149,7 @@ function onWindowResize()
 function initVectorField()
 {
   noise  = new SimplexNoise();
-  curl = new CurlNoise( noise.scaledNoise, dirNoiseScale, curlEps );
+  curl = new CurlNoise( getNoise, dirNoiseScale, curlEps );
   var vectorStr;
   var dirArr;
   var vectorDir;
@@ -176,6 +176,11 @@ function initVectorField()
     }
   }
 }
+
+function getNoise(x,y) 
+{ 
+  return noise.scaledNoise(x,y);
+};
 
 function roundUpToNearestMultip( value, multip )
 {
