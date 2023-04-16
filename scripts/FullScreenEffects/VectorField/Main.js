@@ -408,10 +408,10 @@ function updateNoiseVisCanvas()
         var curlVector  = vectorField[x][y];
 
         var startPoint = new Vector2D(x, y);
-        var endPoint = startPoint.getSum(curlVector);
-        var arrowEdgeDist = curlVector.getMultiplied(6250); //how far along the arrow starts
+        var endPoint = startPoint.getSum(curlVector.getMultiplied(6000));
+        var arrowEdgeDist = curlVector.getMultiplied(0.75); //how far along the arrow starts
         var arrowEdgePoint = startPoint.getSum(arrowEdgeDist);
-        var perpendicularVector = arrowEdgeDist.getPerpendicular();
+        var perpendicularVector = curlVector.getPerpendicular();
         perpendicularVector.multiply(0.25); //how wide the arrow is compared to our length
         var arrowEdgeOne = arrowEdgePoint.getDifference(perpendicularVector);
         var arrowEdgeTwo = arrowEdgePoint.getSum(perpendicularVector);
