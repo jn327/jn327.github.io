@@ -13,7 +13,8 @@ var vectorFieldMaxStr     = 1;
 var vectorFieldStrMultip  = 250;
 var randomiseForceStr     = 5;
 
-var particlesAlpha  = 0.5;
+var particlesAlphaMin  = 0.5;
+var particlesAlphaMax  = 0.75;
 
 var bgSaturation  = 60; //0-100 (percent)
 var bgBrightness  = 20;
@@ -50,7 +51,8 @@ var renderIndex       = 0;
 var particlesUpdateStagger = 4; //update 1/particlesUpdateStagger of the particles every frame, so like half or a third every frame.
 var particlesDrawStagger   = 2;
 
-var speedMultip            = 1;
+var speedMultip            = 10;
+var noiseScaleMultip       = 1;
 
 //------------------------------------------------
 //                Initialization
@@ -71,6 +73,7 @@ function init()
 function start()
 {
   createSpeedSlider();
+  createNoiseScaleSlider();
 
   hueChangeCurve = new AnimationCurve();
   hueChangeCurve.addKeyFrame(0, 0);
@@ -148,7 +151,7 @@ function initVectorField()
 
     for ( var y = 0; y <= theHeight; y+= pixelSizeY )
     {
-      vectorStr = simplexNoise.scaledNoise(x * strNoiseScale, y * strNoiseScale); //0-1
+      vectorStr = simplexNoise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip); //0-1
       vectorStr = Math.scaleNormal(vectorStr, vectorFieldMinStr, vectorFieldMaxStr);
 
       dirArr = curl.noise(x, y);
@@ -193,7 +196,7 @@ function setupParticle(theParticle)
 {
   theParticle.randomizePosition( 0, 0, activeCanvas[0].width, activeCanvas[0].height );
   theParticle.scale = particleSize;
-  theParticle.alpha = particlesAlpha;
+  theParticle.alpha = Math.getRnd(particlesAlphaMin, particlesAlphaMax);
 
   theParticle.saturation = particleSaturation;
   theParticle.brightness = particleBrightness;
@@ -226,7 +229,7 @@ function update()
   changeTimer += GameLoop.deltaTime;
   if (changeTimer > changeFrequency)
   {
-    changeTimer   = 0;
+    changeTimer = 0;
 
     initVectorField();
     var l = particles.length;
@@ -251,6 +254,11 @@ function update()
     drawParticles();
   }
 
+}
+
+function doChange()
+{
+  changeTimer = changeFrequency;
 }
 
 function updateBgCanvas()
@@ -356,11 +364,12 @@ function drawParticles()
 //------------------------------------------------
 function createSpeedSlider()
 {
-  //Create a slider!
   speedSliderInput = new Slider(document.body, 0);
   speedSliderInput.element.style.position = "absolute";
   speedSliderInput.element.style.bottom   = "10px";
   speedSliderInput.element.style.right    = "10px";
+
+  speedSliderInput.element.value = speedMultip;
 
   speedSliderInput.element.addEventListener('input', onSpeedSliderChange);
 }
@@ -368,4 +377,24 @@ function createSpeedSlider()
 function onSpeedSliderChange()
 {
   speedMultip = speedSliderInput.element.value;
+}
+
+function createNoiseScaleSlider()
+{
+  noiseScaleSliderInput = new Slider(document.body, 0);
+  noiseScaleSliderInput.element.style.position = "absolute";
+  noiseScaleSliderInput.element.style.bottom   = "20px";
+  noiseScaleSliderInput.element.style.right    = "10px";
+
+  noiseScaleSliderInput.element.min = 0.25;
+  noiseScaleSliderInput.element.value = noiseScaleMultip;
+  noiseScaleSliderInput.element.min = 10;
+
+  noiseScaleSliderInput.element.addEventListener('input', onNoiseScaleSliderChange);
+}
+
+function onNoiseScaleSliderChange()
+{
+  noiseScaleMultip = noiseScaleSliderInput.element.value;
+  TimingUtil.debounce(doChange, 250)
 }
