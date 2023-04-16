@@ -266,7 +266,7 @@ function createTodSlider()
   todLabel = new Label(document.body, 0);
   todLabel.element.style.position = "absolute";
   todLabel.element.style.bottom   = "10px";
-  todLabel.element.style.right    = "15px";
+  todLabel.element.style.right    = "240px";
 }
 
 function onTodSliderChange()
@@ -277,7 +277,7 @@ function onTodSliderChange()
 function updateTodSlider()
 {
   todSliderInput.element.value = tod * 100;
-  todLabel.element.innerText   = tod.toString();
+  todLabel.element.innerText   = tod.toFixed(2);
 }
 
 // layout
