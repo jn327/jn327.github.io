@@ -20,7 +20,6 @@ var curlEps       = 0.5;
 var vectorField;
 var vectorFieldMinStr     = 0.5;
 var vectorFieldMaxStr     = 1;
-var vectorFieldStrMultip  = 250;
 var randomiseForceStr     = 5;
 
 var particlesAlphaMin  = 0.5;
@@ -62,7 +61,7 @@ var renderIndex       = 0;
 var particlesUpdateStagger = 4; //update 1/particlesUpdateStagger of the particles every frame, so like half or a third every frame.
 var particlesDrawStagger   = 2;
 
-var speedMultip            = 10;
+var speedMultip            = 2500;
 var noiseScaleMultip       = 1;
 
 //------------------------------------------------
@@ -173,7 +172,7 @@ function initVectorField()
       dirArr = curl.noise(x, y);
 
       vectorDir = new Vector2D(dirArr[0], dirArr[1]);
-      vectorDir.multiply(vectorStr * vectorFieldStrMultip);
+      vectorDir.multiply(vectorStr);
       vectorField[x][y] = vectorDir;
     }
   }
@@ -182,6 +181,7 @@ function initVectorField()
 function getNoise(x,y) 
 { 
   return noise.scaledNoise(x,y);
+  //return noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip);
 }
 
 function roundUpToNearestMultip( value, multip )
@@ -237,9 +237,7 @@ function resetParticles()
 {
   var l = particles.length;
   for ( var n = 0; n < l; n++ )
-  {
     setupParticle(particles[n]);
-  }
 }
 
 //------------------------------------------------
@@ -255,9 +253,7 @@ function update()
     initVectorField();
     var l = particles.length;
     for ( var n = 0; n < l; n++ )
-    {
       addRandomForceToParticle(particles[n]);
-    }
 
     updateNoiseVisCanvas();
   }
@@ -410,7 +406,7 @@ function updateNoiseVisCanvas()
 
         var startPoint = new Vector2D(x, y);
         var endPoint = startPoint.getSum(curlVector);
-        var arrowEdgeDist = curlVector.getMultiplied(25); //how far along the arrow starts
+        var arrowEdgeDist = curlVector.getMultiplied(6250); //how far along the arrow starts
         var arrowEdgePoint = startPoint.getSum(arrowEdgeDist);
         var perpendicularVector = curlVector.getPerpendicular();
         perpendicularVector.multiply(0.4); //how wide the arrow is compared to our length
@@ -439,6 +435,8 @@ function createSpeedSlider()
   speedSliderInput.element.style.bottom   = "10px";
   speedSliderInput.element.style.right    = "10px";
 
+  speedSliderInput.element.min = 1000;
+  speedSliderInput.element.max = 5000;
   speedSliderInput.element.value = speedMultip;
 
   var noiseScaleLabel = new Label(document.body, 0);
@@ -462,9 +460,10 @@ function createNoiseScaleSlider()
   noiseScaleSliderInput.element.style.bottom    = "30px";
   noiseScaleSliderInput.element.style.right     = "10px";
 
+  noiseScaleSliderInput.element.step = 0.1;
   noiseScaleSliderInput.element.min = 0.2;
-  noiseScaleSliderInput.element.value = noiseScaleMultip;
   noiseScaleSliderInput.element.max = 5;
+  noiseScaleSliderInput.element.value = noiseScaleMultip;
 
   var noiseScaleLabel = new Label(document.body, 0);
   noiseScaleLabel.element.style.position  = "absolute";
@@ -488,8 +487,9 @@ function createMouseAvoidanceDistSlider()
   mouseAvoidanceDistSlider.element.style.bottom   = "50px";
   mouseAvoidanceDistSlider.element.style.right    = "10px";
 
-  mouseAvoidanceDistSlider.element.value = particleMouseAvoidanceDist;
+  mouseAvoidanceDistSlider.element.min = 0;
   mouseAvoidanceDistSlider.element.max = 200;
+  mouseAvoidanceDistSlider.element.value = particleMouseAvoidanceDist;
 
   var mouseAvoidanceDistLabel = new Label(document.body, 0);
   mouseAvoidanceDistLabel.element.style.position  = "absolute";
