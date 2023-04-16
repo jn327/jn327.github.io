@@ -1,5 +1,5 @@
 //Make sure you have the common elements creator added!
-//CommonElementsCreator.addStyles(["label"]);
+CommonElementsCreator.addStyles(["label"]);
 
 Label = function( parentElement, value )
 {

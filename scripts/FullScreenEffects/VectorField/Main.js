@@ -14,7 +14,6 @@ var noise;
 var curl;
 
 var strNoiseScale = 0.002;
-var dirNoiseScale = 0.00125;
 var curlEps       = 0.5;
 
 var vectorField;
@@ -150,7 +149,7 @@ function onWindowResize()
 function initVectorField()
 {
   noise  = new SimplexNoise();
-  curl = new CurlNoise( getNoise, dirNoiseScale, curlEps );
+  curl = new CurlNoise( getNoise, strNoiseScale * noiseScaleMultip, curlEps );
   var vectorStr;
   var dirArr;
   var vectorDir;
@@ -166,7 +165,7 @@ function initVectorField()
 
     for ( var y = 0; y <= theHeight; y+= pixelSizeY )
     {
-      vectorStr = noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip)
+      vectorStr = getScaledNoise(x, y)
       vectorStr = Math.scaleNormal(vectorStr, vectorFieldMinStr, vectorFieldMaxStr);
 
       dirArr = curl.noise(x, y);
@@ -181,7 +180,11 @@ function initVectorField()
 function getNoise(x,y) 
 { 
   return noise.scaledNoise(x,y);
-  //return noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip);
+}
+
+function getScaledNoise(x,y) 
+{ 
+  return noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip);
 }
 
 function roundUpToNearestMultip( value, multip )
@@ -395,7 +398,7 @@ function updateNoiseVisCanvas()
     {
       if (x % noiseStep == 0 && y % noiseStep == 0 && (displayIndex == 3 || displayIndex == 1))
       {
-        var simplexVal = noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip);
+        var simplexVal = getScaledNoise(x, y);
         noiseVisCtx.fillStyle = 'rgba(0, 0, 0, '+simplexVal+')';
         noiseVisCtx.fillRect( x, y, noiseStep, noiseStep );
       }
