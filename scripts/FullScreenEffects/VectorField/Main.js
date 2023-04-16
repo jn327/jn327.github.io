@@ -1,8 +1,17 @@
 //HTML Elements
 var bgCanvas, bgCtx;
 var activeCanvas, activeCtx;
+var noiseVisCanvas, noiseVisCtx;
+
+var speedSliderInput;
+var noiseScaleSliderInput;
+var displayDropdown;
+var displayIndex = 0;
 
 //noise
+var noise;
+var curl;
+
 var strNoiseScale = 0.002;
 var dirNoiseScale = 0.00125;
 var curlEps       = 0.5;
@@ -26,8 +35,8 @@ var particleBrightness  = 100;
 var pixelSizeX = 12;
 var pixelSizeY = 12;
 
-var nParticles    = 1300;
-var particleSize  = 3;
+var nParticles    = 1000;
+var particleSize  = 4;
 var particles;
 
 var particleMouseAvoidanceDist  = 100;
@@ -75,6 +84,7 @@ function start()
 {
   createSpeedSlider();
   createNoiseScaleSlider();
+  createDisplayOptions();
 
   hueChangeCurve = new AnimationCurve();
   hueChangeCurve.addKeyFrame(0, 0);
@@ -101,6 +111,9 @@ function initCanvas()
     activeCtx[i]    = theCanvas.getContext('2d');
   }
 
+  noiseVisCanvas    = new Canvas().element;
+  noiseVisCtx       = noiseVisCanvas.getContext('2d');
+
   bgCanvas  = new Canvas().element;
   bgCtx     = bgCanvas.getContext('2d', { alpha: false });
 
@@ -110,7 +123,7 @@ function initCanvas()
 
 function validateCanvasSize()
 {
-  var canvases = [bgCanvas];
+  var canvases = [bgCanvas, noiseVisCanvas];
   for (var i = 0; i < activeCanvas.length; i++)
   {
     canvases.push(activeCanvas[i]);
@@ -129,14 +142,14 @@ function onWindowResize()
     resetParticles();
 
     updateBgCanvas();
+    updateNoiseVisCanvas();
   }
 }
 
 function initVectorField()
 {
-  var simplexNoise  = new SimplexNoise();
-  function getNoise(x,y) { return simplexNoise.scaledNoise(x,y) };
-  var curl          = new CurlNoise( getNoise, dirNoiseScale, curlEps );
+  noise  = new SimplexNoise();
+  curl = new CurlNoise( getNoise, dirNoiseScale, curlEps );
   var vectorStr;
   var dirArr;
   var vectorDir;
@@ -152,7 +165,7 @@ function initVectorField()
 
     for ( var y = 0; y <= theHeight; y+= pixelSizeY )
     {
-      vectorStr = simplexNoise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip); //0-1
+      vectorStr = getNoise(x, y); //0-1
       vectorStr = Math.scaleNormal(vectorStr, vectorFieldMinStr, vectorFieldMaxStr);
 
       dirArr = curl.noise(x, y);
@@ -163,6 +176,12 @@ function initVectorField()
     }
   }
 }
+
+function getNoise(x,y) 
+{ 
+  //return noise.scaledNoise(x,y);
+  return noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip); //0-1
+};
 
 function roundUpToNearestMultip( value, multip )
 {
@@ -238,6 +257,8 @@ function update()
     {
       addRandomForceToParticle(particles[n]);
     }
+
+    updateNoiseVisCanvas();
   }
 
   bgUpdateTimer += GameLoop.deltaTime;
@@ -334,7 +355,7 @@ function updateParticles()
       velocityVector = vectorField[xPos][yPos];
       particle.addForce( velocityVector.x * deltaTimeMulitp * speedMultip, velocityVector.y * deltaTimeMulitp * speedMultip );
 
-      particle.alpha += particleAlphaChangeSpeed * velocityVector.magnitude();
+      particle.alpha += particleAlphaChangeSpeed * (velocityVector.x + velocityVector.y);
       particle.alpha = Math.clamp(particle.alpha, particlesAlphaMin, particlesAlphaMax);
     }
 
@@ -363,6 +384,58 @@ function drawParticles()
   }
 }
 
+function updateNoiseVisCanvas()
+{
+  if (displayIndex == 0)
+    noiseVisCtx.clearRect(0, 0, noiseVisCanvas.width, noiseVisCanvas.height);
+  
+  var lineStep  = 16;
+  var noiseStep = 8;
+
+  noiseVisCtx.strokeStyle   = 'hotpink';
+  noiseVisCtx.lineWidth     = 1;
+  noiseVisCtx.beginPath();
+
+  for (var x = 0; x < bgCanvas.width; x++)
+  {
+    for (var y = 0; y < bgCanvas.height; y++)
+    {
+      if (x % noiseStep == 0 && y % noiseStep == 0)
+      {
+        var simplexVal = noise.scaledNoise(x * strNoiseScale * noiseScaleMultip, y * strNoiseScale * noiseScaleMultip);
+        var simplexCol = 255 * simplexVal;
+        noiseVisCtx.fillStyle = 'rgb(' +simplexCol +', ' +simplexCol +', ' +simplexCol +')';
+        noiseVisCtx.fillRect( x, y, noiseStep, noiseStep );
+      }
+
+      if (x % lineStep == 0 && y % lineStep == 0)
+      {
+        var curlVal     = curl.noise(x, y);
+        var curlVector  = new Vector2D(curlVal[0], curlVal[1]);
+        curlVector.normalize();
+        curlVector.multiply(lineStep);
+
+        var startPoint = new Vector2D(x, y);
+        var endPoint = startPoint.getSum(curlVector);
+        var arrowEdgeDist = curlVector.getMultiplied(0.75); //how far along the arrow starts
+        var arrowEdgePoint = startPoint.getSum(arrowEdgeDist);
+        var perpendicularVector = curlVector.getPerpendicular();
+        perpendicularVector.multiply(0.25); //how wide the arrow is compared to our length
+        var arrowEdgeOne = arrowEdgePoint.getDifference(perpendicularVector);
+        var arrowEdgeTwo = arrowEdgePoint.getSum(perpendicularVector);
+
+        noiseVisCtx.moveTo(startPoint.x, startPoint.y);
+        noiseVisCtx.lineTo(endPoint.x, endPoint.y);
+        noiseVisCtx.lineTo(arrowEdgeOne.x, arrowEdgeOne.y);
+        noiseVisCtx.moveTo(endPoint.x, endPoint.y);
+        noiseVisCtx.lineTo(arrowEdgeTwo.x, arrowEdgeTwo.y);
+      }
+    }
+  }
+
+  noiseVisCtx.stroke();
+}
+
 //------------------------------------------------
 //                   sliders
 //------------------------------------------------
@@ -386,9 +459,9 @@ function onSpeedSliderChange()
 function createNoiseScaleSlider()
 {
   noiseScaleSliderInput = new Slider(document.body, 0);
-  noiseScaleSliderInput.element.style.position = "absolute";
-  noiseScaleSliderInput.element.style.bottom   = "30px";
-  noiseScaleSliderInput.element.style.right    = "10px";
+  noiseScaleSliderInput.element.style.position  = "absolute";
+  noiseScaleSliderInput.element.style.bottom    = "30px";
+  noiseScaleSliderInput.element.style.right     = "10px";
 
   noiseScaleSliderInput.element.min = 0.25;
   noiseScaleSliderInput.element.value = noiseScaleMultip;
@@ -401,4 +474,35 @@ function onNoiseScaleSliderChange()
 {
   noiseScaleMultip = noiseScaleSliderInput.element.value;
   TimingUtil.debounce(doChange, 250)
+}
+
+//------------------------------------------------
+//                   
+//------------------------------------------------
+function createDisplayOptions()
+{
+  var theItems = ["Normal", "Debug"];
+  displayDropdown = new DropDown(document.body, theItems, "Display: ", undefined, true);
+  displayDropdown.element.style.width     = "160px";
+  displayDropdown.element.style.position  = "absolute";
+  displayDropdown.element.style.bottom    = "60px";
+  displayDropdown.element.style.right     = "10px";
+
+  var dropDownItems = displayDropdown.items;
+  for (var l = 0; l < dropDownItems.length; l++)
+  {
+    dropDownItems[l].addEventListener('click', () => setSelectedLayout(i));
+  }
+}
+
+function setSelectedDisplay(i)
+{
+  displayDropdown.setSelectedIndex(i);
+  displayDropdown.hideItemsContainer();
+
+  if (displayIndex != i)
+  {
+    displayIndex = i;
+    updateNoiseVisCanvas();
+  }
 }
