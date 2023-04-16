@@ -15,6 +15,7 @@ var randomiseForceStr     = 5;
 
 var particlesAlphaMin  = 0.5;
 var particlesAlphaMax  = 0.75;
+var particleAlphaChangeSpeed = 0.04;
 
 var bgSaturation  = 60; //0-100 (percent)
 var bgBrightness  = 20;
@@ -332,6 +333,9 @@ function updateParticles()
       // accelerate the particle
       velocityVector = vectorField[xPos][yPos];
       particle.addForce( velocityVector.x * deltaTimeMulitp * speedMultip, velocityVector.y * deltaTimeMulitp * speedMultip );
+
+      particle.alpha += particleAlphaChangeSpeed * velocityVector.magnitude();
+      particle.alpha = Math.clamp(particle.alpha, particlesAlphaMin, particlesAlphaMax);
     }
 
     // move the particle
@@ -383,7 +387,7 @@ function createNoiseScaleSlider()
 {
   noiseScaleSliderInput = new Slider(document.body, 0);
   noiseScaleSliderInput.element.style.position = "absolute";
-  noiseScaleSliderInput.element.style.bottom   = "20px";
+  noiseScaleSliderInput.element.style.bottom   = "30px";
   noiseScaleSliderInput.element.style.right    = "10px";
 
   noiseScaleSliderInput.element.min = 0.25;
