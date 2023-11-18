@@ -76,7 +76,9 @@ CommonElementsCreator.getRootLocation = function()
 
   if (window.location.protocol == "file:")
   {
-    rootLocation = "/Users/joshnewland/Documents/GitHub/jn327.github.io/";
+    //TODO: Find a better way to get this, if we change folder location this breaks.
+    // using "" breaks if we go into a sub page.
+    rootLocation = "C:/Users/joshu/Documents/jn327.github.io/";
   }
   else
   {

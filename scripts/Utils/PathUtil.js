@@ -55,9 +55,9 @@ PathUtil.createBezierCurve = function( points, thePath, tension, offsetPoints, d
   var nPoints = points.length;
 
   //if there's only one point, just go to that!
-  if (nPoints == 2)
+  if (nPoints == 1)
   {
-    lastPoint = points[1];
+    lastPoint = points[0];
     thePath.lineTo(lastPoint.x, lastPoint.y);
   }
   else
