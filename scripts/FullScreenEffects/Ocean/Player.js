@@ -1,16 +1,16 @@
-function Player()
+function Player(water)
 {
   //Call our prototype
   GameObject.call(this);
-
+  
   this.pressedKeys = {};
 
-  this.accelerationSpeed = 1;
+  this.accelerationSpeed = 2;
   this.rotationSpeed = 1;
 
   this.velocity = new Vector2D(0,0);
-  this.speedMultip = Math.scaleNormal(Math.random(), 0.9, 1);
-  this.friction = Math.scaleNormal(Math.random(), 0.98, 1); //loose this percentage * 100 every second.
+  this.speedMultip = 1;
+  this.friction = 1; //loose this percentage * 100 every second.
   this.size = 20;
   this.rotation = 0;
 
@@ -26,6 +26,9 @@ function Player()
     this.velocity.x += x * this.speedMultip;
     this.velocity.y += y * this.speedMultip;
 
+	let collisionForce = new Vector2D(this.velocity.x, this.velocity.y).multiply(Math.scaleNormal(Math.random(), 0.5, 1));
+	water.createCollisionParticles(this.position, collisionForce);
+
     return this;
   }
 
@@ -36,12 +39,6 @@ function Player()
 		this.position.y + Math.cos(this.rotation),
 	);
 	return new Vector2D(this.position.x - tipPoint.x, this.position.y - tipPoint.y); //vector from centre to tip
-  }
-
-  this.setPosition = function(x, y)
-  {
-	this.position.x = x;
-	this.position.y = y;
   }
 
   this.update = function(deltaTime)
@@ -74,10 +71,12 @@ function Player()
 	}
   }
 
-  this.draw = function(ctx) 
- 	{	 
+  this.draw = function(ctx, cameraOffset) 
+  {	 
+	  var drawnPos = new Vector2D(this.position.x - cameraOffset.x, this.position.y - cameraOffset.y);
+
 	  //draw the collision area for the player
-	  CanvasDrawingUtil.drawCircle(ctx, "#00ff0044", this.position.x, this.position.y, this.size);
+	  //CanvasDrawingUtil.drawCircle(ctx, "#00ff0044", drawnPos.x, drawnPos.y, this.size);
 
 	  var tipDist = this.size;
 	  var frontSideDist = this.size * 0.7;
@@ -86,16 +85,16 @@ function Player()
 	  var rearPointDist = this.size * 0.8;
 
 	  var tipPoint = new Vector2D(
-		this.position.x + (tipDist * Math.sin(this.rotation)),
-		this.position.y + (tipDist * Math.cos(this.rotation)),
+		drawnPos.x + (tipDist * Math.sin(this.rotation)),
+		drawnPos.y + (tipDist * Math.cos(this.rotation)),
 	  );
 
 	  var bowStartPoint = new Vector2D(
-		this.position.x + (bowDist * Math.sin(this.rotation)),
-		this.position.y + (bowDist * Math.cos(this.rotation)),
+		drawnPos.x + (bowDist * Math.sin(this.rotation)),
+		drawnPos.y + (bowDist * Math.cos(this.rotation)),
 	  );
 
-	  var forwardDir = new Vector2D(tipPoint.x - this.position.x,tipPoint.y-this.position.y); //vector from centre to tip
+	  var forwardDir = new Vector2D(tipPoint.x - drawnPos.x,tipPoint.y-drawnPos.y); //vector from centre to tip
 	  var sideDir = new Vector2D(-forwardDir.y, forwardDir.x); //get the perpendicular vector of that one
 	  var sideNormal = sideDir.normalize(); //normalized
 
@@ -109,8 +108,8 @@ function Player()
 	  );
 
 	  var rearPoint = new Vector2D(
-		this.position.x - (rearPointDist * Math.sin(this.rotation)),
-		this.position.y - (rearPointDist * Math.cos(this.rotation)),
+		drawnPos.x - (rearPointDist * Math.sin(this.rotation)),
+		drawnPos.y - (rearPointDist * Math.cos(this.rotation)),
 	  );
 
 	  var rearLeftPoint = new Vector2D(

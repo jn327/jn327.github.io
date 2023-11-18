@@ -1,28 +1,3 @@
-//HTML Elements
-var bgCanvas, bgCtx;
-var activeCanvas, activeCtx;
-var noiseVisCanvas, noiseVisCtx;
-
-var speedSliderInput;
-var noiseScaleSliderInput;
-var mouseAvoidanceDistSlider;
-var displayDropdown;
-var displayIndex = 0;
-
-//noise
-var noise;
-var curl;
-
-var strNoiseScale = 0.002;
-var curlEps       = 0.5;
-
-var vectorField;
-var vectorFieldMinStr     = 0.5;
-var vectorFieldMaxStr     = 1;
-var randomiseForceStr     = 5;
-
-var particlesAlphaMin  = 0.5;
-var particlesAlphaMax  = 0.75;
 
 var bgSaturation  = 60; //0-100 (percent)
 var bgBrightness  = 20;
