@@ -1,11 +1,11 @@
 function Terrain(noise)
 {
   this.sandColor = '255, 217, 163';
-  //this.grassColor = '217, 198, 112';
+  this.grassColor = '217, 198, 112';
   this.deepColor = '43, 63, 92';
-  this.reefThreshold = 0.65;
+  this.reefThreshold = 0.6;
   this.landThreshold = 0.75;
-  //this.grassThreshold = 0.85;
+  this.grassThreshold = 0.8;
   this.deepThreshold = 0.2;
 
   this.update = function(deltaTime)
@@ -14,25 +14,29 @@ function Terrain(noise)
 
   this.draw = function(ctx, cameraOffset, screenWidth, screenHeight) 
   {
-    let step = 2;
+    let step = 8;
     for (var x = 0; x < screenWidth; x+=step )
     {
       for (var y = 0; y < screenHeight; y+=step )
       {
         var simplexVal = noise.getScaledNoise(x + cameraOffset.x, y + cameraOffset.y);
-        if (simplexVal < this.deepThreshold)
+        /*if (simplexVal < this.deepThreshold)
         {
           let alpha = Math.minMaxNormal(simplexVal, 0, this.deepThreshold);
           let fillStyle = 'rgba(' +this.deepColor+', '+(1-alpha)+')';
           //CanvasDrawingUtil.drawCircle( ctx, fillStyle, x, y, step * 2 );
           CanvasDrawingUtil.drawRect( ctx, fillStyle, x, y, step, step );
         }
-        else if (simplexVal > this.reefThreshold)
+        else*/ if (simplexVal > this.reefThreshold)
         {
           let alpha = Math.minMaxNormal(simplexVal, this.reefThreshold, this.landThreshold);
-          let fillStyle = 'rgba(' +(/*(simplexVal > this.grassThreshold) ? this.grassColor :*/ this.sandColor)+', '+alpha+')';
-          //CanvasDrawingUtil.drawCircle( ctx, fillStyle, x, y, step * 2 );
-          CanvasDrawingUtil.drawRect( ctx, fillStyle, x, y, step, step );
+          let color = this.sandColor;
+          let fillStyle = 'rgba(' +color+', '+alpha+')';
+          
+          let radius = step * alpha;
+          CanvasDrawingUtil.drawCircle( ctx, fillStyle, x, y, radius );
+
+          //CanvasDrawingUtil.drawRect( ctx, fillStyle, x, y, step, step );
         }
 
         /*
