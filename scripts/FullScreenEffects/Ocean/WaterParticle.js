@@ -8,11 +8,11 @@ function WaterParticle()
   this.friction = Math.scaleNormal(Math.random(), 0.98, 1); //loose this percentage * 100 every second.
 
   this.hue = 204;
-  this.saturation = 100;
-  this.brightness = 150;
+  this.saturation = 50;
+  this.brightness = 90;
 
   this.alpha = 1;
-  this.scale = 1;
+  this.scale = 2;
 
   this.timeAlive = 0;
   this.lifeTime = 0;
@@ -32,7 +32,7 @@ function WaterParticle()
     this.position.y = position.y;
 
     this.alpha = Math.scaleNormal(Math.random(), 0.5, 1);
-    this.scale = Math.scaleNormal(Math.random(), 1, 3);
+    //this.scale = Math.scaleNormal(Math.random(), 1, 3);
 
     this.addForce(force.x, force.y);
 
@@ -59,13 +59,8 @@ function WaterParticle()
   this.draw = function( ctx, cameraOffset )
   {
     var drawnPos = new Vector2D(this.position.x - cameraOffset.x, this.position.y - cameraOffset.y);
-
-    var alphaMultip = 0.5;
-
-    CanvasDrawingUtil.drawCircle(
-      ctx, 
-      'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, ' +(this.alpha * alphaMultip) +')',
-      drawnPos.x, drawnPos.y, this.scale
-    );
+    var fillStyle = 'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, ' +(this.alpha) +')';
+    CanvasDrawingUtil.drawCircle( ctx, fillStyle, drawnPos.x, drawnPos.y, this.scale );
+    //CanvasDrawingUtil.drawRect( ctx, fillStyle, drawnPos.x, drawnPos.y, this.scale, this.scale );
   }
 }

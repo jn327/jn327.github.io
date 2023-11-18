@@ -5,7 +5,22 @@ Math.TWOPI = 2 * Math.PI;
 Math.roundMultip = function(val, multip)
 {
   return Math.round(val / multip) * multip;
-};
+}
+
+Math.roundUpMultip = function( val, multip )
+{
+  var result = val;
+  if ((result % val) != 0)
+  {
+    result = Math.roundMultip(result, multip);
+    //if it rounded down and we're still smaller
+    if (result < val)
+    {
+      result += multip;
+    }
+  }
+  return result;
+}
 
 //returns a random number between min and max.
 Math.getRnd = function(min, max)

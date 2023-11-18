@@ -11,6 +11,5 @@ CanvasDrawingUtil.drawCircle = function( ctx, fillStyle, x, y, size)
 CanvasDrawingUtil.drawRect = function( ctx, fillStyle, x, y, xSize, ySize)
 {
     ctx.fillStyle = fillStyle;
-    ctx.drawRect(x, y, xSize, ySize);
-    ctx.fill();
+    ctx.fillRect(Math.round(x - (xSize * 0.5)), Math.round(y - (ySize * 0.5)), xSize, ySize);
 }

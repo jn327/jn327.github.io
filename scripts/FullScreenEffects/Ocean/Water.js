@@ -1,4 +1,4 @@
-function Water()
+function Water(noise)
 {
     var splashParticles = new ParticleGenerator(
         50,
@@ -11,7 +11,7 @@ function Water()
         //TODO: based on a curve?
         let forceMultip = new Vector2D(force.x, force.y).magnitude();
         let nParticles = forceMultip * 0.2;
-        let radius = forceMultip * 0.005;
+        let radius = 1;
         let lifeTimeN = forceMultip * 0.75;
 
         let forceCenter = pos;
