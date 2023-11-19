@@ -8,9 +8,16 @@ CommonElementsCreator.addStyles(["FullScreenEffects/ocean"]);
 var isPaused = false;
 var pausedLabel;
 window.addEventListener("keyup", (event) => {
-  if (event.key == ' ' && !isDead) { 
-    isPaused = !isPaused; 
-    validatePausedLabel()
+  if (event.key == ' ') { 
+    if (!isDead)
+    {
+      isPaused = !isPaused; 
+      validatePausedLabel();
+    }
+    else
+    {
+      location.reload();
+    }
   }
 });
 

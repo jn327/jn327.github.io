@@ -62,10 +62,10 @@ function Player(water, terrain, noise) {
 			this.addForce(forwardDir.x, forwardDir.y);
 		}
 		if (this.pressedKeys['ArrowLeft']) {
-			this.rotation -= 1 * GameLoop.deltaTime * this.rotationSpeed;
+			this.rotation += GameLoop.deltaTime * this.rotationSpeed;
 		}
 		if (this.pressedKeys['ArrowRight']) {
-			this.rotation += 1 * GameLoop.deltaTime * this.rotationSpeed;
+			this.rotation -= GameLoop.deltaTime * this.rotationSpeed;
 		}
 
 		//update position
