@@ -26,11 +26,11 @@ function Water(noise)
         });
     }
 
-    this.draw = function(ctx, cameraOffset, screenWidth, screenHeight) 
+    this.draw = function(ctx, screenWidth, screenHeight) 
     {	
         splashParticles.draw((particle) =>
         {
-            particle.draw(ctx, cameraOffset);
+            particle.draw(ctx);
         });
     }
 }

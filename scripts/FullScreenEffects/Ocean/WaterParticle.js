@@ -56,9 +56,9 @@ function WaterParticle()
     return true;
   }
 
-  this.draw = function( ctx, cameraOffset )
+  this.draw = function( ctx )
   {
-    var drawnPos = new Vector2D(this.position.x - cameraOffset.x, this.position.y - cameraOffset.y);
+    var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
     var fillStyle = 'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, ' +(this.alpha) +')';
     CanvasDrawingUtil.drawCircle( ctx, fillStyle, drawnPos.x, drawnPos.y, this.scale );
     //CanvasDrawingUtil.drawRect( ctx, fillStyle, drawnPos.x, drawnPos.y, this.scale, this.scale );

@@ -11,7 +11,7 @@ function Player(water, terrain) {
 	this.speedMultip = 2;
 	this.friction = 0.9; //loose this percentage * 100 every second.
 	this.size = 25;
-	this.rotation = 0;
+	this.rotation = 0.5;
 
 	window.addEventListener("keydown", (event) => {
 		this.pressedKeys[event.key] = true;
@@ -38,7 +38,7 @@ function Player(water, terrain) {
 		return new Vector2D(this.position.x - tipPoint.x, this.position.y - tipPoint.y); //vector from centre to tip
 	}
 
-	this.update = function (deltaTime, cameraOffset, onDie) {
+	this.update = function (deltaTime, onDie) {
 		this.position.x += this.velocity.x;
 		this.position.y += this.velocity.y;
 
@@ -62,8 +62,8 @@ function Player(water, terrain) {
 			this.rotation += 1 * deltaTime * this.rotationSpeed;
 		}
 
-		this.onPointCollides(cameraOffset, (x,y,step) => {
-			if (terrain.isLand(x,y, cameraOffset))
+		this.onPointCollides((x,y,step) => {
+			if (terrain.isLand(x,y))
 			{
 				onDie();
 			}
@@ -118,9 +118,9 @@ function Player(water, terrain) {
 		return [tipPoint, leftPoint, rearLeftPoint, rearRightPoint, rightPoint];
 	}
 
-	this.onPointCollides = function(cameraOffset, callback)
+	this.onPointCollides = function(callback)
 	{
-		var drawnPos = new Vector2D(this.position.x - cameraOffset.x, this.position.y - cameraOffset.y);
+		var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
 		let vertices = this.getVertices(drawnPos.x, drawnPos.y);
 
 		let step = 2;
@@ -134,9 +134,9 @@ function Player(water, terrain) {
 		}
 	}
 
-	this.draw = function (ctx, cameraOffset) {
+	this.draw = function (ctx) {
 
-		var drawnPos = new Vector2D(this.position.x - cameraOffset.x, this.position.y - cameraOffset.y);
+		var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
 		let vertices = this.getVertices(drawnPos.x, drawnPos.y);
 
 		const path = new Path2D()

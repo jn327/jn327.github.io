@@ -26,13 +26,12 @@ function validateDeadLabel()
   deadLabel.element.style.visibility = isDead ? "visible" : "hidden";
 }
 
-var fgUpdateFreq      = 0.05;
+var fgUpdateFreq      = 0.025;
 var fgUpdateTimer     = 0;
 
 var bgUpdateFreq      = 0.1;
 var bgUpdateTimer     = 0;
 
-var cameraPos;
 var cameraMoveSpeed = 1;
 
 var noise;
@@ -50,7 +49,7 @@ function init()
     'Utils/Vector2d', 'Utils/MathEx', 'Utils/SimplexNoise', 'Utils/EasingUtil', 'Utils/AnimationCurve',
     'Utils/TimingUtil', 'Utils/CurlNoise', 'Utils/BezierUtil', 'Utils/CanvasDrawingUtil',
     'Utils/PathUtil', 'Utils/ObjectPool', 'Utils/ParticleGenerator', 'Utils/CollisionUtil',
-    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject',
+    'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'GameCamera',
     'Components/Canvas', 'Components/Slider', 'Components/DropDown',  'Components/Label',
     'FullScreenEffects/Ocean/Player',
     'FullScreenEffects/Ocean/Water',
@@ -75,14 +74,15 @@ function start()
   deadLabel.element.innerText       = 'GAME OVER';
   validateDeadLabel();
 
-  cameraPos = new Vector2D(bgCanvas.width * 0.5, bgCanvas.height * 0.5);
+  GameCamera.position = new Vector2D(bgCanvas.width * 0.5, bgCanvas.height * 0.5);
 
   noise = new Noise();
+
   water = new Water(noise);
-  terrain = new Terrain(noise);
+  terrain = new Terrain(noise, new Vector2D(GameCamera.position.x, GameCamera.position.y));
 
   player = new Player(water, terrain);
-  player.setPosition(new Vector2D(bgCanvas.width * 0.5, bgCanvas.height * 0.5));
+  player.setPosition(new Vector2D(GameCamera.position.x, GameCamera.position.y));
 }
 
 function initCanvas()
@@ -101,7 +101,11 @@ function initCanvas()
 function validateCanvasSize()
 {
   var canvases = [bgCanvas, fgCanvas];
-  return CanvasScaler.updateCanvasSize( canvases );
+  var returnValue = CanvasScaler.updateCanvasSize( canvases );
+
+  GameCamera.drawnAreaSize = new Vector2D(bgCanvas.width, bgCanvas.height);
+
+  return returnValue;
 }
 
 function onWindowResize()
@@ -119,22 +123,21 @@ function update()
 {
   if (player && !isPaused && !isDead)
   {
-    let cameraOffset = new Vector2D(cameraPos.x - bgCanvas.width * 0.5, cameraPos.y - bgCanvas.height * 0.5);
-
     //update the player and water
-    player.update(GameLoop.deltaTime, cameraOffset, () => {
+    player.update(GameLoop.deltaTime, () => {
       isDead = true;
       validateDeadLabel();
     });
+    terrain.update(GameLoop.deltaTime);
     water.update(GameLoop.deltaTime);
 
     //have the camera follow the player
     var playerPos = player.getPosition();
-    var playerDir = new Vector2D(playerPos.x - cameraPos.x, playerPos.y - cameraPos.y);
+    var playerDir = new Vector2D(playerPos.x - GameCamera.position.x, playerPos.y - GameCamera.position.y);
     if (playerDir.magnitude() != 0)
     {
-      cameraPos.x += playerDir.x * GameLoop.deltaTime * cameraMoveSpeed;
-      cameraPos.y += playerDir.y * GameLoop.deltaTime * cameraMoveSpeed;
+      GameCamera.position.x += playerDir.x * GameLoop.deltaTime * cameraMoveSpeed;
+      GameCamera.position.y += playerDir.y * GameLoop.deltaTime * cameraMoveSpeed;
     }
 
     //draw the player
@@ -143,7 +146,7 @@ function update()
     {
       fgUpdateTimer = 0;
       fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
-      player.draw(fgCtx, cameraOffset);
+      player.draw(fgCtx);
     }
 
     //draw the water
@@ -152,8 +155,8 @@ function update()
     {
       bgUpdateTimer = 0;
       bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-      terrain.draw(bgCtx, cameraOffset, bgCanvas.width, bgCanvas.height);
-      water.draw(bgCtx, cameraOffset, bgCanvas.width, bgCanvas.height);
+      terrain.draw(bgCtx, bgCanvas.width, bgCanvas.height);
+      water.draw(bgCtx, bgCanvas.width, bgCanvas.height);
     }
   }
 }
