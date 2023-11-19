@@ -65,6 +65,7 @@ function init()
     'Components/Canvas', 'Components/Slider', 'Components/DropDown',  'Components/Label',
     'FullScreenEffects/Ocean/Player',
     'FullScreenEffects/Ocean/Sky',
+    'FullScreenEffects/Ocean/Bird',
     'FullScreenEffects/Ocean/Water',
     'FullScreenEffects/Ocean/WaterParticle',
     'FullScreenEffects/Ocean/OceanParticle',
@@ -176,7 +177,7 @@ function update()
       }
     );
     water.update();
-    sky.update();
+    sky.update(player);
 
     //have the camera follow the player
     var playerPos = player.getPosition();
