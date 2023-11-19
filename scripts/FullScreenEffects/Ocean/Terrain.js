@@ -1,5 +1,4 @@
-function Terrain(noise, centrePos)
-{
+function Terrain(noise, centrePos) {
   this.sandColor = '255, 217, 163';
   this.deepColor = '43, 63, 92';
   this.reefThresholdMin = 0.6;
@@ -10,23 +9,52 @@ function Terrain(noise, centrePos)
 
   this.showCurlNoise = true;
 
-  this.landDotScale = 0.75; 
+  this.landDotScale = 0.75;
   this.landObsureChangeRate = 0.05;
 
-  this.update = function()
-  {
+  var vectorFieldParticleCreationRate      = 0.1;
+  var vectorFieldParticleCreationTimer     = 0;
+  var vectorFieldParticleLifetime          = 0.75;
+  var vectorFieldParticles = new ParticleGenerator(
+    25,
+    (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime); },
+    () => { return new OceanParticle(noise); }
+  );
+
+  this.update = function () {
     //let waveScale = (Math.sin(GameLoop.currentTime * GameLoop.deltaTime * this.landObsureChangeRate) + 1) * 0.25;
     //this.reefThreshold = Math.scaleNormal(waveScale, this.reefThresholdMin, this.landThreshold);
+
+    vectorFieldParticleCreationTimer += GameLoop.deltaTime;
+    if (vectorFieldParticleCreationTimer > vectorFieldParticleCreationRate)
+    {
+      vectorFieldParticleCreationTimer = 0;
+
+      let spawnRndW = GameCamera.drawnAreaSize.x * 0.5;
+      let spawnRndH = GameCamera.drawnAreaSize.y * 0.5;
+      var randomPos = new Vector2D(
+        GameCamera.position.x + Math.getRnd(-spawnRndW, spawnRndW), 
+        GameCamera.position.y + Math.getRnd(-spawnRndH, spawnRndH)
+      );
+
+      if (!this.isLand(randomPos.x, randomPos.y))
+      {
+        vectorFieldParticles.createParticles(1, randomPos, 0.001, randomPos, 0.00001, vectorFieldParticleLifetime);
+      }
+    }
+
+    vectorFieldParticles.update((particle) =>
+    {
+        return particle.update();
+    });
   }
 
-  this.getHeight = function(x, y)
-  {
+  this.getHeight = function (x, y) {
     var drawnPos = GameCamera.getDrawnPosition(x, y, false);
     var simplexVal = noise.getScaledNoise(drawnPos.x, drawnPos.y);
     var centreDist = 250;
-    if (drawnPos.x > centrePos.x-centreDist && drawnPos.x < centrePos.x+centreDist 
-      && drawnPos.y > centrePos.y-centreDist && drawnPos.y < centrePos.y+centreDist)
-    {
+    if (drawnPos.x > centrePos.x - centreDist && drawnPos.x < centrePos.x + centreDist
+      && drawnPos.y > centrePos.y - centreDist && drawnPos.y < centrePos.y + centreDist) {
       let dist = new Vector2D(centrePos.x, centrePos.y).distance(new Vector2D(drawnPos.x, drawnPos.y));
       let distN = Math.clamp(Math.minMaxNormal(dist, 0, centreDist * 0.5) * 0.5, 0, 1);
       return simplexVal * distN;
@@ -35,36 +63,30 @@ function Terrain(noise, centrePos)
     return simplexVal;
   }
 
-  this.isLand = function(x, y)
-  {
+  this.isLand = function (x, y) {
     return this.getHeight(x, y) > this.landThreshold;
   }
 
-  this.draw = function(ctx, screenWidth, screenHeight) 
-  {
+  this.draw = function (ctx, screenWidth, screenHeight) {
     let step = 8;
-    for (var x = 0; x < screenWidth; x+=step )
-    {
-      for (var y = 0; y < screenHeight; y+=step )
-      {
-        var simplexVal = this.getHeight(x,y);
-        if (this.showDeepWater && simplexVal < this.deepThreshold)
-        {
+    for (var x = 0; x < screenWidth; x += step) {
+      for (var y = 0; y < screenHeight; y += step) {
+        var simplexVal = this.getHeight(x, y);
+        if (this.showDeepWater && simplexVal < this.deepThreshold) {
           let alpha = Math.minMaxNormal(simplexVal, 0, this.deepThreshold);
-          alpha = 1 - alpha;
-          let fillStyle = 'rgba(' +this.deepColor+', '+alpha+')';
+          alpha = (1 - alpha) * 0.5;
+          let fillStyle = 'rgba(' + this.deepColor + ', ' + alpha + ')';
 
           let radius = step * alpha;
-          CanvasDrawingUtil.drawCircle( ctx, fillStyle, x, y, radius * this.landDotScale );
+          CanvasDrawingUtil.drawCircle(ctx, fillStyle, x, y, radius * this.landDotScale);
         }
-        else if (simplexVal > this.reefThreshold)
-        {
-          let alpha = Math.clamp(Math.minMaxNormal(simplexVal, this.reefThreshold, this.landThreshold), 0 ,1);
+        else if (simplexVal > this.reefThreshold) {
+          let alpha = Math.clamp(Math.minMaxNormal(simplexVal, this.reefThreshold, this.landThreshold), 0, 1);
           let color = this.sandColor;
-          let fillStyle = 'rgba(' +color+', '+alpha+')';
-          
+          let fillStyle = 'rgba(' + color + ', ' + alpha + ')';
+
           let radius = step * alpha;
-          CanvasDrawingUtil.drawCircle( ctx, fillStyle, x, y, radius * this.landDotScale );
+          CanvasDrawingUtil.drawCircle(ctx, fillStyle, x, y, radius * this.landDotScale);
         }
 
         /*if (this.showCurlNoise && simplexVal < this.landThreshold) {
@@ -93,5 +115,10 @@ function Terrain(noise, centrePos)
         }*/
       }
     }
+
+    vectorFieldParticles.draw((particle) =>
+    {
+        particle.draw(ctx);
+    });
   }
 }

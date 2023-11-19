@@ -1,4 +1,4 @@
-function WaterParticle()
+function OceanParticle(noise)
 {
   //Call our prototype
   GameObject.call(this);
@@ -9,14 +9,16 @@ function WaterParticle()
 
   this.hue = 204;
   this.saturation = 50;
-  this.brightness = 90;
+  this.brightness = 100;
 
   this.alpha = 1;
   this.minScale = 1;
-  this.maxScale = 5;
+  this.maxScale = 2;
 
   this.timeAlive = 0;
   this.lifeTime = 0;
+
+  this.vectorFieldForce = 2;
 
   this.addForce = function(x, y)
   {
@@ -49,6 +51,13 @@ function WaterParticle()
       return false;
     }
 
+    if (this.vectorFieldForce != 0)
+    {
+        var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
+	    let vectorField = noise.getVectorField(drawnPos.x, drawnPos.y);
+	    this.addForce(vectorField.x * this.vectorFieldForce, vectorField.y * this.vectorFieldForce);
+    }
+
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
@@ -61,10 +70,11 @@ function WaterParticle()
   this.draw = function( ctx )
   {
     let lifeTimeN = this.timeAlive/this.lifeTime;
+    lifeTimeN = 0.5 - (Math.cos(2 * Math.PI * lifeTimeN) * 0.5);
     let scale = Math.scaleNormal(lifeTimeN, this.minScale, this.maxScale);
+
     var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
-    var fillStyle = 'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, ' +(this.alpha * (1-lifeTimeN)) +')';
+    var fillStyle = 'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, ' +this.alpha +')';
     CanvasDrawingUtil.drawCircle( ctx, fillStyle, drawnPos.x, drawnPos.y, scale );
-    //CanvasDrawingUtil.drawRect( ctx, fillStyle, drawnPos.x, drawnPos.y, scale, scale );
   }
 }

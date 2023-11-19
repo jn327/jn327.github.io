@@ -21,6 +21,11 @@ function Player(water, terrain, noise) {
 		this.pressedKeys[event.key] = false;
 	});
 
+	this.getSpeed = function()
+	{
+		return this.velocity.magnitude();
+	}
+
 	this.addForce = function (x, y) {
 		this.velocity.x += x * this.speedMultip;
 		this.velocity.y += y * this.speedMultip;

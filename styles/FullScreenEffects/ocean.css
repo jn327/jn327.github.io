@@ -17,3 +17,23 @@
     color: white; 
     text-shadow: 2px 2px #00000055;
 }
+
+.speedLabel
+{
+    font-size: 50px;
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    color: white; 
+    text-shadow: 2px 2px #00000055;
+}
+
+.fpsLabel
+{
+    font-size: 20px;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    color: white; 
+    text-shadow: 2px 2px #00000055;
+}

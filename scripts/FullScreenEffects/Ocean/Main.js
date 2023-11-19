@@ -13,18 +13,20 @@ window.addEventListener("keyup", (event) => {
   }
 });
 
-var isDead = false;
-var deadLabel;
-
 function validatePausedLabel()
 {
   pausedLabel.element.style.visibility = isPaused ? "visible" : "hidden";
 }
 
+var isDead = false;
+var deadLabel;
 function validateDeadLabel()
 {
   deadLabel.element.style.visibility = isDead ? "visible" : "hidden";
 }
+
+var speedLabel;
+var fpsLabel;
 
 var fgUpdateFreq      = 0.025;
 var fgUpdateTimer     = 0;
@@ -54,6 +56,7 @@ function init()
     'FullScreenEffects/Ocean/Player',
     'FullScreenEffects/Ocean/Water',
     'FullScreenEffects/Ocean/WaterParticle',
+    'FullScreenEffects/Ocean/OceanParticle',
     'FullScreenEffects/Ocean/Terrain',
     'FullScreenEffects/Ocean/Noise',
   ];
@@ -73,6 +76,12 @@ function start()
   deadLabel.element.className       = "deadLabel";
   deadLabel.element.innerText       = 'GAME OVER';
   validateDeadLabel();
+
+  speedLabel = new Label(document.body, 0);
+  speedLabel.element.className       = "speedLabel";
+
+  fpsLabel = new Label(document.body, 0);
+  fpsLabel.element.className       = "fpsLabel";
 
   GameCamera.position = new Vector2D(bgCanvas.width * 0.5, bgCanvas.height * 0.5);
 
@@ -128,6 +137,14 @@ function update()
       isDead = true;
       validateDeadLabel();
     });
+    let speedValue = (player.getSpeed() * 10).toFixed(0)+'kph';
+    if (speedValue != speedLabel.element.innerText)
+      speedLabel.element.innerText = speedValue;
+
+    let fpsValue = (GameLoop.fps).toFixed(0)+'fps';
+    if (fpsValue != fpsLabel.element.innerText)
+      fpsLabel.element.innerText = fpsValue;
+
     terrain.update();
     water.update();
 
