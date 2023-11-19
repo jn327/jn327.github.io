@@ -1,4 +1,4 @@
-function TrashItem(noise)
+function TrashItem(noise, terrain)
 {
   //Call our prototype
   GameObject.call(this);
@@ -15,9 +15,12 @@ function TrashItem(noise)
   this.bobSpeed = 0.5;
 
   this.alpha = 0.75;
-  this.minScale = 8;
+  this.minScale = 12;
   this.maxScale = 16;
   this.scale = this.minScale;
+
+  var terrainCheckFreq      = 0.5;
+  var terrainCheckTimer     = 0;
 
   this.timeAlive = 0;
   this.lifeTime = 0;
@@ -25,7 +28,7 @@ function TrashItem(noise)
   this.vectorFieldForce = 0;
   this.collisionDistMultip = 2;
 
-  this.spawnFadeInTime = 1;
+  this.spawnFadeInTime = 2;
 
   this.addForce = function(x, y)
   {
@@ -64,6 +67,16 @@ function TrashItem(noise)
     }
 
     var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
+
+    //destroy if we collide with the terrain
+    terrainCheckTimer += GameLoop.deltaTime;
+    if (terrainCheckTimer > terrainCheckFreq)
+    {
+        if (terrain.isNearLand(drawnPos.x, drawnPos.y))
+        {
+            return false;
+        }
+    }
 
     //find out if we collide with the player 
     var playerPosition = player.getPosition();

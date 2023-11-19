@@ -107,7 +107,7 @@ function start()
   fpsLabel = new Label(document.body, 0);
   fpsLabel.element.className       = "fpsLabel";
 
-  GameCamera.position = new Vector2D(bgCanvas.width * 0.5, bgCanvas.height * 0.5);
+  GameCamera.position = new Vector2D(2000, 2000);
 
   noise = new Noise();
   skyNoise = new Noise();

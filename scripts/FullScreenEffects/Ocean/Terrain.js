@@ -29,13 +29,13 @@ function Terrain(noise, centrePos) {
   var nTrashMin              = 5;
   var nTrashMax              = 10;
   let trashSpawnAngle = 2;
-  let trashSpawnRadius = 33;
+  let trashSpawnRadius = 40;
   let trashSpawnDist = 0.75;
 
   var trashParticles = new ParticleGenerator(
     30,
     (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime); },
-    () => { return new TrashItem(noise); }
+    () => { return new TrashItem(noise, this); }
   );
 
   this.update = function (player, onTrashCollidesWithPlayer) {
@@ -117,6 +117,10 @@ function Terrain(noise, centrePos) {
     return this.getHeight(x, y) > this.landThreshold;
   }
 
+  this.isNearLand = function (x, y) {
+    return this.getHeight(x, y) > this.reefThreshold;
+  }
+
   this.draw = function (ctx, screenWidth, screenHeight) {
     let step = 8;
     for (var x = 0; x < screenWidth; x += step) {
@@ -124,7 +128,7 @@ function Terrain(noise, centrePos) {
         var simplexVal = this.getHeight(x, y);
         if (this.showDeepWater && simplexVal < this.deepThreshold) {
           let alpha = Math.minMaxNormal(simplexVal, 0, this.deepThreshold);
-          alpha = (1 - alpha) * 0.35;
+          alpha = (1 - alpha) * 0.5;
           let fillStyle = 'rgba(' + this.deepColor + ', ' + alpha + ')';
 
           let radius = step * alpha;
