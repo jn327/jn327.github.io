@@ -10,7 +10,7 @@ function Sky(noise) {
 
     var birdCreationRate = 1;
     var birdCreationTimer = 0;
-    var birdLifetime = 4;
+    var birdLifetime = 1000;
     var birdVelocity = 10;
 
     var birdParticles = new ParticleGenerator(

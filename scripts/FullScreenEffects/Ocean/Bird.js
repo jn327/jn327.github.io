@@ -6,12 +6,15 @@ function Bird(noise) {
     this.speedMultip = Math.scaleNormal(Math.random(), 0.9, 1);
     this.friction = Math.scaleNormal(Math.random(), 0.98, 1); //loose this percentage * 100 every second.
 
-    this.minScale = 4;
-    this.maxScale = 6;
+    this.minScale = 2;
+    this.maxScale = 4;
     this.scale = this.minScale;
 
     this.timeAlive = 0;
     this.lifeTime = 0;
+
+    this.rnd = Math.random();
+    this.flapSpeed = 0.5;
 
     this.vectorFieldForce = 6;
 
@@ -80,12 +83,15 @@ function Bird(noise) {
             alphaMultip = this.timeAlive / this.spawnFadeInTime;
         }
 
+        let flapN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.currentTime * this.flapSpeed) * 0.5);
+        let flapMultip = Math.scaleNormal(flapN, 0.5, 1);
+
         //TODO: figure out rotation based on velocity...
         let rotation = this.velocity.angleBetween(new Vector2D(1,1)) + 0.5;
 
         var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
         var tipDist = this.scale;
-        var frontSideDist = this.scale * 5.5;
+        var frontSideDist = this.scale * 5.5 * flapMultip;
         var rearSideDist = this.scale * 0.4;
         var bowDist = this.scale * 0.2;
         var rearPointDist = this.scale * 0.9;
@@ -138,8 +144,8 @@ function Bird(noise) {
         ctx.fillStyle = "rgba(255, 255, 255, " + alphaMultip + ")";
         ctx.fill(path);
 
-        var shadowOffsetX = 6;
-        var shadowOffsetY = 6;
+        var shadowOffsetX = 20;
+        var shadowOffsetY = 20;
 
         const shadowPath = new Path2D();
         shadowPath.moveTo(vertices[0].x + shadowOffsetX, vertices[0].y + shadowOffsetY);
@@ -147,7 +153,7 @@ function Bird(noise) {
         shadowPath.lineTo(vertices[3].x + shadowOffsetX, vertices[3].y + shadowOffsetY);
         shadowPath.quadraticCurveTo(vertices[4].x + shadowOffsetX, vertices[4].y + shadowOffsetY, vertices[0].x + shadowOffsetX, vertices[0].y + shadowOffsetY);
         shadowPath.closePath();
-        bgCtx.fillStyle = "rgba(0, 0, 0, " + 0.5 * alphaMultip + ")";
+        bgCtx.fillStyle = "rgba(0, 0, 0, " + 0.25 * alphaMultip + ")";
         bgCtx.fill(shadowPath);
     }
 }
