@@ -25,6 +25,8 @@ function TrashItem(noise)
   this.vectorFieldForce = 0;
   this.collisionDistMultip = 2;
 
+  this.spawnFadeInTime = 1;
+
   this.addForce = function(x, y)
   {
     this.velocity.x += x * this.speedMultip;
@@ -80,7 +82,6 @@ function TrashItem(noise)
         yDist > (GameCamera.drawnAreaSize.y * despawnDistMultip)
     )
     {
-        console.log('Despawning trash due to being too far from the player!');
         return false;
     }
 
@@ -101,11 +102,17 @@ function TrashItem(noise)
 
   this.draw = function( ctx )
   {
+    let alphaMultip = 1;
+    if (this.timeAlive < this.spawnFadeInTime)
+    {
+        alphaMultip = this.timeAlive/this.spawnFadeInTime;
+    }
+
     let bobN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.currentTime * this.bobSpeed) * 0.5);
     let scaleMultip = Math.scaleNormal(bobN, 0.95, 1.05);
 
     var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
-    var fillStyle = 'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, ' +this.alpha +')';
+    var fillStyle = 'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, ' +this.alpha * alphaMultip +')';
     CanvasDrawingUtil.drawCircle( ctx, fillStyle, drawnPos.x, drawnPos.y, this.scale * scaleMultip );
   }
 }

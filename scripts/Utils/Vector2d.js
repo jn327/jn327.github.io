@@ -41,6 +41,14 @@ function Vector2D(x, y)
     return this;
   }
 
+  this.rotate = function(angle)
+  {
+    var angle_rad = Math.degreesToRad(angle);
+    this.x = x * Math.cos(angle_rad) - y * Math.sin(angle_rad)
+    this.y = x * Math.sin(angle_rad) + y * Math.cos(angle_rad)
+    return this;
+  }
+
   this.dot = function(that)
   {
     return this.x * that.x + this.y * that.y;

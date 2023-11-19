@@ -25,9 +25,13 @@ function Terrain(noise, centrePos) {
 
   var trashCreationRate      = 1;
   var trashCreationTimer     = 0;
-  var trashLifetime          = Number.MAX_SAFE_INTEGER;
+  var trashLifetime          = 1000;
   var nTrashMin              = 5;
   var nTrashMax              = 10;
+  let trashSpawnAngle = 2;
+  let trashSpawnRadius = 33;
+  let trashSpawnDist = 0.75;
+
   var trashParticles = new ParticleGenerator(
     30,
     (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime); },
@@ -61,27 +65,25 @@ function Terrain(noise, centrePos) {
     {
       trashCreationTimer = 0;
 
-      //TODO: spawn around the edge of the map only!!!
       let playerMoveDir = new Vector2D(player.velocity.x, player.velocity.y);
-      playerMoveDir.normalize();
+      playerMoveDir = playerMoveDir.normalize();
 
       if (playerMoveDir.x != 0 || playerMoveDir.y != 0)
       {
-        let spawnRadius = 33;
-        let spawnDist = 0.75;
-        let spawnRndW = GameCamera.drawnAreaSize.x * spawnDist;
-        let spawnRndH = GameCamera.drawnAreaSize.y * spawnDist;
+        //playerMoveDir.rotate(Math.getRnd(-trashSpawnAngle, trashSpawnAngle));
+        let spawnRndW = GameCamera.drawnAreaSize.x * trashSpawnDist;
+        let spawnRndH = GameCamera.drawnAreaSize.y * trashSpawnDist;
 
         var randomPos = new Vector2D(
           GameCamera.position.x + (playerMoveDir.x * spawnRndW), 
           GameCamera.position.y + (playerMoveDir.y * spawnRndH)
         );
 
+        //randomPos = GameCamera.getDrawnPosition(randomPos.x, randomPos.y);
         if (this.getHeight(randomPos.x, randomPos.y) < this.trashThreshold)
         {
           var nParticles = Math.getRnd(nTrashMin, nTrashMax);
-          //console.log('spawning '+nParticles+' at '+randomPos.x +', '+randomPos.y);
-          trashParticles.createParticles(nParticles, randomPos, spawnRadius, randomPos, 0.00001, trashLifetime);
+          trashParticles.createParticles(nParticles, randomPos, trashSpawnRadius, randomPos, 0.00001, trashLifetime);
         }
       }
     }
