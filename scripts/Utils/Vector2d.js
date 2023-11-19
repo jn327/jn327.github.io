@@ -51,14 +51,28 @@ function Vector2D(x, y)
 
   this.dot = function(that)
   {
-    return this.x * that.x + this.y * that.y;
+    return (this.x * that.x) + (this.y * that.y);
   }
 
+  this.cross = function(that)
+  {
+    return (this.x * that.y) - (this.y * that.x);
+  }
+
+  //returns radians
   this.angleBetween = function(that)
   {
     //return Math.acos(this.dot(that) / (this.magnitude() * that.magnitude()));
     //return Math.atan2(this.y - that.y, this.x - that.x);
+
     return Math.atan2(that.y, that.x) - Math.atan2(this.y, this.x);
+    //return Math.atan2(this.cross(that), this.dot(that));
+  }
+
+  //returns radians
+  this.angle = function()
+  {
+    return Math.atan2(this.y, this.x);
   }
 
   this.distance = function(that)

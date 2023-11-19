@@ -76,3 +76,8 @@ Math.degreesToRad = function( degrees )
 {
   return degrees * (Math.PI / 180);
 }
+
+Math.radToDegrees = function( radians )
+{
+  return (radians * 180) / Math.PI;
+}

@@ -86,8 +86,7 @@ function Bird(noise) {
         let flapN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.currentTime * this.flapSpeed) * 0.5);
         let flapMultip = Math.scaleNormal(flapN, 0.5, 1);
 
-        //TODO: figure out rotation based on velocity...
-        let rotation = this.velocity.angleBetween(new Vector2D(1,1)) + 0.5;
+        let dir = new Vector2D(this.velocity.x, this.velocity.y).normalize();
 
         var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
         var tipDist = this.scale;
@@ -97,13 +96,13 @@ function Bird(noise) {
         var rearPointDist = this.scale * 0.9;
 
         var tipPoint = new Vector2D(
-            drawnPos.x + (tipDist * Math.sin(rotation)),
-            drawnPos.y + (tipDist * Math.cos(rotation)),
+            drawnPos.x + (tipDist * dir.x),
+            drawnPos.y + (tipDist * dir.y),
         );
 
         var bowStartPoint = new Vector2D(
-            drawnPos.x + (bowDist * Math.sin(rotation)),
-            drawnPos.y + (bowDist * Math.cos(rotation)),
+            drawnPos.x + (bowDist * dir.x),
+            drawnPos.y + (bowDist * dir.y),
         );
 
         var forwardDir = new Vector2D(tipPoint.x - drawnPos.x, tipPoint.y - drawnPos.y); //vector from centre to tip
@@ -120,8 +119,8 @@ function Bird(noise) {
         );
 
         var rearPoint = new Vector2D(
-            drawnPos.x - (rearPointDist * Math.sin(rotation)),
-            drawnPos.y - (rearPointDist * Math.cos(rotation)),
+            drawnPos.x - (rearPointDist * dir.x),
+            drawnPos.y - (rearPointDist * dir.y),
         );
 
         var rearLeftPoint = new Vector2D(
