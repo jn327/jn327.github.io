@@ -1,6 +1,7 @@
 //HTML Elements
 var bgCanvas, bgCtx;
 var fgCanvas, fgCtx;
+var skyCanvas, skyCtx;
 
 CommonElementsCreator.addStyles(["FullScreenEffects/ocean"]);
 
@@ -44,8 +45,10 @@ var bgUpdateTimer     = 0;
 var cameraMoveSpeed = 1;
 
 var noise;
+var skyNoise;
 var water;
 var terrain;
+var sky;
 var player;
 
 //------------------------------------------------
@@ -61,6 +64,7 @@ function init()
     'GameLoop', 'MouseTracker', 'CanvasScaler', 'GameObject', 'GameCamera',
     'Components/Canvas', 'Components/Slider', 'Components/DropDown',  'Components/Label',
     'FullScreenEffects/Ocean/Player',
+    'FullScreenEffects/Ocean/Sky',
     'FullScreenEffects/Ocean/Water',
     'FullScreenEffects/Ocean/WaterParticle',
     'FullScreenEffects/Ocean/OceanParticle',
@@ -98,9 +102,11 @@ function start()
   GameCamera.position = new Vector2D(bgCanvas.width * 0.5, bgCanvas.height * 0.5);
 
   noise = new Noise();
+  skyNoise = new Noise();
 
   water = new Water(noise);
   terrain = new Terrain(noise, new Vector2D(GameCamera.position.x, GameCamera.position.y));
+  sky = new Sky(skyNoise);
 
   player = new Player(water, terrain, noise);
   player.setPosition(new Vector2D(GameCamera.position.x, GameCamera.position.y));
@@ -108,6 +114,9 @@ function start()
 
 function initCanvas()
 {
+  skyCanvas  = new Canvas().element;
+  skyCtx     = skyCanvas.getContext('2d', { alpha: true });
+
   fgCanvas  = new Canvas().element;
   fgCtx     = fgCanvas.getContext('2d', { alpha: true });
 
@@ -121,7 +130,7 @@ function initCanvas()
 
 function validateCanvasSize()
 {
-  var canvases = [bgCanvas, fgCanvas];
+  var canvases = [bgCanvas, fgCanvas, skyCanvas];
   var returnValue = CanvasScaler.updateCanvasSize( canvases );
 
   GameCamera.drawnAreaSize = new Vector2D(bgCanvas.width, bgCanvas.height);
@@ -144,7 +153,7 @@ function update()
 {
   if (player && !isPaused && !isDead)
   {
-    //update the player and water
+    //update the player, sky, terrain and water
     player.update(
       () => {
         isDead = true;
@@ -155,7 +164,7 @@ function update()
     if (speedValue != speedLabel.element.innerText)
       speedLabel.element.innerText = speedValue;
 
-    let fpsValue = (GameLoop.fps).toFixed(0)+'fps';
+    let fpsValue = (GameLoop.fps).toFixed(0)+'fps?';
     if (fpsValue != fpsLabel.element.innerText)
       fpsLabel.element.innerText = fpsValue;
 
@@ -167,6 +176,7 @@ function update()
       }
     );
     water.update();
+    sky.update();
 
     //have the camera follow the player
     var playerPos = player.getPosition();
@@ -186,13 +196,18 @@ function update()
       player.draw(fgCtx);
     }
 
-    //draw the water
+    //draw the water, terrain & sky
     bgUpdateTimer += GameLoop.deltaTime;
     if (bgUpdateTimer > bgUpdateFreq)
     {
       bgUpdateTimer = 0;
       bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      skyCtx.clearRect(0, 0, skyCanvas.width, skyCanvas.height);
+
       terrain.draw(bgCtx, bgCanvas.width, bgCanvas.height);
+
+      sky.draw(skyCtx, bgCtx, skyCanvas.width, skyCanvas.height);
+
       water.draw(bgCtx, bgCanvas.width, bgCanvas.height);
     }
   }

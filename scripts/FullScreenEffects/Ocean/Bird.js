@@ -1,4 +1,4 @@
-function TrashItem(noise)
+function Bird()
 {
   //Call our prototype
   GameObject.call(this);
@@ -7,16 +7,16 @@ function TrashItem(noise)
   this.speedMultip = Math.scaleNormal(Math.random(), 0.9, 1);
   this.friction = Math.scaleNormal(Math.random(), 0.98, 1); //loose this percentage * 100 every second.
 
-  this.hue = 68;
-  this.saturation = 22;
-  this.brightness = 50;
+  this.hue = 245;
+  this.saturation = 50;
+  this.brightness = 5;
 
   this.rnd = Math.random();
   this.bobSpeed = 0.5;
 
   this.alpha = 0.75;
-  this.minScale = 8;
-  this.maxScale = 16;
+  this.minScale = 3;
+  this.maxScale = 5;
   this.scale = this.minScale;
 
   this.timeAlive = 0;
