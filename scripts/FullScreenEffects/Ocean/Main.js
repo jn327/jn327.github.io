@@ -83,6 +83,18 @@ function init()
   CommonElementsCreator.appendScripts(includes);
 }
 
+window.addEventListener("mousedown", (e) => {
+  e.preventDefault();
+  if (isDead)
+    location.reload();
+}, false);
+
+window.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  if (isDead)
+    location.reload();
+}, false);
+
 function start()
 {
   initCanvas();
