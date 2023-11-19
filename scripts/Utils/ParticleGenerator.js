@@ -48,7 +48,8 @@ function ParticleGenerator(maxParticles, spawnParticleFunct, getParticleFunct)
         for ( var n = 0; n < l; n ++ )
         {
             particle = this.particles[n];
-            if (callback(particle) == false)
+            var onCallback = callback(particle);
+            if (onCallback == false)
             {
                 this.particlePool.addToPool(particle);
                 this.particles.splice(n, 1);

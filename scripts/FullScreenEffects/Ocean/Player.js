@@ -31,7 +31,7 @@ function Player(water, terrain, noise) {
 		this.velocity.y += y * this.speedMultip;
 
 		let collisionForce = new Vector2D(this.velocity.x, this.velocity.y).multiply(Math.scaleNormal(Math.random(), 0.1, 1));
-		water.createCollisionParticles(this.position, collisionForce);
+        water.createCollisionParticles(this.position, collisionForce);
 
 		return this;
 	}
@@ -83,6 +83,8 @@ function Player(water, terrain, noise) {
 				onDie();
 			}
 		});
+
+		//TODO: update score if we hit something score related...
 	}
 
 	this.getVertices = function(x, y) {

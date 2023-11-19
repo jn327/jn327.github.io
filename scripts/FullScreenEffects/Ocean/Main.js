@@ -25,6 +25,13 @@ function validateDeadLabel()
   deadLabel.element.style.visibility = isDead ? "visible" : "hidden";
 }
 
+var score = 0;
+var scoreLabel;
+function validateScoreLabel()
+{
+  scoreLabel.element.innerText = "Score: "+score;
+}
+
 var speedLabel;
 var fpsLabel;
 
@@ -57,6 +64,7 @@ function init()
     'FullScreenEffects/Ocean/Water',
     'FullScreenEffects/Ocean/WaterParticle',
     'FullScreenEffects/Ocean/OceanParticle',
+    'FullScreenEffects/Ocean/TrashItem',
     'FullScreenEffects/Ocean/Terrain',
     'FullScreenEffects/Ocean/Noise',
   ];
@@ -79,6 +87,10 @@ function start()
 
   speedLabel = new Label(document.body, 0);
   speedLabel.element.className       = "speedLabel";
+
+  scoreLabel = new Label(document.body, 0);
+  scoreLabel.element.className       = "scoreLabel";
+  validateScoreLabel();
 
   fpsLabel = new Label(document.body, 0);
   fpsLabel.element.className       = "fpsLabel";
@@ -133,10 +145,12 @@ function update()
   if (player && !isPaused && !isDead)
   {
     //update the player and water
-    player.update(() => {
-      isDead = true;
-      validateDeadLabel();
-    });
+    player.update(
+      () => {
+        isDead = true;
+        validateDeadLabel();
+      }
+    );
     let speedValue = (player.getSpeed() * 10).toFixed(0)+'kph';
     if (speedValue != speedLabel.element.innerText)
       speedLabel.element.innerText = speedValue;
@@ -145,7 +159,13 @@ function update()
     if (fpsValue != fpsLabel.element.innerText)
       fpsLabel.element.innerText = fpsValue;
 
-    terrain.update();
+    terrain.update(
+      player, 
+      () => {
+        this.score += 1;
+        validateScoreLabel();
+      }
+    );
     water.update();
 
     //have the camera follow the player

@@ -7,6 +7,8 @@ function Terrain(noise, centrePos) {
   this.deepThreshold = 0.2;
   this.showDeepWater = true;
 
+  this.trashThreshold = 0.4;
+
   this.showCurlNoise = true;
 
   this.landDotScale = 0.75;
@@ -21,7 +23,18 @@ function Terrain(noise, centrePos) {
     () => { return new OceanParticle(noise); }
   );
 
-  this.update = function () {
+  var trashCreationRate      = 1;
+  var trashCreationTimer     = 0;
+  var trashLifetime          = Number.MAX_SAFE_INTEGER;
+  var nTrashMin              = 5;
+  var nTrashMax              = 10;
+  var trashParticles = new ParticleGenerator(
+    30,
+    (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime); },
+    () => { return new TrashItem(noise); }
+  );
+
+  this.update = function (player, onTrashCollidesWithPlayer) {
     //let waveScale = (Math.sin(GameLoop.currentTime * GameLoop.deltaTime * this.landObsureChangeRate) + 1) * 0.25;
     //this.reefThreshold = Math.scaleNormal(waveScale, this.reefThresholdMin, this.landThreshold);
 
@@ -43,9 +56,44 @@ function Terrain(noise, centrePos) {
       }
     }
 
+    trashCreationTimer += GameLoop.deltaTime;
+    if (trashCreationTimer > trashCreationRate)
+    {
+      trashCreationTimer = 0;
+
+      //TODO: spawn around the edge of the map only!!!
+      let playerMoveDir = new Vector2D(player.velocity.x, player.velocity.y);
+      playerMoveDir.normalize();
+
+      if (playerMoveDir.x != 0 || playerMoveDir.y != 0)
+      {
+        let spawnRadius = 33;
+        let spawnDist = 0.75;
+        let spawnRndW = GameCamera.drawnAreaSize.x * spawnDist;
+        let spawnRndH = GameCamera.drawnAreaSize.y * spawnDist;
+
+        var randomPos = new Vector2D(
+          GameCamera.position.x + (playerMoveDir.x * spawnRndW), 
+          GameCamera.position.y + (playerMoveDir.y * spawnRndH)
+        );
+
+        if (this.getHeight(randomPos.x, randomPos.y) < this.trashThreshold)
+        {
+          var nParticles = Math.getRnd(nTrashMin, nTrashMax);
+          //console.log('spawning '+nParticles+' at '+randomPos.x +', '+randomPos.y);
+          trashParticles.createParticles(nParticles, randomPos, spawnRadius, randomPos, 0.00001, trashLifetime);
+        }
+      }
+    }
+
     vectorFieldParticles.update((particle) =>
     {
         return particle.update();
+    });
+
+    trashParticles.update((particle) =>
+    {
+      return particle.update(player, onTrashCollidesWithPlayer);
     });
   }
 
@@ -74,7 +122,7 @@ function Terrain(noise, centrePos) {
         var simplexVal = this.getHeight(x, y);
         if (this.showDeepWater && simplexVal < this.deepThreshold) {
           let alpha = Math.minMaxNormal(simplexVal, 0, this.deepThreshold);
-          alpha = (1 - alpha) * 0.5;
+          alpha = (1 - alpha) * 0.35;
           let fillStyle = 'rgba(' + this.deepColor + ', ' + alpha + ')';
 
           let radius = step * alpha;
@@ -117,6 +165,11 @@ function Terrain(noise, centrePos) {
     }
 
     vectorFieldParticles.draw((particle) =>
+    {
+        particle.draw(ctx);
+    });
+
+    trashParticles.draw((particle) =>
     {
         particle.draw(ctx);
     });
