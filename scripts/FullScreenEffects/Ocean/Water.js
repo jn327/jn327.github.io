@@ -9,20 +9,20 @@ function Water(noise)
     this.createCollisionParticles = function (pos, force)
     {
         //TODO: based on a curve?
-        let forceMultip = new Vector2D(force.x, force.y).magnitude();
+        let forceMultip = new Vector2D(force.x, force.y).magnitude() * 0.25;
         let nParticles = forceMultip * 0.2;
         let radius = 1;
-        let lifeTimeN = forceMultip * 0.75;
+        let lifeTimeN = forceMultip * 3;
 
         let forceCenter = pos;
         splashParticles.createParticles(nParticles, pos, radius, forceCenter, forceMultip, lifeTimeN);
     }
 
-    this.update = function(deltaTime)
+    this.update = function()
     {
         splashParticles.update((particle) =>
         {
-            return particle.update(deltaTime);
+            return particle.update();
         });
     }
 

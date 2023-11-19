@@ -5,6 +5,7 @@
     right: 20px;
     top: 20px;
     color: white;
+    text-shadow: 2px 2px #00000055;
 }
 
 .deadLabel
@@ -14,4 +15,5 @@
     left: 20px;
     top: 20px;
     color: white; 
+    text-shadow: 2px 2px #00000055;
 }

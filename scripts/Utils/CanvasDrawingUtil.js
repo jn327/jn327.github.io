@@ -5,6 +5,7 @@ CanvasDrawingUtil.drawCircle = function( ctx, fillStyle, x, y, size)
     ctx.fillStyle = fillStyle;
     ctx.beginPath();
     ctx.arc(x, y, size, 0, 2 * Math.PI);
+    ctx.closePath();
     ctx.fill();
 }
 

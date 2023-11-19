@@ -1,16 +1,17 @@
-function Player(water, terrain) {
+function Player(water, terrain, noise) {
 	//Call our prototype
 	GameObject.call(this);
 
 	this.pressedKeys = {};
 
 	this.accelerationSpeed = 2;
-	this.rotationSpeed = 1;
+	this.rotationSpeed = 2;
 
 	this.velocity = new Vector2D(0, 0);
 	this.speedMultip = 2;
 	this.friction = 0.9; //loose this percentage * 100 every second.
 	this.size = 25;
+	this.vectorFieldForce = 0.5;
 	this.rotation = 0.5;
 
 	window.addEventListener("keydown", (event) => {
@@ -24,7 +25,7 @@ function Player(water, terrain) {
 		this.velocity.x += x * this.speedMultip;
 		this.velocity.y += y * this.speedMultip;
 
-		let collisionForce = new Vector2D(this.velocity.x, this.velocity.y).multiply(Math.scaleNormal(Math.random(), 0.5, 1));
+		let collisionForce = new Vector2D(this.velocity.x, this.velocity.y).multiply(Math.scaleNormal(Math.random(), 0.1, 1));
 		water.createCollisionParticles(this.position, collisionForce);
 
 		return this;
@@ -38,30 +39,39 @@ function Player(water, terrain) {
 		return new Vector2D(this.position.x - tipPoint.x, this.position.y - tipPoint.y); //vector from centre to tip
 	}
 
-	this.update = function (deltaTime, onDie) {
-		this.position.x += this.velocity.x;
-		this.position.y += this.velocity.y;
+	this.update = function (onDie) {
+		//add a bit of velocity based on the vector field.
+		var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
+		let vectorField = noise.getVectorField(drawnPos.x, drawnPos.y);
+		this.addForce(vectorField.x * this.vectorFieldForce, vectorField.y * this.vectorFieldForce);
 
-		var deltaFriction = Math.clamp(this.friction * deltaTime, 0, 1);
-		this.velocity.multiply(1 - deltaFriction);
-
+		//handle inputs
 		if (this.pressedKeys['ArrowDown']) {
 			let forwardDir = this.getForwardDirection();
-			forwardDir.multiply(deltaTime * this.accelerationSpeed);
+			forwardDir.multiply(GameLoop.deltaTime * this.accelerationSpeed);
 			this.addForce(forwardDir.x, forwardDir.y);
 		}
 		if (this.pressedKeys['ArrowUp']) {
 			let forwardDir = this.getForwardDirection();
-			forwardDir.multiply(deltaTime * this.accelerationSpeed * -1);
+			forwardDir.multiply(GameLoop.deltaTime * this.accelerationSpeed * -1);
 			this.addForce(forwardDir.x, forwardDir.y);
 		}
 		if (this.pressedKeys['ArrowLeft']) {
-			this.rotation -= 1 * deltaTime * this.rotationSpeed;
+			this.rotation -= 1 * GameLoop.deltaTime * this.rotationSpeed;
 		}
 		if (this.pressedKeys['ArrowRight']) {
-			this.rotation += 1 * deltaTime * this.rotationSpeed;
+			this.rotation += 1 * GameLoop.deltaTime * this.rotationSpeed;
 		}
 
+		//update position
+		this.position.x += this.velocity.x;
+		this.position.y += this.velocity.y;
+
+		//apply friction
+		var deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
+		this.velocity.multiply(1 - deltaFriction);
+
+		//check collisions
 		this.onPointCollides((x,y,step) => {
 			if (terrain.isLand(x,y))
 			{
@@ -71,7 +81,6 @@ function Player(water, terrain) {
 	}
 
 	this.getVertices = function(x, y) {
-
 		var tipDist = this.size;
 		var frontSideDist = this.size * 0.5;
 		var rearSideDist = this.size * 0.4;
@@ -139,7 +148,23 @@ function Player(water, terrain) {
 		var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
 		let vertices = this.getVertices(drawnPos.x, drawnPos.y);
 
-		const path = new Path2D()
+		//draw the shadow
+		let depth = terrain.getHeight(drawnPos.x, drawnPos.y);
+		depth = 1-depth;
+
+		let shadowOffsetX = depth * 4;
+		let shadowOffsetY = depth * 10;
+		const shadowPath = new Path2D();
+		shadowPath.moveTo(vertices[0].x+shadowOffsetX, vertices[0].y+shadowOffsetY);
+		shadowPath.quadraticCurveTo(vertices[1].x+shadowOffsetX, vertices[1].y+shadowOffsetY, vertices[2].x+shadowOffsetX, vertices[2].y+shadowOffsetY);
+		shadowPath.lineTo(vertices[3].x+shadowOffsetX, vertices[3].y+shadowOffsetY);
+		shadowPath.quadraticCurveTo(vertices[4].x+shadowOffsetX, vertices[4].y+shadowOffsetY, vertices[0].x+shadowOffsetX, vertices[0].y+shadowOffsetY);
+		shadowPath.closePath();
+		ctx.fillStyle="rgba(0, 0, 0, "+(1-depth)+")";
+		ctx.fill(shadowPath);
+
+		// draw the content
+		const path = new Path2D();
 		path.moveTo(vertices[0].x, vertices[0].y);
 	 	path.quadraticCurveTo(vertices[1].x, vertices[1].y, vertices[2].x, vertices[2].y);
 	  	path.lineTo(vertices[3].x, vertices[3].y);

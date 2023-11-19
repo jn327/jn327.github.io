@@ -81,7 +81,7 @@ function start()
   water = new Water(noise);
   terrain = new Terrain(noise, new Vector2D(GameCamera.position.x, GameCamera.position.y));
 
-  player = new Player(water, terrain);
+  player = new Player(water, terrain, noise);
   player.setPosition(new Vector2D(GameCamera.position.x, GameCamera.position.y));
 }
 
@@ -124,12 +124,12 @@ function update()
   if (player && !isPaused && !isDead)
   {
     //update the player and water
-    player.update(GameLoop.deltaTime, () => {
+    player.update(() => {
       isDead = true;
       validateDeadLabel();
     });
-    terrain.update(GameLoop.deltaTime);
-    water.update(GameLoop.deltaTime);
+    terrain.update();
+    water.update();
 
     //have the camera follow the player
     var playerPos = player.getPosition();

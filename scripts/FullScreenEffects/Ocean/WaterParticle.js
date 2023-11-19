@@ -39,9 +39,9 @@ function WaterParticle()
     this.lifeTime = lifeTime;
   }
 
-  this.update = function( deltaTime )
+  this.update = function()
   {
-    this.timeAlive += deltaTime;
+    this.timeAlive += GameLoop.deltaTime;
     if (this.timeAlive >= this.lifeTime)
     {
       return false;
@@ -50,7 +50,7 @@ function WaterParticle()
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
-    var deltaFriction = Math.clamp(this.friction * deltaTime, 0, 1);
+    var deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
     this.velocity.multiply(1 - deltaFriction);
 
     return true;

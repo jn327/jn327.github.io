@@ -8,12 +8,14 @@ function Terrain(noise, centrePos)
   this.deepThreshold = 0.2;
   this.showDeepWater = true;
 
+  this.showCurlNoise = true;
+
   this.landDotScale = 0.75; 
   this.landObsureChangeRate = 0.05;
 
-  this.update = function(deltaTime)
+  this.update = function()
   {
-    //let waveScale = (Math.sin(GameLoop.currentTime * deltaTime * this.landObsureChangeRate) + 1) * 0.25;
+    //let waveScale = (Math.sin(GameLoop.currentTime * GameLoop.deltaTime * this.landObsureChangeRate) + 1) * 0.25;
     //this.reefThreshold = Math.scaleNormal(waveScale, this.reefThresholdMin, this.landThreshold);
   }
 
@@ -65,12 +67,15 @@ function Terrain(noise, centrePos)
           CanvasDrawingUtil.drawCircle( ctx, fillStyle, x, y, radius * this.landDotScale );
         }
 
-        /*
-          noiseVisCtx.strokeStyle   = 'hotpink';
-          noiseVisCtx.lineWidth     = 1;
-          noiseVisCtx.beginPath();
+        /*if (this.showCurlNoise && simplexVal < this.landThreshold) {
+          ctx.strokeStyle   = '#ffffff';
+          ctx.lineWidth     = 2;
+          ctx.beginPath();
           var startPoint = new Vector2D(x, y);
-          var endPoint = startPoint.getSum(curlVector.getMultiplied(6000));
+          var curlVal     = noise.getVectorField(x, y);
+          //console.log('curVal at '+x +', '+y +' is '+curlVal.x+', '+curlVal.y);
+          var curlVector  = new Vector2D(curlVal[0], curlVal[1]);
+          var endPoint = startPoint.getSum(curlVector.getMultiplied(6000)); //6000
           var arrowEdgeDist = curlVector.getMultiplied(0.75); //how far along the arrow starts
           var arrowEdgePoint = startPoint.getSum(arrowEdgeDist);
           var perpendicularVector = curlVector.getPerpendicular();
@@ -78,12 +83,14 @@ function Terrain(noise, centrePos)
           var arrowEdgeOne = arrowEdgePoint.getDifference(perpendicularVector);
           var arrowEdgeTwo = arrowEdgePoint.getSum(perpendicularVector);
 
-          noiseVisCtx.moveTo(startPoint.x, startPoint.y);
-          noiseVisCtx.lineTo(endPoint.x, endPoint.y);
-          noiseVisCtx.lineTo(arrowEdgeOne.x, arrowEdgeOne.y);
-          noiseVisCtx.moveTo(endPoint.x, endPoint.y);
-          noiseVisCtx.lineTo(arrowEdgeTwo.x, arrowEdgeTwo.y);
-        */
+          ctx.moveTo(startPoint.x, startPoint.y);
+          ctx.lineTo(endPoint.x, endPoint.y);
+          ctx.lineTo(arrowEdgeOne.x, arrowEdgeOne.y);
+          ctx.moveTo(endPoint.x, endPoint.y);
+          ctx.lineTo(arrowEdgeTwo.x, arrowEdgeTwo.y);
+          ctx.closePath();
+          ctx.stroke();
+        }*/
       }
     }
   }
