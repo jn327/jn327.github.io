@@ -121,7 +121,7 @@ function TrashItem(noise, terrain)
         alphaMultip = this.timeAlive/this.spawnFadeInTime;
     }
 
-    let bobN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.deltaTime * GameLoop.currentTime * this.bobSpeed) * 0.5);
+    let bobN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.currentTime * this.bobSpeed) * 0.5);
     let scaleMultip = Math.scaleNormal(bobN, 0.9, 1.1);
 
     var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);

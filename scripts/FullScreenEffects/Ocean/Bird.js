@@ -83,7 +83,7 @@ function Bird(noise) {
             alphaMultip = this.timeAlive / this.spawnFadeInTime;
         }
 
-        let flapN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.deltaTime * GameLoop.currentTime * this.flapSpeed) * 0.5);
+        let flapN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.currentTime * this.flapSpeed) * 0.5);
         let flapMultip = Math.scaleNormal(flapN, 0.5, 1);
 
         let dir = new Vector2D(this.velocity.x, this.velocity.y).normalize();
