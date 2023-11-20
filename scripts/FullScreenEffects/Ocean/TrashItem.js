@@ -12,14 +12,14 @@ function TrashItem(noise, terrain)
   this.brightness = 50;
 
   this.rnd = Math.random();
-  this.bobSpeed = 0.5;
+  this.bobSpeed = 200;
 
   this.alpha = 0.75;
   this.minScale = 12;
   this.maxScale = 16;
   this.scale = this.minScale;
 
-  var terrainCheckFreq      = 0.5;
+  var terrainCheckFreq      = 2;
   var terrainCheckTimer     = 0;
 
   this.timeAlive = 0;
@@ -69,7 +69,6 @@ function TrashItem(noise, terrain)
     var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
 
     //destroy if we collide with the terrain
-    //TODO: remove or reduce the rate of these calls.
     terrainCheckTimer += GameLoop.deltaTime;
     if (terrainCheckTimer > terrainCheckFreq)
     {
@@ -122,11 +121,17 @@ function TrashItem(noise, terrain)
         alphaMultip = this.timeAlive/this.spawnFadeInTime;
     }
 
-    let bobN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.currentTime * this.bobSpeed) * 0.5);
-    let scaleMultip = Math.scaleNormal(bobN, 0.95, 1.05);
+    let bobN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.deltaTime * GameLoop.currentTime * this.bobSpeed) * 0.5);
+    let scaleMultip = Math.scaleNormal(bobN, 0.9, 1.1);
 
     var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
+
+    let scale = this.scale * scaleMultip;
+    //var grd = ctx.createRadialGradient(drawnPos.x, drawnPos.y, 0, drawnPos.x, drawnPos.y,  );
+    //grd.addColorStop(0, 'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, ' +this.alpha * alphaMultip +')');
+    //grd.addColorStop(1, 'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, 0)');
+    //var fillStyle = grd;
     var fillStyle = 'hsla('+this.hue +', '+this.saturation +'%, '+this.brightness +'%, ' +this.alpha * alphaMultip +')';
-    CanvasDrawingUtil.drawCircle( ctx, fillStyle, drawnPos.x, drawnPos.y, this.scale * scaleMultip );
+    CanvasDrawingUtil.drawCircle( ctx, fillStyle, drawnPos.x, drawnPos.y, scale );
   }
 }

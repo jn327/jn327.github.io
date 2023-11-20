@@ -13,6 +13,8 @@ function Sky(noise) {
     var birdLifetime = 1000;
     var birdVelocity = 10;
 
+    var drawStep = 18;
+
     var birdParticles = new ParticleGenerator(
         5,
         (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime); },
@@ -49,15 +51,14 @@ function Sky(noise) {
     }
 
     this.draw = function (ctx, bgCtx, screenWidth, screenHeight) {
-        let step = 14;
-        for (var x = 0; x < screenWidth; x += step) {
-            for (var y = 0; y < screenHeight; y += step) {
+        for (var x = 0; x < screenWidth; x += drawStep) {
+            for (var y = 0; y < screenHeight; y += drawStep) {
                 var simplexVal = this.getHeight(x, y);
                 if (simplexVal > this.cloudThreshold) {
                     let radiusMultip = Math.clamp(Math.minMaxNormal(simplexVal, this.cloudThreshold, 1), 0, 1);
                     let fillStyle = 'rgba(' + this.cloudColor + ', ' + this.cloudAlpha + ')';
 
-                    let radius = step * radiusMultip;
+                    let radius = drawStep * radiusMultip;
                     CanvasDrawingUtil.drawCircle(ctx, fillStyle, x, y, radius * this.cloudDotScale);
 
                     let shadowOffsetX = 20;

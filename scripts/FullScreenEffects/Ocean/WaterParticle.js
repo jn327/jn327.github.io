@@ -13,7 +13,7 @@ function WaterParticle()
 
   this.alpha = 1;
   this.minScale = 1;
-  this.maxScale = 5;
+  this.maxScale = 8;
 
   this.timeAlive = 0;
   this.lifeTime = 0;

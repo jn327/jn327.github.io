@@ -46,7 +46,7 @@ var fpsLabel;
 var fgUpdateFreq      = 0.025;
 var fgUpdateTimer     = 0;
 
-var bgUpdateFreq      = 0.1;
+var bgUpdateFreq      = 0.05;
 var bgUpdateTimer     = 0;
 
 var cameraMoveSpeed = 1;
