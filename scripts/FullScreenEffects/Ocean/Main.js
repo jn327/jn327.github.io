@@ -49,7 +49,7 @@ var fgUpdateTimer     = 0;
 var bgUpdateFreq      = 0.05;
 var bgUpdateTimer     = 0;
 
-var cameraMoveSpeed = 1;
+var cameraMoveSpeed = 2;
 
 var noise;
 var skyNoise;
@@ -114,7 +114,7 @@ function start()
   fpsLabel = new Label(document.body, 0);
   fpsLabel.element.className       = "fpsLabel";
 
-  GameCamera.position = new Vector2D(2000, 2000);
+  GameCamera.position = new Vector2D(99999, 99999);
 
   noise = new Noise();
   skyNoise = new Noise();

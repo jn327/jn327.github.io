@@ -4,7 +4,7 @@ function Terrain(noise, centrePos) {
   this.reefThresholdMin = 0.6;
   this.reefThreshold = this.reefThresholdMin;
   this.landThreshold = 0.75;
-  this.deepThreshold = 0.2;
+  this.deepThreshold = 0.3;
   this.showDeepWater = true;
 
   this.trashThreshold = 0.5;
@@ -12,6 +12,8 @@ function Terrain(noise, centrePos) {
   this.showCurlNoise = true;
 
   this.landDotScale = 0.75;
+  this.deepDotScale = 0.5;
+  this.deepDotAlphaMultip = 0.75;
   this.landObsureChangeRate = 0; //0.05;
 
   var vectorFieldParticleCreationRate      = 0.1;
@@ -129,11 +131,11 @@ function Terrain(noise, centrePos) {
         var simplexVal = this.getHeight(x, y);
         if (this.showDeepWater && simplexVal < this.deepThreshold) {
           let alpha = Math.minMaxNormal(simplexVal, 0, this.deepThreshold);
-          alpha = (1 - alpha) * 0.5;
-          let fillStyle = 'rgba(' + this.deepColor + ', ' + alpha + ')';
+          alpha = (1 - alpha);
+          let fillStyle = 'rgba(' + this.deepColor + ', ' + (alpha * this.deepDotAlphaMultip) + ')';
 
           let radius = drawStep * alpha;
-          CanvasDrawingUtil.drawCircle(ctx, fillStyle, x, y, radius * this.landDotScale);
+          CanvasDrawingUtil.drawCircle(ctx, fillStyle, x, y, radius * this.deepDotScale);
         }
         else if (simplexVal > this.reefThreshold) {
           let alpha = Math.clamp(Math.minMaxNormal(simplexVal, this.reefThreshold, this.landThreshold), 0, 1);

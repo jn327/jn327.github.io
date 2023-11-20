@@ -43,9 +43,9 @@ function Vector2D(x, y)
 
   this.rotate = function(angle)
   {
-    var angle_rad = Math.degreesToRad(angle);
-    this.x = x * Math.cos(angle_rad) - y * Math.sin(angle_rad)
-    this.y = x * Math.sin(angle_rad) + y * Math.cos(angle_rad)
+    angle = Math.degreesToRad(angle);
+    this.x = x * Math.cos(angle) - y * Math.sin(angle)
+    this.y = x * Math.sin(angle) + y * Math.cos(angle)
     return this;
   }
 
@@ -64,9 +64,13 @@ function Vector2D(x, y)
   {
     //return Math.acos(this.dot(that) / (this.magnitude() * that.magnitude()));
     //return Math.atan2(this.y - that.y, this.x - that.x);
-
     return Math.atan2(that.y, that.x) - Math.atan2(this.y, this.x);
-    //return Math.atan2(this.cross(that), this.dot(that));
+  }
+
+  //returns radians
+  this.signedangleBetween = function(that)
+  {
+    return Math.atan2(this.cross(that), this.dot(that));
   }
 
   //returns radians

@@ -3,15 +3,19 @@ function Player(water, terrain, noise) {
 	GameObject.call(this);
 
 	this.pressedKeys = {};
+	this.rotation = 0;
 
-	this.accelerationSpeed = 1;
+	this.keyAcceleration = 3;
+	this.mouseAcceleration = 3;
+
+	this.rotationSpeed = 150;
+	this.mouseRotationSpeed = 250;
 
 	this.velocity = new Vector2D(0, 0);
 	this.speedMultip = 2;
-	this.mouseDownSpeedMultip = 2;
 	this.friction = 0.85; //loose this percentage * 100 every second.
 	this.size = 25;
-	this.vectorFieldForce = 0.5;
+	this.vectorFieldForce = 0.4;
 
 	window.addEventListener("keydown", (event) => {
 		this.pressedKeys[event.key] = true;
@@ -25,6 +29,11 @@ function Player(water, terrain, noise) {
 	this.getSpeed = function()
 	{
 		return this.velocity.magnitude();
+	}
+
+	this.getForwardDirection = function()
+	{
+		return new Vector2D(1,0).rotate(this.rotation).normalize();
 	}
 
 	this.addForce = function (x, y) {
@@ -52,31 +61,50 @@ function Player(water, terrain, noise) {
 			if (clickDist != 0)
 			{
 				//add acceleration to the player in the direction vector between thispos and playerpos
-				var clickDir = new Vector2D(mousePos.x - drawnPos.x, mousePos.y - drawnPos.y);
-				//normalize direction
-				var normalizedClickDir = clickDir.normalize().multiply(this.mouseDownSpeedMultip * GameLoop.deltaTime);
-				this.addForce(normalizedClickDir.x, normalizedClickDir.y);
+				var clickDir = new Vector2D(mousePos.x - drawnPos.x, mousePos.y - drawnPos.y).normalize();
+				var forwardDir = this.getForwardDirection();
+
+				let angle = forwardDir.signedangleBetween(clickDir);
+				this.rotation += angle * this.mouseRotationSpeed * GameLoop.deltaTime;
+
+				forwardDir.multiply(this.mouseAcceleration * GameLoop.deltaTime);
+				this.addForce(forwardDir.x, forwardDir.y);
 			}
 		}
 
-		var moveDir = new Vector2D(0,0);
-		if (this.pressedKeys['ArrowDown']) {
-			moveDir.y += 1;
+		var moveDir = undefined;
+		/*if (this.pressedKeys['ArrowDown']) {
+			var forwardDir = this.getForwardDirection();
+			moveDir = new Vector2D(-forwardDir.x,-forwardDir.y);
 		}
 		if (this.pressedKeys['ArrowUp']) {
-			moveDir.y -= 1;
+			var forwardDir = this.getForwardDirection();
+			moveDir = new Vector2D(forwardDir.x,forwardDir.y);
 		}
 		if (this.pressedKeys['ArrowLeft']) {
-			moveDir.x -= 1;
+			this.rotation -= GameLoop.deltaTime * this.rotationSpeed;
 		}
 		if (this.pressedKeys['ArrowRight']) {
-			moveDir.x += 1;
+			this.rotation += GameLoop.deltaTime * this.rotationSpeed;
 		}
-
-		if (moveDir.x != 0 || moveDir.y != 0)
+		if (moveDir != undefined)
 		{
-			moveDir.multiply(GameLoop.deltaTime * this.accelerationSpeed);
+			moveDir.normalize();
+			moveDir.multiply(GameLoop.deltaTime * this.keyAcceleration);
 			this.addForce(moveDir.x, moveDir.y);
+		}*/
+
+		if (this.pressedKeys['ArrowDown']) { moveDir = new Vector2D(0,1); }
+		if (this.pressedKeys['ArrowUp']) { moveDir = new Vector2D(0,-1); }
+		if (this.pressedKeys['ArrowLeft']) { moveDir = new Vector2D(-1,0); }
+		if (this.pressedKeys['ArrowRight']) { moveDir = new Vector2D(1,0); }
+		if (moveDir != undefined)
+		{
+			var forwardDir = this.getForwardDirection();
+			let angle = forwardDir.signedangleBetween(moveDir);
+			this.rotation += angle * this.mouseRotationSpeed * GameLoop.deltaTime;
+			forwardDir.multiply(this.mouseAcceleration * GameLoop.deltaTime);
+			this.addForce(forwardDir.x, forwardDir.y);
 		}
 
 		//update position
@@ -94,8 +122,6 @@ function Player(water, terrain, noise) {
 				onDie();
 			}
 		});
-
-		//TODO: update score if we hit something score related...
 	}
 
 	this.getVertices = function(x, y) {
@@ -105,7 +131,7 @@ function Player(water, terrain, noise) {
 		var bowDist = this.size * 0.4;
 		var rearPointDist = this.size * 0.9;
 
-		let dir = new Vector2D(this.velocity.x, this.velocity.y).normalize();
+		var dir = this.getForwardDirection();
 
 		var tipPoint = new Vector2D(
 			x + (tipDist * dir.x),

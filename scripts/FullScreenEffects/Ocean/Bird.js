@@ -16,7 +16,7 @@ function Bird(noise) {
     this.rnd = Math.random();
     this.flapSpeed = 0.5;
 
-    this.vectorFieldForce = 6;
+    this.vectorFieldForce = 8;
 
     this.spawnFadeInTime = 1;
 
