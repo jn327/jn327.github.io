@@ -83,17 +83,12 @@ function init()
   CommonElementsCreator.appendScripts(includes);
 }
 
-window.addEventListener("mousedown", (e) => {
-  e.preventDefault();
-  if (isDead)
-    location.reload();
-}, false);
-
-window.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  if (isDead)
-    location.reload();
-}, false);
+function onMouseDown()
+{
+  if (isDead) {
+    location.reload(); 
+  }
+}
 
 function start()
 {
@@ -175,6 +170,8 @@ function update()
   {
     //update the player, sky, terrain and water
     player.update(
+      fgCanvas.width, 
+      fgCanvas.height,
       () => {
         isDead = true;
         validateDeadLabel();

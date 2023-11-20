@@ -22,57 +22,6 @@ function Player(water, terrain, noise) {
 
 	//------------------------------------------------
 	//------------------------------------------------
-	this.mousedown = false;
-	this.clickPos;
-
-	this.handleMouseDown = function()
-	{
-		if (this.mousedown )
-		{
-			var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
-			var clickDist = drawnPos.distance(this.clickPos);
-			if (clickDist != 0)
-			{
-				//add acceleration to the player in the direction vector between thispos and playerpos
-				var clickDir = new Vector2D(this.clickPos.x - drawnPos.x, this.clickPos.y - drawnPos.y);
-				//normalize direction
-				var normalizedClickDir = clickDir.normalize().multiply(this.mouseDownSpeedMultip * GameLoop.deltaTime);
-				this.addForce(normalizedClickDir.x, normalizedClickDir.y);
-			}
-		}
-	}
-
-	window.addEventListener("mousedown", (e) => {
-		e.preventDefault();
-		this.mousedown = true;
-		this.clickPos = new Vector2D(e.pageX, e.pageY);
-	}, false);
-	window.addEventListener("mouseup", (e) => {
-		e.preventDefault();
-		this.mousedown = false;
-	}, false);
-
-	window.addEventListener("mousemove", (e) => {
-		e.preventDefault();
-		this.clickPos = new Vector2D(e.pageX, e.pageY);
-	}, false);
-
-	window.addEventListener("touchstart", (e) => {
-		//prevent default behaviour so the screen doesn't scroll or zoom...
-		e.preventDefault();
-		this.mousedown = true;
-	}, false);
-	window.addEventListener("touchend", (e) => {
-		e.preventDefault();
-		this.mousedown = false;
-	}, false);
-	window.addEventListener("touchmove", (e) => {
-		e.preventDefault();	
-		this.clickPos = new Vector2D(e.touches[0].pageX, e.touches[0].pageY);
-	}, false);
-
-	//------------------------------------------------
-	//------------------------------------------------
 	this.getSpeed = function()
 	{
 		return this.velocity.magnitude();
@@ -88,14 +37,27 @@ function Player(water, terrain, noise) {
 		return this;
 	}
 
-	this.update = function (onDie) {
+	this.update = function (canvasW, canvasH, onDie) {
 		//add a bit of velocity based on the vector field.
 		var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
 		let vectorField = noise.getVectorField(drawnPos.x, drawnPos.y);
 		this.addForce(vectorField.x * this.vectorFieldForce, vectorField.y * this.vectorFieldForce);
 
 		//handle inputs
-		this.handleMouseDown();
+		if ( MouseTracker.bMouseDown && MouseTracker.mousePos != undefined )
+		{
+			var mousePos  = new Vector2D(MouseTracker.mousePos.x * canvasW, MouseTracker.mousePos.y * canvasH);
+			var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
+			var clickDist = drawnPos.distance(mousePos);
+			if (clickDist != 0)
+			{
+				//add acceleration to the player in the direction vector between thispos and playerpos
+				var clickDir = new Vector2D(mousePos.x - drawnPos.x, mousePos.y - drawnPos.y);
+				//normalize direction
+				var normalizedClickDir = clickDir.normalize().multiply(this.mouseDownSpeedMultip * GameLoop.deltaTime);
+				this.addForce(normalizedClickDir.x, normalizedClickDir.y);
+			}
+		}
 
 		var moveDir = new Vector2D(0,0);
 		if (this.pressedKeys['ArrowDown']) {

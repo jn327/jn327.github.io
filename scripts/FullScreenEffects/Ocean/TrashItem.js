@@ -69,6 +69,7 @@ function TrashItem(noise, terrain)
     var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
 
     //destroy if we collide with the terrain
+    //TODO: remove or reduce the rate of these calls.
     terrainCheckTimer += GameLoop.deltaTime;
     if (terrainCheckTimer > terrainCheckFreq)
     {

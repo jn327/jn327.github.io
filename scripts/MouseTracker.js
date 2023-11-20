@@ -1,5 +1,5 @@
 var MouseTracker = {};
-MouseTracker.MouseDown = false;
+MouseTracker.bMouseDown = false;
 MouseTracker.mousePos = undefined;
 
 window.addEventListener("mousedown", function(e)

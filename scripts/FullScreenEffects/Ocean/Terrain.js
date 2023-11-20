@@ -54,6 +54,7 @@ function Terrain(noise, centrePos) {
         GameCamera.position.y + Math.getRnd(-spawnRndH, spawnRndH)
       );
 
+      //randomPos = GameCamera.getDrawnPosition(randomPos.x, randomPos.y);
       if (!this.isLand(randomPos.x, randomPos.y))
       {
         vectorFieldParticles.createParticles(1, randomPos, 0.001, randomPos, 0.00001, vectorFieldParticleLifetime);
