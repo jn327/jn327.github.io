@@ -73,27 +73,6 @@ function Player(water, terrain, noise) {
 		}
 
 		var moveDir = undefined;
-		/*if (this.pressedKeys['ArrowDown']) {
-			var forwardDir = this.getForwardDirection();
-			moveDir = new Vector2D(-forwardDir.x,-forwardDir.y);
-		}
-		if (this.pressedKeys['ArrowUp']) {
-			var forwardDir = this.getForwardDirection();
-			moveDir = new Vector2D(forwardDir.x,forwardDir.y);
-		}
-		if (this.pressedKeys['ArrowLeft']) {
-			this.rotation -= GameLoop.deltaTime * this.rotationSpeed;
-		}
-		if (this.pressedKeys['ArrowRight']) {
-			this.rotation += GameLoop.deltaTime * this.rotationSpeed;
-		}
-		if (moveDir != undefined)
-		{
-			moveDir.normalize();
-			moveDir.multiply(GameLoop.deltaTime * this.keyAcceleration);
-			this.addForce(moveDir.x, moveDir.y);
-		}*/
-
 		if (this.pressedKeys['ArrowDown']) { moveDir = new Vector2D(0,1); }
 		if (this.pressedKeys['ArrowUp']) { moveDir = new Vector2D(0,-1); }
 		if (this.pressedKeys['ArrowLeft']) { moveDir = new Vector2D(-1,0); }

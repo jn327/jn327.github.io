@@ -28,7 +28,7 @@ window.addEventListener("mousemove", function(e)
 }, false);
 
 
-/*window.addEventListener("touchstart", function(e)
+window.addEventListener("touchstart", function(e)
 {
   MouseTracker.bMouseDown = true;
   MouseTracker.mousePos = new Vector2D(e.touches[0].pageX/window.innerWidth, e.touches[0].pageY/window.innerHeight);
@@ -47,7 +47,7 @@ window.addEventListener("touchend", function(e)
   {
     onMouseUp();
   }
-}, false); */
+}, false);
 
 window.addEventListener("touchmove", function(e)
 {

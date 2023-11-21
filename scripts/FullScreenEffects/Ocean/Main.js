@@ -157,7 +157,7 @@ function onWindowResize()
 {
   if (validateCanvasSize() == true)
   {
-    //TODO: update noise, player, terrain, water, etc?
+    location.reload();
   }
 }
 
@@ -221,10 +221,18 @@ function update()
       bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
       skyCtx.clearRect(0, 0, skyCanvas.width, skyCanvas.height);
 
+      //TODO: Loop through terrain, sky and water pixels all at once
+      /*var drawStep = 12;
+      for (var x = 0; x < screenWidth; x += drawStep) {
+        for (var y = 0; y < screenHeight; y += drawStep) {
+          terrain.drawStaticItems(x, y, drawStep);
+          sky.drawStaticItems(x, y, drawStep);
+          water.drawStaticItems(x, y, drawStep);
+        }
+      }*/
+
       terrain.draw(bgCtx, bgCanvas.width, bgCanvas.height);
-
       sky.draw(skyCtx, bgCtx, skyCanvas.width, skyCanvas.height);
-
       water.draw(bgCtx, bgCanvas.width, bgCanvas.height);
     }
   }
