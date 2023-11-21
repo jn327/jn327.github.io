@@ -14,6 +14,8 @@ function TrashItem(noise, terrain)
   this.rnd = Math.random();
   this.bobSpeed = 200;
 
+  this.despawnDist = 2000;
+
   this.alpha = 0.75;
   this.minScale = 12;
   this.maxScale = 16;
@@ -90,10 +92,7 @@ function TrashItem(noise, terrain)
         return false;
     }
 
-    let despawnDistMultip = 1;
-    if (xDist > (GameCamera.drawnAreaSize.x * despawnDistMultip) || 
-        yDist > (GameCamera.drawnAreaSize.y * despawnDistMultip)
-    )
+    if (xDist > (this.despawnDist) || yDist > (this.despawnDist))
     {
         return false;
     }

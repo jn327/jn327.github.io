@@ -1,19 +1,20 @@
 function Terrain(noise, centrePos) {
   this.sandColor = '255, 217, 163';
   this.deepColor = '43, 63, 92';
+  this.vegetationColor = '57, 129, 59';
   this.reefThresholdMin = 0.6;
   this.reefThreshold = this.reefThresholdMin;
   this.landThreshold = 0.75;
+  this.vegetationThreshold = 0.825;
+  this.vegetationDeepThreshold = 0.95;
   this.deepThreshold = 0.3;
   this.showDeepWater = true;
 
   this.trashThreshold = 0.5;
 
-  this.showCurlNoise = true;
-
   this.landDotScale = 0.75;
   this.deepDotScale = 0.5;
-  this.deepDotAlphaMultip = 0.75;
+  this.deepDotAlphaMultip = 0.65;
   this.landObsureChangeRate = 0; //0.05;
 
   var vectorFieldParticleCreationRate      = 0.1;
@@ -33,8 +34,6 @@ function Terrain(noise, centrePos) {
   let trashSpawnAngle       = 20;
   let trashSpawnRadius      = 40;
   let trashSpawnDist        = 800;
-
-  var drawStep = 10;
 
   var trashParticles = new ParticleGenerator(
     30,
@@ -125,53 +124,44 @@ function Terrain(noise, centrePos) {
     return this.getHeight(x, y) > this.reefThreshold;
   }
 
-  this.draw = function (ctx, screenWidth, screenHeight) {
-    for (var x = 0; x < screenWidth; x += drawStep) {
-      for (var y = 0; y < screenHeight; y += drawStep) {
-        var simplexVal = this.getHeight(x, y);
-        if (this.showDeepWater && simplexVal < this.deepThreshold) {
-          let alpha = Math.minMaxNormal(simplexVal, 0, this.deepThreshold);
-          alpha = (1 - alpha);
-          let fillStyle = 'rgba(' + this.deepColor + ', ' + (alpha * this.deepDotAlphaMultip) + ')';
+  var deepWaterPath = new Path2D();
+  var sandPath = new Path2D();
+  var vegetationPath = new Path2D();
+  this.updatePathsForLocation = function(x, y, step)
+  {
+    var simplexVal = this.getHeight(x, y);
 
-          let radius = drawStep * alpha;
-          CanvasDrawingUtil.drawCircle(ctx, fillStyle, x, y, radius * this.deepDotScale);
-        }
-        else if (simplexVal > this.reefThreshold) {
-          let alpha = Math.clamp(Math.minMaxNormal(simplexVal, this.reefThreshold, this.landThreshold), 0, 1);
-          let color = this.sandColor;
-          let fillStyle = 'rgba(' + color + ', ' + alpha + ')';
+    if (this.showDeepWater && simplexVal < this.deepThreshold) {
+      let scaleMultip = (1-Math.minMaxNormal(simplexVal, 0, this.deepThreshold));
+      let radius = step * scaleMultip;
+      deepWaterPath.addPath(CanvasDrawingUtil.getCirclePath(x, y, radius * this.deepDotScale));
+    }
+    else if (simplexVal > this.reefThreshold) {
+      let scaleMultip = Math.clamp(Math.minMaxNormal(simplexVal, this.reefThreshold, this.landThreshold), 0, 1);
+      let radius = step * scaleMultip;
+      sandPath.addPath(CanvasDrawingUtil.getCirclePath(x, y, radius * this.landDotScale));
 
-          let radius = drawStep * alpha;
-          CanvasDrawingUtil.drawCircle(ctx, fillStyle, x, y, radius * this.landDotScale);
-        }
-
-        /*if (this.showCurlNoise && simplexVal < this.landThreshold) {
-          ctx.strokeStyle   = '#ffffff';
-          ctx.lineWidth     = 2;
-          ctx.beginPath();
-          var startPoint = new Vector2D(x, y);
-          var curlVal     = noise.getVectorField(x, y);
-          //console.log('curVal at '+x +', '+y +' is '+curlVal.x+', '+curlVal.y);
-          var curlVector  = new Vector2D(curlVal[0], curlVal[1]);
-          var endPoint = startPoint.getSum(curlVector.getMultiplied(6000)); //6000
-          var arrowEdgeDist = curlVector.getMultiplied(0.75); //how far along the arrow starts
-          var arrowEdgePoint = startPoint.getSum(arrowEdgeDist);
-          var perpendicularVector = curlVector.getPerpendicular();
-          perpendicularVector.multiply(0.25); //how wide the arrow is compared to our length
-          var arrowEdgeOne = arrowEdgePoint.getDifference(perpendicularVector);
-          var arrowEdgeTwo = arrowEdgePoint.getSum(perpendicularVector);
-
-          ctx.moveTo(startPoint.x, startPoint.y);
-          ctx.lineTo(endPoint.x, endPoint.y);
-          ctx.lineTo(arrowEdgeOne.x, arrowEdgeOne.y);
-          ctx.moveTo(endPoint.x, endPoint.y);
-          ctx.lineTo(arrowEdgeTwo.x, arrowEdgeTwo.y);
-          ctx.closePath();
-          ctx.stroke();
-        }*/
+      if (simplexVal > this.vegetationThreshold) {
+        scaleMultip = Math.clamp(Math.minMaxNormal(simplexVal, this.vegetationThreshold,  this.vegetationDeepThreshold), 0, 1);
+        radius = step * scaleMultip;
+        vegetationPath.addPath(CanvasDrawingUtil.getCirclePath(x, y, radius * this.landDotScale));
       }
     }
+  }
+
+  this.draw = function (ctx, screenWidth, screenHeight) {
+    
+    ctx.fillStyle = 'rgba(' + this.deepColor + ', ' + this.deepDotAlphaMultip + ')';
+    ctx.fill(deepWaterPath);
+    deepWaterPath = new Path2D();
+    
+    ctx.fillStyle = 'rgba(' + this.sandColor + ', 1)';
+    ctx.fill(sandPath);
+    sandPath = new Path2D();
+
+    ctx.fillStyle = 'rgba('+this.vegetationColor+', 0.5)';
+    ctx.fill(vegetationPath);
+    vegetationPath = new Path2D();
 
     vectorFieldParticles.draw((particle) =>
     {

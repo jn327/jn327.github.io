@@ -13,8 +13,6 @@ function Sky(noise) {
     var birdLifetime = 1000;
     var birdVelocity = 10;
 
-    var drawStep = 18;
-
     var birdParticles = new ParticleGenerator(
         5,
         (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime); },
@@ -50,24 +48,32 @@ function Sky(noise) {
         return simplexVal;
     }
 
-    this.draw = function (ctx, bgCtx, screenWidth, screenHeight) {
-        for (var x = 0; x < screenWidth; x += drawStep) {
-            for (var y = 0; y < screenHeight; y += drawStep) {
-                var simplexVal = this.getHeight(x, y);
-                if (simplexVal > this.cloudThreshold) {
-                    let radiusMultip = Math.clamp(Math.minMaxNormal(simplexVal, this.cloudThreshold, 1), 0, 1);
-                    let fillStyle = 'rgba(' + this.cloudColor + ', ' + this.cloudAlpha + ')';
+    var cloudsPath = new Path2D();
+    var cloudShadowsPath = new Path2D();
+    this.updatePathsForLocation = function(x, y, step)
+    {
+        var simplexVal = this.getHeight(x, y);
+        if (simplexVal > this.cloudThreshold) {
+            let radiusMultip = Math.clamp(Math.minMaxNormal(simplexVal, this.cloudThreshold, 1), 0, 1);
+            let radius = step * radiusMultip;
+            
+            cloudsPath.addPath(CanvasDrawingUtil.getCirclePath(x, y, radius * this.cloudDotScale));
 
-                    let radius = drawStep * radiusMultip;
-                    CanvasDrawingUtil.drawCircle(ctx, fillStyle, x, y, radius * this.cloudDotScale);
-
-                    let shadowOffsetX = 20;
-                    let shadowOffsetY = 20;
-                    fillStyle = 'rgba(' + this.shadowColor + ', ' + this.cloudShadowAlpha + ')';
-                    CanvasDrawingUtil.drawCircle(bgCtx, fillStyle, x + shadowOffsetX, y + shadowOffsetY, radius * this.cloudShadowScale);
-                }
-            }
+            let shadowOffsetX = 20;
+            let shadowOffsetY = 20;
+            cloudShadowsPath.addPath(CanvasDrawingUtil.getCirclePath(x + shadowOffsetX, y + shadowOffsetY, radius * this.cloudShadowScale));
         }
+    }
+
+    this.draw = function (ctx, bgCtx, screenWidth, screenHeight) {
+        
+        ctx.fillStyle = 'rgba(' + this.cloudColor + ', ' + this.cloudAlpha + ')';
+        ctx.fill(cloudsPath);
+        cloudsPath = new Path2D();
+    
+        bgCtx.fillStyle = 'rgba(' + this.shadowColor + ', ' + this.cloudShadowAlpha + ')';
+        bgCtx.fill(cloudShadowsPath);
+        cloudShadowsPath = new Path2D();
 
         birdParticles.draw((particle) =>
         {
