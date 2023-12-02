@@ -296,6 +296,12 @@ function initProjects()
               link        : { url: "https://jn327.github.io/HTML5-Asteroids/", text: "Check it out", isExternal: true },
             },
             {
+              title       : "HTML 5 Canvas boat game",
+              //image       : "",
+              description : ["Small infinite scrolling boat game made with HTML Canvas & Javascript", "Made alone during a 48h game jam."],
+              link        : { url: "pages/ocean.html", text: "Check it out", isExternal: true },
+            },
+            {
               title       : "HTML 5 Canvas vector field",
               //image       : "",
               //description : ["", ""],
