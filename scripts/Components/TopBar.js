@@ -50,11 +50,6 @@ TopBar.init = function( parentElement )
       source: "linkedin"
     },
     {
-      title: "Twitter",
-      link: "https://twitter.com/JoshuaNewland",
-      source: "twitter"
-    },
-    {
       title: "BitBucket",
       link: "https://bitbucket.org/Jn327/",
       source: "bitbucket"
@@ -76,12 +71,12 @@ TopBar.init = function( parentElement )
     }
   ];
 
-  var linkItem;
-  var toolTipItem;
-  var imgItem;
-  var theData;
-  var li;
-  for (var j = 0; j < links.length; j++)
+  let linkItem;
+  let toolTipItem;
+  let imgItem;
+  let theData;
+  let li;
+  for (let j = 0; j < links.length; j++)
   {
     li = document.createElement('li');
     imgList.appendChild(li);
@@ -121,7 +116,7 @@ TopBar.init = function( parentElement )
   toolTipItem.className = 'toolTip';
   toolTipItem.textContent = "Codewars";
 
-  var imgItem = document.createElement('img');
+  imgItem = document.createElement('img');
   imgItem.src ="https://www.codewars.com/users/jn327/badges/micro";
   linkItem.appendChild(imgItem);
   linkItem.appendChild(toolTipItem);

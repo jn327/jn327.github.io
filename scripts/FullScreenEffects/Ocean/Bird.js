@@ -6,8 +6,8 @@ function Bird(noise) {
     this.speedMultip = Math.scaleNormal(Math.random(), 0.9, 1);
     this.friction = Math.scaleNormal(Math.random(), 0.98, 1); //loose this percentage * 100 every second.
 
-    this.minScale = 2;
-    this.maxScale = 4;
+    this.minScale = 4;
+    this.maxScale = 8;
     this.scale = this.minScale;
 
     this.timeAlive = 0;
@@ -71,88 +71,104 @@ function Bird(noise) {
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
 
-        var deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
+        let deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
         this.velocity.multiply(1 - deltaFriction);
 
         return true;
     }
+    
+    this.getVertices = function(flapN, dir, drawnPos, scaleMultip = 1) {
+
+        const scale = this.scale * scaleMultip;
+        const sideDir = new Vector2D(-dir.y, dir.x).normalize();
+
+        const tipDist = scale * scaleMultip;
+        const tipPoint = new Vector2D(drawnPos.x + (tipDist * dir.x), drawnPos.y + (tipDist * dir.y) );
+
+        const beakDist = scale * 0.8;
+        const beakWidth = scale * 0.15;
+        const beakPoint = new Vector2D(drawnPos.x + (beakDist * dir.x), drawnPos.y + (beakDist * dir.y) );
+        const beakSideLeft = new Vector2D(beakPoint.x + (beakWidth * sideDir.x), beakPoint.y + (beakWidth * sideDir.y) );
+        const beakSideRight = new Vector2D(beakPoint.x - (beakWidth * sideDir.x), beakPoint.y - (beakWidth * sideDir.y) );
+
+        const frontSideDist = scale * 0.5;
+        const frontSideWidth = scale * 0.25;
+        const frontSidePoint = new Vector2D(drawnPos.x + (frontSideDist * dir.x), drawnPos.y + (frontSideDist * dir.y) );
+        const frontSideLeft = new Vector2D(frontSidePoint.x + (frontSideWidth * sideDir.x), frontSidePoint.y + (frontSideWidth * sideDir.y) );
+        const frontSideRight = new Vector2D(frontSidePoint.x - (frontSideWidth * sideDir.x), frontSidePoint.y - (frontSideWidth * sideDir.y) );
+        
+        const wingDist = scale * 0.05;
+        const wingFrontDist = scale * 0.6;
+        const wingRearDist = scale * 0.05;
+        const wingWidth = scale * 2.5 * flapN;
+        const wingMidWidth = scale * 1.25 * flapN;
+
+        const wingFrontPoint = new Vector2D(drawnPos.x + (wingFrontDist * dir.x), drawnPos.y + (wingFrontDist * dir.y) );
+        const wingFrontLeft = new Vector2D(wingFrontPoint.x + (wingMidWidth * sideDir.x), wingFrontPoint.y + (wingMidWidth * sideDir.y) );
+        const wingFrontRight = new Vector2D(wingFrontPoint.x - (wingMidWidth * sideDir.x), wingFrontPoint.y - (wingMidWidth * sideDir.y) );
+        
+        const wingPoint = new Vector2D(drawnPos.x + (wingDist * dir.x), drawnPos.y + (wingDist * dir.y) );
+        const wingLeft = new Vector2D(wingPoint.x + (wingWidth * sideDir.x), wingPoint.y + (wingWidth * sideDir.y) );
+        const wingRight = new Vector2D(wingPoint.x - (wingWidth * sideDir.x), wingPoint.y - (wingWidth * sideDir.y) );
+        
+        const wingRearPoint = new Vector2D(drawnPos.x - (wingRearDist * dir.x), drawnPos.y - (wingRearDist * dir.y) );
+        const wingRearLeft = new Vector2D(wingRearPoint.x + (wingMidWidth * sideDir.x), wingRearPoint.y + (wingMidWidth * sideDir.y) );
+        const wingRearRight = new Vector2D(wingRearPoint.x - (wingMidWidth * sideDir.x), wingRearPoint.y - (wingMidWidth * sideDir.y) );
+    
+        const tailBaseDist = scale * 0.4;
+        const tailBaseWidth = scale * 0.2;
+        const tailBasePoint = new Vector2D(drawnPos.x - (tailBaseDist * dir.x), drawnPos.y - (tailBaseDist * dir.y) );
+        const tailBaseLeft = new Vector2D(tailBasePoint.x + (tailBaseWidth * sideDir.x), tailBasePoint.y + (tailBaseWidth * sideDir.y) );
+        const tailBaseRight = new Vector2D(tailBasePoint.x - (tailBaseWidth * sideDir.x), tailBasePoint.y - (tailBaseWidth * sideDir.y) );
+    
+        const tailDist = scale;
+        const tailWidth = scale * 0.3;
+        const tailPoint = new Vector2D(drawnPos.x - (tailDist * dir.x), drawnPos.y - (tailDist * dir.y) );
+        const tailLeft = new Vector2D(tailPoint.x + (tailWidth * sideDir.x), tailPoint.y + (tailWidth * sideDir.y) );
+        const tailRight = new Vector2D(tailPoint.x - (tailWidth * sideDir.x), tailPoint.y - (tailWidth * sideDir.y) );
+    
+        return [
+            tipPoint, 
+            beakSideLeft, frontSideLeft, //left side of head
+            wingFrontLeft, wingLeft, wingRearLeft, //left wing
+            tailBaseLeft, tailLeft, tailRight, tailBaseRight, //tail
+            wingRearRight, wingRight, wingFrontRight, //right wing
+            frontSideRight, beakSideRight  //right side of head
+        ];
+    }
 
     this.draw = function (ctx, bgCtx) {
-        let alphaMultip = 1;
-        if (this.timeAlive < this.spawnFadeInTime) {
-            alphaMultip = this.timeAlive / this.spawnFadeInTime;
+        const alphaMultip = this.timeAlive < this.spawnFadeInTime ? this.timeAlive / this.spawnFadeInTime : 1;
+        
+        const flapN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.currentTime * this.flapSpeed) * 0.5);
+        const flapMultip = Math.scaleNormal(flapN, 0.5, 1);
+
+        const dir = new Vector2D(this.velocity.x, this.velocity.y).normalize();
+        const drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
+
+        const shadowPos = new Vector2D(drawnPos.x + 20, drawnPos.y + 20);
+        const shadowVertices = this.getVertices(flapMultip, dir, shadowPos);
+        this.drawBird(ctx, shadowVertices, "rgba(0, 0, 0, " + 0.25 * alphaMultip + ")");
+
+        const vertices = this.getVertices(flapMultip, dir, drawnPos);
+        this.drawBird(ctx, vertices, "rgba(255, 255, 255, " + alphaMultip + ")");
+    
+        // TODO: Draw beak "rgba(235, 204, 52, " + alphaMultip + ")"
+        // TODO: black tips on wings.
+    }
+
+    this.drawBird = function(ctx, vertices, fillStyle)
+	{
+        ctx.beginPath();
+        ctx.moveTo(vertices[0].x, vertices[0].y);
+        for (let i = 1; i < vertices.length; i++) {
+            ctx.lineTo(vertices[i].x, vertices[i].y);
         }
-
-        let flapN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.currentTime * this.flapSpeed) * 0.5);
-        let flapMultip = Math.scaleNormal(flapN, 0.5, 1);
-
-        let dir = new Vector2D(this.velocity.x, this.velocity.y).normalize();
-
-        var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
-        var tipDist = this.scale;
-        var frontSideDist = this.scale * 5.5 * flapMultip;
-        var rearSideDist = this.scale * 0.4;
-        var bowDist = this.scale * 0.2;
-        var rearPointDist = this.scale * 0.9;
-
-        var tipPoint = new Vector2D(
-            drawnPos.x + (tipDist * dir.x),
-            drawnPos.y + (tipDist * dir.y),
-        );
-
-        var bowStartPoint = new Vector2D(
-            drawnPos.x + (bowDist * dir.x),
-            drawnPos.y + (bowDist * dir.y),
-        );
-
-        var forwardDir = new Vector2D(tipPoint.x - drawnPos.x, tipPoint.y - drawnPos.y); //vector from centre to tip
-        var sideDir = new Vector2D(-forwardDir.y, forwardDir.x); //get the perpendicular vector of that one
-        var sideNormal = sideDir.normalize(); //normalized
-
-        var leftPoint = new Vector2D(
-            bowStartPoint.x + (sideNormal.x * frontSideDist),
-            bowStartPoint.y + (sideNormal.y * frontSideDist)
-        );
-        var rightPoint = new Vector2D(
-            bowStartPoint.x - (sideNormal.x * frontSideDist),
-            bowStartPoint.y - (sideNormal.y * frontSideDist)
-        );
-
-        var rearPoint = new Vector2D(
-            drawnPos.x - (rearPointDist * dir.x),
-            drawnPos.y - (rearPointDist * dir.y),
-        );
-
-        var rearLeftPoint = new Vector2D(
-            rearPoint.x + (sideNormal.x * rearSideDist),
-            rearPoint.y + (sideNormal.y * rearSideDist)
-        );
-        var rearRightPoint = new Vector2D(
-            rearPoint.x - (sideNormal.x * rearSideDist),
-            rearPoint.y - (sideNormal.y * rearSideDist)
-        );
-
-        var vertices = [tipPoint, leftPoint, rearLeftPoint, rearRightPoint, rightPoint];
-
-        const path = new Path2D();
-        path.moveTo(vertices[0].x, vertices[0].y);
-        path.quadraticCurveTo(vertices[1].x, vertices[1].y, vertices[2].x, vertices[2].y);
-        path.lineTo(vertices[3].x, vertices[3].y);
-        path.quadraticCurveTo(vertices[4].x, vertices[4].y, vertices[0].x, vertices[0].y);
-        path.closePath();
-        ctx.fillStyle = "rgba(255, 255, 255, " + alphaMultip + ")";
-        ctx.fill(path);
-
-        var shadowOffsetX = 20;
-        var shadowOffsetY = 20;
-
-        const shadowPath = new Path2D();
-        shadowPath.moveTo(vertices[0].x + shadowOffsetX, vertices[0].y + shadowOffsetY);
-        shadowPath.quadraticCurveTo(vertices[1].x + shadowOffsetX, vertices[1].y + shadowOffsetY, vertices[2].x + shadowOffsetX, vertices[2].y + shadowOffsetY);
-        shadowPath.lineTo(vertices[3].x + shadowOffsetX, vertices[3].y + shadowOffsetY);
-        shadowPath.quadraticCurveTo(vertices[4].x + shadowOffsetX, vertices[4].y + shadowOffsetY, vertices[0].x + shadowOffsetX, vertices[0].y + shadowOffsetY);
-        shadowPath.closePath();
-        bgCtx.fillStyle = "rgba(0, 0, 0, " + 0.25 * alphaMultip + ")";
-        bgCtx.fill(shadowPath);
+        ctx.lineTo(vertices[0].x, vertices[0].y);
+        ctx.closePath();
+    
+        // Fill and stroke the seagull shape
+        ctx.fillStyle =  fillStyle;
+        ctx.fill();
     }
 }

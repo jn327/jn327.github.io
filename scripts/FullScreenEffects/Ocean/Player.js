@@ -91,7 +91,7 @@ function Player(water, terrain, noise) {
 		this.position.y += this.velocity.y;
 
 		//apply friction
-		var deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
+		const deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
 		this.velocity.multiply(1 - deltaFriction);
 
 		//check collisions
@@ -103,48 +103,39 @@ function Player(water, terrain, noise) {
 		});
 	}
 
-	this.getVertices = function(x, y) {
-		var tipDist = this.size;
-		var frontSideDist = this.size * 0.5;
-		var rearSideDist = this.size * 0.4;
-		var bowDist = this.size * 0.4;
-		var rearPointDist = this.size * 0.9;
+	this.getVertices = function(x, y, scaleMultip) {
+		const scale = this.size * scaleMultip;
+		const tipDist = scale;
+		const frontSideDist = scale * 0.5;
+		const rearSideDist = scale * 0.4;
+		const bowDist = scale * 0.4;
+		const rearPointDist = scale * 0.9;
 
-		var dir = this.getForwardDirection();
+		const dir = this.getForwardDirection();
 
-		var tipPoint = new Vector2D(
-			x + (tipDist * dir.x),
-			y + (tipDist * dir.y),
-		);
+		const tipPoint = new Vector2D(x + (tipDist * dir.x), y + (tipDist * dir.y));
+		const bowStartPoint = new Vector2D(x + (bowDist * dir.x), y + (bowDist * dir.y));
 
-		var bowStartPoint = new Vector2D(
-			x + (bowDist * dir.x),
-			y + (bowDist * dir.y),
-		);
+		const forwardDir = new Vector2D(tipPoint.x - x, tipPoint.y - y); //vector from centre to tip
+		const sideDir = new Vector2D(-forwardDir.y, forwardDir.x); //get the perpendicular vector of that one
+		const sideNormal = sideDir.normalize(); //normalized
 
-		var forwardDir = new Vector2D(tipPoint.x - x, tipPoint.y - y); //vector from centre to tip
-		var sideDir = new Vector2D(-forwardDir.y, forwardDir.x); //get the perpendicular vector of that one
-		var sideNormal = sideDir.normalize(); //normalized
-
-		var leftPoint = new Vector2D(
+		const leftPoint = new Vector2D(
 			bowStartPoint.x + (sideNormal.x * frontSideDist),
 			bowStartPoint.y + (sideNormal.y * frontSideDist)
 		);
-		var rightPoint = new Vector2D(
+		const rightPoint = new Vector2D(
 			bowStartPoint.x - (sideNormal.x * frontSideDist),
 			bowStartPoint.y - (sideNormal.y * frontSideDist)
 		);
 
-		var rearPoint = new Vector2D(
-			x - (rearPointDist * dir.x),
-			y - (rearPointDist * dir.y),
-		);
+		const rearPoint = new Vector2D(x - (rearPointDist * dir.x), y - (rearPointDist * dir.y));
 
-		var rearLeftPoint = new Vector2D(
+		const rearLeftPoint = new Vector2D(
 			rearPoint.x + (sideNormal.x * rearSideDist),
 			rearPoint.y + (sideNormal.y * rearSideDist)
 		);
-		var rearRightPoint = new Vector2D(
+		const rearRightPoint = new Vector2D(
 			rearPoint.x - (sideNormal.x * rearSideDist),
 			rearPoint.y - (sideNormal.y * rearSideDist)
 		);
@@ -155,7 +146,7 @@ function Player(water, terrain, noise) {
 	this.onPointCollides = function(callback)
 	{
 		var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
-		let vertices = this.getVertices(drawnPos.x, drawnPos.y);
+		let vertices = this.getVertices(drawnPos.x, drawnPos.y, 1);
 
 		let step = 2;
 		for (var x = drawnPos.x - this.size; x < drawnPos.x + this.size; x += step) {
@@ -171,31 +162,29 @@ function Player(water, terrain, noise) {
 	this.draw = function (ctx) {
 
 		var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
-		let vertices = this.getVertices(drawnPos.x, drawnPos.y);
 
 		//draw the shadow
-		let depth = terrain.getHeight(drawnPos.x, drawnPos.y);
-		depth = 1-depth;
-
-		let shadowOffsetX = depth * 4;
-		let shadowOffsetY = depth * 10;
-		const shadowPath = new Path2D();
-		shadowPath.moveTo(vertices[0].x+shadowOffsetX, vertices[0].y+shadowOffsetY);
-		shadowPath.quadraticCurveTo(vertices[1].x+shadowOffsetX, vertices[1].y+shadowOffsetY, vertices[2].x+shadowOffsetX, vertices[2].y+shadowOffsetY);
-		shadowPath.lineTo(vertices[3].x+shadowOffsetX, vertices[3].y+shadowOffsetY);
-		shadowPath.quadraticCurveTo(vertices[4].x+shadowOffsetX, vertices[4].y+shadowOffsetY, vertices[0].x+shadowOffsetX, vertices[0].y+shadowOffsetY);
-		shadowPath.closePath();
-		ctx.fillStyle="rgba(0, 0, 0, "+(1-depth)+")";
-		ctx.fill(shadowPath);
+		const depth = 1-terrain.getHeight(drawnPos.x, drawnPos.y);
+		const shadowPosX = drawnPos.x + (depth * 4);
+		const shadowPosY = drawnPos.y + (depth * 10);
+		const shadowScale = 1 + (depth*0.25);
+		const shadowVertices = this.getVertices(shadowPosX, shadowPosY, shadowScale);
+		this.drawBoat(ctx, shadowVertices, "rgba(0, 0, 0, "+(1-depth)+")");
 
 		// draw the content
+		const vertices = this.getVertices(drawnPos.x, drawnPos.y, 1);
+		this.drawBoat(ctx, vertices, "#FFFFFF");
+	}
+
+	this.drawBoat = function(ctx, vertices, fillStyle)
+	{
 		const path = new Path2D();
 		path.moveTo(vertices[0].x, vertices[0].y);
 	 	path.quadraticCurveTo(vertices[1].x, vertices[1].y, vertices[2].x, vertices[2].y);
 	  	path.lineTo(vertices[3].x, vertices[3].y);
 	  	path.quadraticCurveTo(vertices[4].x, vertices[4].y, vertices[0].x, vertices[0].y);
 		path.closePath();
-		ctx.fillStyle="#FFFFFF";
+		ctx.fillStyle = fillStyle;
 		ctx.fill(path);
 	}
 }

@@ -8,13 +8,13 @@ function Sky(noise) {
     this.cloudShadowScale = 0.9;
     this.cloudShadowAlpha = 0.25;
 
-    var birdCreationRate = 1;
-    var birdCreationTimer = 0;
-    var birdLifetime = 1000;
-    var birdVelocity = 10;
+    const birdCreationRate = 1;
+    let birdCreationTimer = 0;
+    const birdLifetime = 1000;
+    const birdVelocity = 10;
 
-    var birdParticles = new ParticleGenerator(
-        5,
+    let birdParticles = new ParticleGenerator(
+        10,
         (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime); },
         () => { return new Bird(noise); }
     );
@@ -26,8 +26,8 @@ function Sky(noise) {
         {
             birdCreationTimer = 0;
 
-            let spawnRndW = GameCamera.drawnAreaSize.x * 0.75;
-            let spawnRndH = GameCamera.drawnAreaSize.y * 0.75;
+            const spawnRndW = GameCamera.drawnAreaSize.x * 0.75;
+            const spawnRndH = GameCamera.drawnAreaSize.y * 0.75;
             var randomPos = new Vector2D(
                 GameCamera.position.x + Math.getRnd(-spawnRndW, spawnRndW), 
                 GameCamera.position.y + Math.getRnd(-spawnRndH, spawnRndH)
@@ -43,16 +43,16 @@ function Sky(noise) {
     }
 
     this.getHeight = function (x, y) {
-        var drawnPos = GameCamera.getDrawnPosition(x, y, false);
-        var simplexVal = noise.getScaledNoise(drawnPos.x, drawnPos.y);
+        const drawnPos = GameCamera.getDrawnPosition(x, y, false);
+        const simplexVal = noise.getScaledNoise(drawnPos.x, drawnPos.y);
         return simplexVal;
     }
 
-    var cloudsPath = new Path2D();
-    var cloudShadowsPath = new Path2D();
+    let cloudsPath = new Path2D();
+    let cloudShadowsPath = new Path2D();
     this.updatePathsForLocation = function(x, y, step)
     {
-        var simplexVal = this.getHeight(x, y);
+        let simplexVal = this.getHeight(x, y);
         if (simplexVal > this.cloudThreshold) {
             let radiusMultip = Math.clamp(Math.minMaxNormal(simplexVal, this.cloudThreshold, 1), 0, 1);
             let radius = step * radiusMultip;
