@@ -3,7 +3,7 @@ function Player(water, terrain, noise) {
 	GameObject.call(this);
 
 	this.pressedKeys = {};
-	this.rotation = 0;
+	this.rotation = Math.random() * 360;
 
 	this.keyAcceleration = 3;
 	this.mouseAcceleration = 3;

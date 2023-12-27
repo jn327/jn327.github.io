@@ -9,13 +9,24 @@ function Sky(noise) {
     this.cloudShadowAlpha = 0.25;
 
     const birdCreationRate = 1;
-    let birdCreationTimer = 0;
     const birdLifetime = 1000;
     const birdVelocity = 10;
 
-    let birdParticles = new ParticleGenerator(
+    let birdCreationTimer = 0;
+    const birdParticles = new ParticleGenerator(
         10,
-        (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime); },
+        (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime, false); },
+        () => { return new Bird(noise); }
+    );
+
+    let restingBirdCreationTimer = 0;
+    let restingBirdSpawnAngle    = 20;
+    let restingBirdSpawnRadius   = 20;
+    let nRestingBirdsMin = 6;
+    let nRestingBirdsMax = 10;
+    const restingBirdParticles = new ParticleGenerator(
+        30,
+        (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime, true); },
         () => { return new Bird(noise); }
     );
 
@@ -40,7 +51,34 @@ function Sky(noise) {
             birdParticles.createParticles(1, randomPos, 1, forcePos, birdVelocity, birdLifetime);
         }
 
+        restingBirdCreationTimer += GameLoop.deltaTime;
+        if (restingBirdCreationTimer > birdCreationRate)
+        {
+            restingBirdCreationTimer = 0;
+
+            let playerMoveDir = new Vector2D(player.velocity.x, player.velocity.y);
+            playerMoveDir.x = playerMoveDir.x == 0 ? playerMoveDir.x : 0.05;
+            playerMoveDir.y = playerMoveDir.y == 0 ? playerMoveDir.y : 0.05;
+
+            playerMoveDir.rotate(Math.getRnd(-restingBirdSpawnAngle, restingBirdSpawnAngle));
+            playerMoveDir.normalize();
+
+            const spawnDist = Math.max(GameCamera.drawnAreaSize.x, GameCamera.drawnAreaSize.y);
+            const randomPos = new Vector2D(
+                GameCamera.position.x + (playerMoveDir.x * spawnDist), 
+                GameCamera.position.y + (playerMoveDir.y * spawnDist)
+            );
+
+            const nParticles = Math.getRnd(nRestingBirdsMin, nRestingBirdsMax);
+            restingBirdParticles.createParticles(nParticles, randomPos, restingBirdSpawnRadius, randomPos, 0.00001, birdLifetime);
+        }
+
         birdParticles.update((particle) =>
+        {
+            return particle.update(player);
+        });
+
+        restingBirdParticles.update((particle) =>
         {
             return particle.update(player);
         });
@@ -71,17 +109,23 @@ function Sky(noise) {
 
     this.draw = function (ctx, bgCtx, screenWidth, screenHeight) {
         
-        ctx.fillStyle = 'rgba(' + this.cloudColor + ', ' + this.cloudAlpha + ')';
-        ctx.fill(cloudsPath);
-        cloudsPath = new Path2D();
-    
         bgCtx.fillStyle = 'rgba(' + this.shadowColor + ', ' + this.cloudShadowAlpha + ')';
         bgCtx.fill(cloudShadowsPath);
         cloudShadowsPath = new Path2D();
+
+        restingBirdParticles.draw((particle) =>
+        {
+            particle.draw(ctx, bgCtx);
+        });
 
         birdParticles.draw((particle) =>
         {
             particle.draw(ctx, bgCtx);
         });
+        
+        ctx.fillStyle = 'rgba(' + this.cloudColor + ', ' + this.cloudAlpha + ')';
+        ctx.fill(cloudsPath);
+        cloudsPath = new Path2D();
+
     }
 }

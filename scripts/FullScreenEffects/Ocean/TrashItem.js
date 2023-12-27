@@ -26,7 +26,7 @@ function TrashItem(noise, terrain)
   this.lifeTime = 0;
 
   this.vectorFieldForce = 0;
-  this.collisionDistMultip = 2;
+  this.collisionDistMultip = 3;
 
   this.spawnFadeInTime = 2;
 
@@ -79,26 +79,24 @@ function TrashItem(noise, terrain)
     }
 
     //find out if we collide with the player 
-    let playerPosition = player.getPosition();
-    let xDist = Math.abs(playerPosition.x - this.position.x);
-    let yDist = Math.abs(playerPosition.y - this.position.y);
+    let playerDist = this.position.distance(player.position);
     let collisionDist = this.scale * this.collisionDistMultip;
-    if (xDist < collisionDist && yDist < collisionDist)
+    if (playerDist < collisionDist)
     {
         onTrashCollidesWithPlayer();
         return false;
     }
 
     const despawnDistMultip = 2;
-    if (xDist > (GameCamera.drawnAreaSize.x * despawnDistMultip) ||
-        yDist > (GameCamera.drawnAreaSize.y * despawnDistMultip)
-    ) {
-        return false;
+    const despawnDist = Math.max(GameCamera.drawnAreaSize.x, GameCamera.drawnAreaSize.y) * despawnDistMultip;
+    let cameraDist = this.position.distance(GameCamera.position);
+    if (cameraDist > despawnDist) {
+      return false;
     }
 
     if (this.vectorFieldForce != 0)
     {
-	    let vectorField = noise.getVectorField(drawnPos.x, drawnPos.y);
+	    const vectorField = noise.getVectorField(drawnPos.x, drawnPos.y);
 	    this.addForce(vectorField.x * this.vectorFieldForce, vectorField.y * this.vectorFieldForce);
     }
 

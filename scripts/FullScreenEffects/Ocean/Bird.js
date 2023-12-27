@@ -4,11 +4,19 @@ function Bird(noise) {
 
     this.velocity = new Vector2D(0, 0);
     this.speedMultip = Math.scaleNormal(Math.random(), 0.9, 1);
-    this.friction = Math.scaleNormal(Math.random(), 0.98, 1); //loose this percentage * 100 every second.
+    this.friction = Math.scaleNormal(Math.random(), 0.9, 1); //loose this percentage * 100 every second.
 
     this.minScale = 4;
     this.maxScale = 8;
     this.scale = this.minScale;
+
+	this.rotation = 0;
+    this.rotationSpeed = 200;
+
+    this.isResting = false;
+    this.timeSinceRest = 0;
+    this.playerDistStopResting = 100;
+    this.playerEscapeVelocity = 2;
 
     this.timeAlive = 0;
     this.lifeTime = 0;
@@ -16,7 +24,7 @@ function Bird(noise) {
     this.rnd = Math.random();
     this.flapSpeed = 0.5;
 
-    this.vectorFieldForce = 8;
+    this.vectorFieldForce = 3;
 
     this.spawnFadeInTime = 1;
 
@@ -31,10 +39,15 @@ function Bird(noise) {
         return this.scale;
     }
 
-    this.setup = function (position, force, lifeTime) {
+    this.setup = function (position, force, lifeTime, isResting) {
         this.timeAlive = 0;
         this.position.x = position.x;
         this.position.y = position.y;
+
+        this.isResting = isResting;
+        this.timeSinceRest = 0;
+
+        this.rotation = Math.random() * 360;
 
         this.scale = Math.scaleNormal(Math.random(), this.minScale, this.maxScale);
 
@@ -51,21 +64,33 @@ function Bird(noise) {
             return false;
         }
 
-        const cameraPosition = new Vector2D(GameCamera.position.x, GameCamera.position.y);
-        const xDist = Math.abs(cameraPosition.x - this.position.x);
-        const yDist = Math.abs(cameraPosition.y - this.position.y);
-
         const despawnDistMultip = 2;
-        if (xDist > (GameCamera.drawnAreaSize.x * despawnDistMultip) ||
-            yDist > (GameCamera.drawnAreaSize.y * despawnDistMultip)
-        ) {
+        const despawnDist = Math.max(GameCamera.drawnAreaSize.x, GameCamera.drawnAreaSize.y) * despawnDistMultip;
+        let cameraDist = this.position.distance(GameCamera.position);
+        if (cameraDist > despawnDist) {
             return false;
         }
 
-        if (this.vectorFieldForce != 0) {
-            const drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
-            const vectorField = noise.getVectorField(drawnPos.x, drawnPos.y);
-            this.addForce(vectorField.x * this.vectorFieldForce, vectorField.y * this.vectorFieldForce);
+        if (this.isResting)
+        {
+            //check distance from player, if < a certain amount, then stop resting & add velocity away from player.
+            let playerDist = this.position.distance(player.position);
+            if (playerDist < this.playerDistStopResting)
+            {
+                this.isResting = false;
+                const escForce = this.position.getDifference(player.position).normalize().multiply(this.playerEscapeVelocity);
+                this.addForce(escForce.x, escForce.y);
+            }
+        }
+        else    
+        {
+            this.timeSinceRest += GameLoop.deltaTime;
+
+            if (this.vectorFieldForce != 0) {
+                const drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
+                const vectorField = noise.getVectorField(drawnPos.x, drawnPos.y);
+                this.addForce(vectorField.x * this.vectorFieldForce, vectorField.y * this.vectorFieldForce);
+            }
         }
 
         this.position.x += this.velocity.x;
@@ -74,8 +99,17 @@ function Bird(noise) {
         const deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
         this.velocity.multiply(1 - deltaFriction);
 
+        let forwardDir = this.getForwardDirection();
+	    let angle = forwardDir.signedangleBetween(this.velocity);
+		this.rotation += angle * this.rotationSpeed * GameLoop.deltaTime;
+
         return true;
     }
+
+    this.getForwardDirection = function()
+	{
+		return new Vector2D(1,0).rotate(this.rotation).normalize();
+	}
     
     this.getVertices = function(flapN, dir, drawnPos, scaleMultip = 1) {
 
@@ -140,15 +174,21 @@ function Bird(noise) {
     this.draw = function (ctx, bgCtx) {
         const alphaMultip = this.timeAlive < this.spawnFadeInTime ? this.timeAlive / this.spawnFadeInTime : 1;
         
-        const flapN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.currentTime * this.flapSpeed) * 0.5);
-        const flapMultip = Math.scaleNormal(flapN, 0.5, 1);
+        const restRecoveryTime = 1;
+        const restRecoveryTimeN = Math.min(this.timeSinceRest, restRecoveryTime)/restRecoveryTime;
 
-        const dir = new Vector2D(this.velocity.x, this.velocity.y).normalize();
+        let flapN = 0.5 - (Math.cos(2 * Math.PI * this.rnd * GameLoop.currentTime * this.flapSpeed) * 0.5);
+        let flapMultip = this.isResting ? 0.1 : Math.scaleNormal(flapN, 0.5, 1) * restRecoveryTimeN;
+
+        let dir = this.getForwardDirection();
         const drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
 
-        const shadowPos = new Vector2D(drawnPos.x + 20, drawnPos.y + 20);
-        const shadowVertices = this.getVertices(flapMultip, dir, shadowPos);
-        this.drawBird(ctx, shadowVertices, "rgba(0, 0, 0, " + 0.25 * alphaMultip + ")");
+        if (!this.isResting) {
+            const shadowDist = restRecoveryTimeN * 20;
+            const shadowPos = new Vector2D(drawnPos.x + shadowDist, drawnPos.y + shadowDist);
+            const shadowVertices = this.getVertices(flapMultip, dir, shadowPos);
+            this.drawBird(ctx, shadowVertices, "rgba(0, 0, 0, " + 0.25 * alphaMultip + ")");
+        }
 
         const vertices = this.getVertices(flapMultip, dir, drawnPos);
         this.drawBird(ctx, vertices, "rgba(255, 255, 255, " + alphaMultip + ")");
