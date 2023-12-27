@@ -196,8 +196,8 @@ function update()
     sky.update(player);
 
     //have the camera follow the player
-    var playerPos = player.getPosition();
-    var playerDir = new Vector2D(playerPos.x - GameCamera.position.x, playerPos.y - GameCamera.position.y);
+    const playerPos = player.getPosition();
+    const playerDir = new Vector2D(playerPos.x - GameCamera.position.x, playerPos.y - GameCamera.position.y);
     if (playerDir.magnitude() != 0)
     {
       GameCamera.position.x += playerDir.x * GameLoop.deltaTime * cameraMoveSpeed;

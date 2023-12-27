@@ -17,23 +17,22 @@ function Terrain(noise, centrePos) {
   this.deepDotAlphaMultip = 0.65;
   this.landObsureChangeRate = 0; //0.05;
 
-  var vectorFieldParticleCreationRate      = 0.1;
+  const vectorFieldParticleCreationRate      = 0.1;
   var vectorFieldParticleCreationTimer     = 0;
-  var vectorFieldParticleLifetime          = 0.75;
-  var vectorFieldParticles = new ParticleGenerator(
-    25,
+  const vectorFieldParticleLifetime          = 0.75;
+  const vectorFieldParticles = new ParticleGenerator(
+    20,
     (particle, position, force, lifeTime) => { particle.setup(position, force, lifeTime); },
     () => { return new OceanParticle(noise); }
   );
 
-  var trashCreationRate      = 1;
+  const trashCreationRate      = 1;
   var trashCreationTimer     = 0;
-  var trashLifetime          = 2000;
-  var nTrashMin              = 5;
-  var nTrashMax              = 10;
+  const trashLifetime          = 2000;
+  const nTrashMin              = 5;
+  const nTrashMax              = 10;
   let trashSpawnAngle       = 20;
   let trashSpawnRadius      = 40;
-  let trashSpawnDist        = 800;
 
   var trashParticles = new ParticleGenerator(
     30,
@@ -52,8 +51,8 @@ function Terrain(noise, centrePos) {
     {
       vectorFieldParticleCreationTimer = 0;
 
-      let spawnRndW = GameCamera.drawnAreaSize.x * 0.5;
-      let spawnRndH = GameCamera.drawnAreaSize.y * 0.5;
+      let spawnRndW = GameCamera.drawnAreaSize.x * 0.4;
+      let spawnRndH = GameCamera.drawnAreaSize.y * 0.4;
       var randomPos = new Vector2D(
         GameCamera.position.x + Math.getRnd(-spawnRndW, spawnRndW), 
         GameCamera.position.y + Math.getRnd(-spawnRndH, spawnRndH)
@@ -72,22 +71,23 @@ function Terrain(noise, centrePos) {
       trashCreationTimer = 0;
 
       let playerMoveDir = new Vector2D(player.velocity.x, player.velocity.y);
-      if (playerMoveDir.x != 0 || playerMoveDir.y != 0)
+      playerMoveDir.x = playerMoveDir.x == 0 ? playerMoveDir.x : 0.05;
+      playerMoveDir.y = playerMoveDir.y == 0 ? playerMoveDir.y : 0.05;
+
+      playerMoveDir.rotate(Math.getRnd(-trashSpawnAngle, trashSpawnAngle));
+      playerMoveDir.normalize();
+
+      const spawnDist = Math.max(GameCamera.drawnAreaSize.x, GameCamera.drawnAreaSize.y);
+      const randomPos = new Vector2D(
+        GameCamera.position.x + (playerMoveDir.x * spawnDist), 
+        GameCamera.position.y + (playerMoveDir.y * spawnDist)
+      );
+
+      const drawnPosPos = GameCamera.getDrawnPosition(randomPos.x, randomPos.y);
+      if (this.getHeight(drawnPosPos.x, drawnPosPos.y) <= this.trashThreshold)
       {
-        playerMoveDir.rotate(Math.getRnd(-trashSpawnAngle, trashSpawnAngle));
-        playerMoveDir.normalize();
-
-        var randomPos = new Vector2D(
-          GameCamera.position.x + (playerMoveDir.x * trashSpawnDist), 
-          GameCamera.position.y + (playerMoveDir.y * trashSpawnDist)
-        );
-
-        var drawnPosPos = GameCamera.getDrawnPosition(randomPos.x, randomPos.y);
-        if (this.getHeight(drawnPosPos.x, drawnPosPos.y) <= this.trashThreshold)
-        {
-          var nParticles = Math.getRnd(nTrashMin, nTrashMax);
-          trashParticles.createParticles(nParticles, randomPos, trashSpawnRadius, randomPos, 0.00001, trashLifetime);
-        }
+        const nParticles = Math.getRnd(nTrashMin, nTrashMax);
+        trashParticles.createParticles(nParticles, randomPos, trashSpawnRadius, randomPos, 0.00001, trashLifetime);
       }
     }
 

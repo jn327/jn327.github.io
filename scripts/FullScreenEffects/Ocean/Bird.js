@@ -51,11 +51,11 @@ function Bird(noise) {
             return false;
         }
 
-        var cameraPosition = new Vector2D(GameCamera.position.x, GameCamera.position.y);
-        let xDist = Math.abs(cameraPosition.x - this.position.x);
-        let yDist = Math.abs(cameraPosition.y - this.position.y);
+        const cameraPosition = new Vector2D(GameCamera.position.x, GameCamera.position.y);
+        const xDist = Math.abs(cameraPosition.x - this.position.x);
+        const yDist = Math.abs(cameraPosition.y - this.position.y);
 
-        let despawnDistMultip = 1;
+        const despawnDistMultip = 2;
         if (xDist > (GameCamera.drawnAreaSize.x * despawnDistMultip) ||
             yDist > (GameCamera.drawnAreaSize.y * despawnDistMultip)
         ) {
@@ -63,15 +63,15 @@ function Bird(noise) {
         }
 
         if (this.vectorFieldForce != 0) {
-            var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
-            let vectorField = noise.getVectorField(drawnPos.x, drawnPos.y);
+            const drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
+            const vectorField = noise.getVectorField(drawnPos.x, drawnPos.y);
             this.addForce(vectorField.x * this.vectorFieldForce, vectorField.y * this.vectorFieldForce);
         }
 
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
 
-        let deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
+        const deltaFriction = Math.clamp(this.friction * GameLoop.deltaTime, 0, 1);
         this.velocity.multiply(1 - deltaFriction);
 
         return true;
@@ -153,7 +153,19 @@ function Bird(noise) {
         const vertices = this.getVertices(flapMultip, dir, drawnPos);
         this.drawBird(ctx, vertices, "rgba(255, 255, 255, " + alphaMultip + ")");
     
-        // TODO: Draw beak "rgba(235, 204, 52, " + alphaMultip + ")"
+        // Draw beak
+        let beakEnd = vertices[0];
+        let beakLeft = vertices[1];
+        let beakRight = vertices[vertices.length-1];
+        ctx.beginPath();
+        ctx.moveTo(beakEnd.x, beakEnd.y);
+        ctx.lineTo(beakLeft.x, beakLeft.y);
+        ctx.lineTo(beakRight.x, beakRight.y);
+        ctx.lineTo(beakEnd.x, beakEnd.y);
+        ctx.closePath();
+        ctx.fillStyle =  "rgba(235, 204, 52, " + alphaMultip + ")";
+        ctx.fill();
+
         // TODO: black tips on wings.
     }
 

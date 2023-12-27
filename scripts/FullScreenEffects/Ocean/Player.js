@@ -55,16 +55,16 @@ function Player(water, terrain, noise) {
 		//handle inputs
 		if ( MouseTracker.bMouseDown && MouseTracker.mousePos != undefined )
 		{
-			var mousePos  = new Vector2D(MouseTracker.mousePos.x * canvasW, MouseTracker.mousePos.y * canvasH);
-			var drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
-			var clickDist = drawnPos.distance(mousePos);
+			let mousePos  = new Vector2D(MouseTracker.mousePos.x * canvasW, MouseTracker.mousePos.y * canvasH);
+			let drawnPos = GameCamera.getDrawnPosition(this.position.x, this.position.y);
+			let clickDist = drawnPos.distance(mousePos);
 			if (clickDist != 0)
 			{
 				//add acceleration to the player in the direction vector between thispos and playerpos
-				var clickDir = new Vector2D(mousePos.x - drawnPos.x, mousePos.y - drawnPos.y).normalize();
-				var forwardDir = this.getForwardDirection();
+				const clickDir = new Vector2D(mousePos.x - drawnPos.x, mousePos.y - drawnPos.y).normalize();
+				let forwardDir = this.getForwardDirection();
 
-				let angle = forwardDir.signedangleBetween(clickDir);
+				const angle = forwardDir.signedangleBetween(clickDir);
 				this.rotation += angle * this.mouseRotationSpeed * GameLoop.deltaTime;
 
 				forwardDir.multiply(this.mouseAcceleration * GameLoop.deltaTime);
@@ -73,13 +73,13 @@ function Player(water, terrain, noise) {
 		}
 
 		var moveDir = undefined;
-		if (this.pressedKeys['ArrowDown']) { moveDir = new Vector2D(0,1); }
-		if (this.pressedKeys['ArrowUp']) { moveDir = new Vector2D(0,-1); }
-		if (this.pressedKeys['ArrowLeft']) { moveDir = new Vector2D(-1,0); }
-		if (this.pressedKeys['ArrowRight']) { moveDir = new Vector2D(1,0); }
+		if (this.pressedKeys['ArrowDown'] || this.pressedKeys['s']) { moveDir = new Vector2D(0,1); }
+		if (this.pressedKeys['ArrowUp'] || this.pressedKeys['w']) { moveDir = new Vector2D(0,-1); }
+		if (this.pressedKeys['ArrowLeft'] || this.pressedKeys['a']) { moveDir = new Vector2D(-1,0); }
+		if (this.pressedKeys['ArrowRight'] || this.pressedKeys['d']) { moveDir = new Vector2D(1,0); }
 		if (moveDir != undefined)
 		{
-			var forwardDir = this.getForwardDirection();
+			let forwardDir = this.getForwardDirection();
 			let angle = forwardDir.signedangleBetween(moveDir);
 			this.rotation += angle * this.mouseRotationSpeed * GameLoop.deltaTime;
 			forwardDir.multiply(this.mouseAcceleration * GameLoop.deltaTime);

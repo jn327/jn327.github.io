@@ -14,8 +14,6 @@ function TrashItem(noise, terrain)
   this.rnd = Math.random();
   this.bobSpeed = 200;
 
-  this.despawnDist = 2000;
-
   this.alpha = 0.75;
   this.minScale = 12;
   this.maxScale = 16;
@@ -81,10 +79,9 @@ function TrashItem(noise, terrain)
     }
 
     //find out if we collide with the player 
-    var playerPosition = player.getPosition();
-    playerPosition = GameCamera.getDrawnPosition(playerPosition.x, playerPosition.y);
-    let xDist = Math.abs(playerPosition.x - drawnPos.x);
-    let yDist = Math.abs(playerPosition.y - drawnPos.y);
+    let playerPosition = player.getPosition();
+    let xDist = Math.abs(playerPosition.x - this.position.x);
+    let yDist = Math.abs(playerPosition.y - this.position.y);
     let collisionDist = this.scale * this.collisionDistMultip;
     if (xDist < collisionDist && yDist < collisionDist)
     {
@@ -92,8 +89,10 @@ function TrashItem(noise, terrain)
         return false;
     }
 
-    if (xDist > (this.despawnDist) || yDist > (this.despawnDist))
-    {
+    const despawnDistMultip = 2;
+    if (xDist > (GameCamera.drawnAreaSize.x * despawnDistMultip) ||
+        yDist > (GameCamera.drawnAreaSize.y * despawnDistMultip)
+    ) {
         return false;
     }
 

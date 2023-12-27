@@ -26,14 +26,18 @@ function Sky(noise) {
         {
             birdCreationTimer = 0;
 
-            const spawnRndW = GameCamera.drawnAreaSize.x * 0.75;
-            const spawnRndH = GameCamera.drawnAreaSize.y * 0.75;
-            var randomPos = new Vector2D(
-                GameCamera.position.x + Math.getRnd(-spawnRndW, spawnRndW), 
-                GameCamera.position.y + Math.getRnd(-spawnRndH, spawnRndH)
+            const spawnDist = Math.max(GameCamera.drawnAreaSize.x, GameCamera.drawnAreaSize.y);
+            const spawnDir = new Vector2D(Math.getRnd(-1, 1), Math.getRnd(-1, 1)).normalize();
+            const randomPos = new Vector2D(
+                GameCamera.position.x + (spawnDir.x * spawnDist), 
+                GameCamera.position.y + (spawnDir.y * spawnDist)
             );
 
-            birdParticles.createParticles(1, randomPos, 1, randomPos, birdVelocity, birdLifetime);
+            const playerPos = player.getPosition();
+            const playerDir = new Vector2D(playerPos.x - randomPos.x, playerPos.y - randomPos.y);
+            const forcePos = new Vector2D(randomPos.x - playerDir.x, randomPos.y - playerDir.y);
+
+            birdParticles.createParticles(1, randomPos, 1, forcePos, birdVelocity, birdLifetime);
         }
 
         birdParticles.update((particle) =>
