@@ -108,41 +108,42 @@ function Player(terrain) {
 	this.getVertices = function(x, y, scaleMultip) {
 		const scale = this.size * scaleMultip;
 		const tipDist = scale;
-		const frontSideDist = scale * 0.5;
-		const rearSideDist = scale * 0.4;
-		const bowDist = scale * 0.4;
-		const rearPointDist = scale * 0.9;
+		const frontSideDist = scale * 0.3;
+		const rearSideDist = scale;
+		const frontDist = scale * 0.6;
+		const rearDist = scale * 0.3;
+		const rearPointDist = scale;
 
 		const dir = this.getForwardDirection();
+		const sideDir = new Vector2D(-dir.y, dir.x).normalize(); //get the perpendicular vector
 
 		const tipPoint = new Vector2D(x + (tipDist * dir.x), y + (tipDist * dir.y));
-		const bowStartPoint = new Vector2D(x + (bowDist * dir.x), y + (bowDist * dir.y));
+		const frontStartPoint = new Vector2D(x + (frontDist * dir.x), y + (frontDist * dir.y));
 
-		const forwardDir = new Vector2D(tipPoint.x - x, tipPoint.y - y); //vector from centre to tip
-		const sideDir = new Vector2D(-forwardDir.y, forwardDir.x); //get the perpendicular vector of that one
-		const sideNormal = sideDir.normalize(); //normalized
-
-		const leftPoint = new Vector2D(
-			bowStartPoint.x + (sideNormal.x * frontSideDist),
-			bowStartPoint.y + (sideNormal.y * frontSideDist)
+		const frontLeftPoint = new Vector2D(
+			frontStartPoint.x + (sideDir.x * frontSideDist),
+			frontStartPoint.y + (sideDir.y * frontSideDist)
 		);
-		const rightPoint = new Vector2D(
-			bowStartPoint.x - (sideNormal.x * frontSideDist),
-			bowStartPoint.y - (sideNormal.y * frontSideDist)
+		const frontRightPoint = new Vector2D(
+			frontStartPoint.x - (sideDir.x * frontSideDist),
+			frontStartPoint.y - (sideDir.y * frontSideDist)
+		);
+
+		//rear
+		const rearStartPoint = new Vector2D(x - (rearDist * dir.x), y - (rearDist * dir.y));
+
+		const rearLeftPoint = new Vector2D(
+			rearStartPoint.x + (sideDir.x * rearSideDist),
+			rearStartPoint.y + (sideDir.y * rearSideDist)
+		);
+		const rearRightPoint = new Vector2D(
+			rearStartPoint.x - (sideDir.x * rearSideDist),
+			rearStartPoint.y - (sideDir.y * rearSideDist)
 		);
 
 		const rearPoint = new Vector2D(x - (rearPointDist * dir.x), y - (rearPointDist * dir.y));
 
-		const rearLeftPoint = new Vector2D(
-			rearPoint.x + (sideNormal.x * rearSideDist),
-			rearPoint.y + (sideNormal.y * rearSideDist)
-		);
-		const rearRightPoint = new Vector2D(
-			rearPoint.x - (sideNormal.x * rearSideDist),
-			rearPoint.y - (sideNormal.y * rearSideDist)
-		);
-
-		return [tipPoint, leftPoint, rearLeftPoint, rearRightPoint, rightPoint];
+		return [tipPoint, frontLeftPoint, rearLeftPoint, rearPoint, rearRightPoint, frontRightPoint];
 	}
 
 	this.onPointCollides = function(callback)
@@ -179,21 +180,46 @@ function Player(terrain) {
 		const vertices = this.getVertices(drawnPos.x, drawnPos.y, jumpScale);
 		this.drawVertices(ctx, vertices, "#3fb83d");
 
-        //draw jump force
-        const jumpDir = this.getForwardDirection().multiply(this.jumpForce * this.jumpForceLineLengthMultip);
+		this.drawEye(ctx, vertices[1], jumpScale);
+		this.drawEye(ctx, vertices[vertices.length-1], jumpScale);
 
+        //draw jump force
+        /*const jumpDir = this.getForwardDirection().multiply(this.jumpForce * this.jumpForceLineLengthMultip);
 		ctx.beginPath();
         ctx.moveTo(drawnPos.x, drawnPos.y);
         ctx.lineTo(drawnPos.x + jumpDir.x, drawnPos.y + jumpDir.y);
-        ctx.stroke();
+        ctx.stroke();*/
+	}
+
+	this.drawEye = function(ctx, location, scale)
+	{
+		const eyeSize = this.size * scale * 0.2;
+		const pupilSize = eyeSize * 0.2;
+
+		ctx.beginPath();
+		ctx.arc(location.x, location.y, eyeSize, 0, 2 * Math.PI);
+		ctx.fillStyle = "#ffffff";
+		ctx.fill();
+
+		let dotLocation = new Vector2D(location.x, location.y);
+		if (MouseTracker.mousePos != undefined){
+			const mousePos  = new Vector2D(MouseTracker.mousePos.x * GameCamera.drawnAreaSize.x, MouseTracker.mousePos.y * GameCamera.drawnAreaSize.y);
+			const mouseDir = mousePos.getDifference(dotLocation).normalize();
+			dotLocation.x += mouseDir.x * eyeSize * 0.5;
+			dotLocation.y += mouseDir.y * eyeSize * 0.5;
+		}
+
+		ctx.beginPath();
+		ctx.arc(dotLocation.x, dotLocation.y, pupilSize, 0, 2 * Math.PI);
+		ctx.fillStyle = "#000000";
+		ctx.fill();
 	}
 
 	this.drawVertices = function(ctx, vertices, fillStyle)
 	{
 		const path = new Path2D();
 		path.moveTo(vertices[0].x, vertices[0].y);
-	 	path.quadraticCurveTo(vertices[1].x, vertices[1].y, vertices[2].x, vertices[2].y);
-	  	path.lineTo(vertices[3].x, vertices[3].y);
+	 	path.quadraticCurveTo(vertices[2].x, vertices[2].y, vertices[3].x, vertices[3].y);
 	  	path.quadraticCurveTo(vertices[4].x, vertices[4].y, vertices[0].x, vertices[0].y);
 		path.closePath();
 		ctx.fillStyle = fillStyle;
