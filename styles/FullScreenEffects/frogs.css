@@ -1,0 +1,39 @@
+.pausedLabel 
+{
+    font-size: 80px;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    color: white;
+    text-shadow: 2px 2px #00000055;
+}
+
+.deadLabel
+{
+    font-size: 80px;
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    color: white; 
+    text-shadow: 2px 2px #00000055;
+}
+
+.scoreLabel
+{
+    font-size: 40px;
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    color: white; 
+    text-shadow: 2px 2px #00000055;
+}
+
+.fpsLabel
+{
+    font-size: 20px;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    color: white; 
+    text-shadow: 2px 2px #00000055;
+}
